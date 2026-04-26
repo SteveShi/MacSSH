@@ -18,10 +18,10 @@ A modern, high-performance SSH & SFTP client for macOS, powered by the **Ghostty
 
 ## Installation
 
-You can install **MacSSH** via [Steve's Homebrew Tap](https://github.com/lpgneg19/homebrew-tap):
+You can install **MacSSH** via [Steve's Homebrew Tap](https://github.com/SteveShi/homebrew-tap):
 
 ```bash
-brew tap lpgneg19/tap
+brew tap SteveShi/tap
 brew install --cask macssh
 ```
 
@@ -35,7 +35,7 @@ brew install --cask macssh
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/lpgneg19/MacSSH.git
+   git clone https://github.com/SteveShi/MacSSH.git
    cd MacSSH
    ```
 
