@@ -2,6 +2,35 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.1.0] - 2026-05-16
+
+### Added
+- Rebuilt the embedded Ghostty terminal dependency from the latest upstream source and refreshed the bundled macOS library products.
+
+### Changed
+- Updated the Ghostty build helper to use the official Zig 0.15.2 toolchain requirement and copy the current upstream artifact layout.
+- Updated the application bundle identifier to `com.steveshi.macssh`.
+
+### Fixed
+- Fixed saved-password SSH sessions becoming unresponsive after login by handing terminal control back to the interactive SSH process after authentication.
+- Removed stale temporary SSH password handoff files and made new handoff files clean themselves up after launch.
+
+---
+
+### Chinese
+### 新增
+- 基于最新上游源码重新编译内置 Ghostty 终端依赖，并刷新随应用打包的 macOS 库产物。
+
+### 变更
+- 更新 Ghostty 构建辅助脚本，遵循官方 Zig 0.15.2 工具链要求，并复制当前上游产物布局。
+- 将应用 Bundle Identifier 更新为 `com.steveshi.macssh`。
+
+### 修复
+- 修复保存密码的 SSH 会话在登录后运行命令无响应的问题，认证完成后会将终端控制权交还给交互式 SSH 进程。
+- 清理旧的 SSH 密码交接临时文件，并让新的交接文件在启动后自动删除。
+
+---
+
 ## [1.0.0] - 2026-03-29
 
 ### Added

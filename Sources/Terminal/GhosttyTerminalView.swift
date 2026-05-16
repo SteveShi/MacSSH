@@ -41,22 +41,26 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
                 let expectScript = """
                 #!/usr/bin/expect -f
-                set fp [open "\(pwdPath)" r]
+                set fp [open \(Self.tclQuoted(pwdPath)) r]
                 set pwd [read -nonewline $fp]
                 close $fp
-                set timeout -1
-                spawn /usr/bin/ssh -p \(connection.port) -o StrictHostKeyChecking=no \(connection.username)@\(connection.host)
+                file delete -force \(Self.tclQuoted(pwdPath))
+                file delete -force [info script]
+                set timeout 30
+                spawn /usr/bin/ssh -p \(connection.port) -o StrictHostKeyChecking=no -- \(Self.tclQuoted("\(connection.username)@\(connection.host)"))
                 expect {
-                    "*assword:*" { send "$pwd\\r"; exp_continue }
-                    "*yes/no*" { send "yes\\r"; exp_continue }
+                    -nocase "*yes/no*" { send -- "yes\\r"; exp_continue }
+                    -nocase "*assword:*" { send -- "$pwd\\r" }
+                    timeout {}
                     eof { exit }
                 }
+                set timeout -1
                 interact
                 """
                 try? expectScript.write(toFile: scriptPath, atomically: true, encoding: .utf8)
                 try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: scriptPath)
 
-                config.command = "/usr/bin/expect \(scriptPath)"
+                config.command = "/usr/bin/expect \(Self.shellQuoted(scriptPath))"
             } else {
                 var commandParts = ["/usr/bin/ssh"]
                 commandParts.append("-p")
@@ -67,14 +71,14 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 if connection.usePublicKey {
                     if let keyPath = connection.keyPath, !keyPath.isEmpty {
                         commandParts.append("-i")
-                        commandParts.append(keyPath)
+                        commandParts.append(Self.shellQuoted(keyPath))
                     } else if let defaultKey = connection.defaultKeyPath {
                         commandParts.append("-i")
-                        commandParts.append(defaultKey)
+                        commandParts.append(Self.shellQuoted(defaultKey))
                     }
                 }
 
-                commandParts.append("\(connection.username)@\(connection.host)")
+                commandParts.append(Self.shellQuoted("\(connection.username)@\(connection.host)"))
                 config.command = commandParts.joined(separator: " ")
             }
         } else {
@@ -100,4 +104,30 @@ struct GhosttyTerminalView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {}
+
+    private static func shellQuoted(_ value: String) -> String {
+        "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
+    private static func tclQuoted(_ value: String) -> String {
+        var result = "\""
+        for character in value {
+            switch character {
+            case "\\":
+                result += "\\\\"
+            case "\"":
+                result += "\\\""
+            case "$":
+                result += "\\$"
+            case "[":
+                result += "\\["
+            case "]":
+                result += "\\]"
+            default:
+                result.append(character)
+            }
+        }
+        result += "\""
+        return result
+    }
 }
