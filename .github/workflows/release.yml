@@ -216,7 +216,12 @@ jobs:
           cd tap-repo
           
           sed -i '' "s/version \".*\"/version \"$VERSION\"/" Casks/macssh.rb
-          sed -i '' "s/sha256 \".*\"/sha256 \"$SHA256\"/" Casks/macssh.rb
+          sed -i '' -E "s/sha256 (\"[a-f0-9]+\"|:no_check)/sha256 \"$SHA256\"/" Casks/macssh.rb
+
+          if grep -q 'sha256 :no_check' Casks/macssh.rb; then
+            echo "ERROR: sha256 is still :no_check after update."
+            exit 1
+          fi
           
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
