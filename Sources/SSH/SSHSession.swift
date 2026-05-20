@@ -29,7 +29,7 @@ actor SSHSession {
     private var pendingHostStatus: HostKeyStatus?
     private var pendingUsername: String?
 
-    func withRawSession<T>(_ body: (OpaquePointer) throws -> T) throws -> T {
+    func withRawSession<T: Sendable>(_ body: @Sendable (OpaquePointer) throws -> T) throws -> T {
         guard let session else { throw SSHError.notConnected }
         libssh2_session_set_blocking(session, 1)
         defer { libssh2_session_set_blocking(session, 0) }
@@ -161,7 +161,7 @@ actor SSHSession {
     }
 
     func executeCommand(_ command: String) async throws -> String {
-        try await withRawSession { sessionPtr in
+        try withRawSession { sessionPtr in
             guard let channel = libssh2_channel_open_ex(
                 sessionPtr,
                 "session",
@@ -173,6 +173,10 @@ actor SSHSession {
             ) else {
                 throw SSHError.channelOpenFailed
             }
+            defer {
+                libssh2_channel_close(channel)
+                libssh2_channel_free(channel)
+            }
             
             let rc = libssh2_channel_process_startup(
                 channel,
@@ -182,7 +186,6 @@ actor SSHSession {
                 UInt32(command.utf8.count)
             )
             guard rc == 0 else {
-                libssh2_channel_free(channel)
                 throw SSHError.shellFailed(rc)
             }
             
@@ -197,13 +200,13 @@ actor SSHSession {
                 } else if bytesRead == 0 {
                     break
                 } else {
+                    // Under blocking mode (which withRawSession enforces), the call blocks
+                    // and EAGAIN won't be returned, so checking < 0 and breaking is correct and safe.
                     break
                 }
             }
             
             libssh2_channel_send_eof(channel)
-            libssh2_channel_close(channel)
-            libssh2_channel_free(channel)
             
             return String(decoding: resultData, as: UTF8.self)
         }
