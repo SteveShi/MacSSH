@@ -238,6 +238,18 @@ final class AppModel {
         return result
     }
 
+    func recordHistory(for connectionID: SSHConnection.ID, isSuccess: Bool) {
+        guard let index = connections.firstIndex(where: { $0.id == connectionID }) else { return }
+        var currentHistory = connections[index].history ?? []
+        let newEntry = ConnectionHistoryEntry(timestamp: Date(), isSuccess: isSuccess)
+        currentHistory.insert(newEntry, at: 0)
+        if currentHistory.count > 10 {
+            currentHistory = Array(currentHistory.prefix(10))
+        }
+        connections[index].history = currentHistory
+        persist()
+    }
+
     private func persist() {
         ConnectionsStore.save(connections)
         persistTabs()
