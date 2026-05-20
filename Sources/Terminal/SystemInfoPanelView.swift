@@ -154,7 +154,7 @@ struct SystemInfoPanelView: View {
             VStack(alignment: .leading, spacing: 8) {
                 specRow(title: String(localized: "OS"), value: metrics.osName)
                 specRow(title: String(localized: "Uptime"), value: formatUptime(metrics.uptimeSeconds))
-                specRow(title: String(localized: "CPU"), value: "\(metrics.cpuModel) (\(metrics.cpuCores) cores)")
+                specRow(title: String(localized: "CPU"), value: "\(metrics.cpuModel) (\(String(localized: "\(metrics.cpuCores) cores")))")
                 specRow(title: String(localized: "Memory"), value: formatBytes(metrics.memoryTotalBytes))
                 
                 // Disk Row with progress
@@ -247,30 +247,16 @@ struct SystemInfoPanelView: View {
     }
 
     private func formatBytes(_ bytes: UInt64) -> String {
-        let kb = Double(bytes) / 1024.0
-        let mb = kb / 1024.0
-        let gb = mb / 1024.0
-        if gb >= 1.0 {
-            return String(format: "%.2f GB", gb)
-        } else if mb >= 1.0 {
-            return String(format: "%.1f MB", mb)
-        } else if kb >= 1.0 {
-            return String(format: "%.0f KB", kb)
-        } else {
-            return "\(bytes) Bytes"
-        }
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useAll]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: Int64(bytes))
     }
 
     private func formatUptime(_ seconds: Int) -> String {
-        let days = seconds / 86400
-        let hours = (seconds % 86400) / 3600
-        let minutes = (seconds % 3600) / 60
-        if days > 0 {
-            return "\(days)d \(hours)h"
-        } else if hours > 0 {
-            return "\(hours)h \(minutes)m"
-        } else {
-            return "\(minutes)m"
-        }
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.day, .hour, .minute]
+        formatter.unitsStyle = .abbreviated
+        return formatter.string(from: TimeInterval(seconds)) ?? ""
     }
 }
