@@ -40,88 +40,88 @@ struct SystemInfoPanelView: View {
             
             Divider()
             
-            // Load, CPU
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Load"))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    Text(String(format: "%.2f / %.2f / %.2f", metrics.load1Min, metrics.load5Min, metrics.load15Min))
-                        .font(.system(size: 12, weight: .semibold))
-                }
-                Spacer()
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "CPU"))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    HStack(spacing: 8) {
-                        ProgressView(value: min(max(metrics.cpuUsage / 100.0, 0.0), 1.0))
-                            .progressViewStyle(.linear)
-                            .tint(.blue)
-                            .frame(width: 80)
-                        Text(String(format: "%.1f%%", metrics.cpuUsage))
-                            .font(.system(size: 11, weight: .semibold))
+            // 使用原生 Grid 保持两列完美的左右对齐
+            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
+                // 第一行: Load, CPU
+                GridRow {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "Load"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        Text(String(format: String(localized: "%.2f / %.2f / %.2f"), metrics.load1Min, metrics.load5Min, metrics.load15Min))
+                            .font(.system(size: 12, weight: .semibold))
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "CPU"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        HStack(spacing: 8) {
+                            ProgressView(value: min(max(metrics.cpuUsage / 100.0, 0.0), 1.0))
+                                .progressViewStyle(.linear)
+                                .tint(.blue)
+                                .frame(width: 80)
+                            Text(metrics.cpuUsage / 100.0, format: .percent.precision(.fractionLength(1)))
+                                .font(.system(size: 11, weight: .semibold))
+                        }
                     }
                 }
-            }
-            
-            // Memory, Network
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Memory"))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    let memPercent = metrics.memoryTotalBytes > 0 ? Double(metrics.memoryUsedBytes) / Double(metrics.memoryTotalBytes) : 0.0
-                    HStack(spacing: 8) {
-                        ProgressView(value: min(max(memPercent, 0.0), 1.0))
-                            .progressViewStyle(.linear)
-                            .tint(.green)
-                            .frame(width: 80)
-                        Text(String(format: "%.0f%%", memPercent * 100.0))
+                
+                // 第二行: Memory, Network
+                GridRow {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "Memory"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        let memPercent = metrics.memoryTotalBytes > 0 ? Double(metrics.memoryUsedBytes) / Double(metrics.memoryTotalBytes) : 0.0
+                        HStack(spacing: 8) {
+                            ProgressView(value: min(max(memPercent, 0.0), 1.0))
+                                .progressViewStyle(.linear)
+                                .tint(.green)
+                                .frame(width: 80)
+                            Text(memPercent, format: .percent.precision(.fractionLength(0)))
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        Text(String(format: String(localized: "%@ / %@"), formatBytes(metrics.memoryUsedBytes), formatBytes(metrics.memoryTotalBytes)))
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "Network"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.down")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(.green)
+                            Text(String(format: String(localized: "%@/s"), formatBytes(UInt64(metrics.networkRxSpeedBytes))))
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        HStack(spacing: 8) {
+                            Image(systemName: "arrow.up")
+                                .font(.system(size: 9, weight: .semibold))
+                                .foregroundStyle(.blue)
+                            Text(String(format: String(localized: "%@/s"), formatBytes(UInt64(metrics.networkTxSpeedBytes))))
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                    }
+                }
+                
+                // 第三行: Swap, Processes
+                GridRow {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "Swap"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        Text(String(format: String(localized: "%@ / %@"), formatBytes(metrics.swapUsedBytes), formatBytes(metrics.swapTotalBytes)))
                             .font(.system(size: 11, weight: .semibold))
                     }
-                    Text(String(localized: "\(formatBytes(metrics.memoryUsedBytes)) / \(formatBytes(metrics.memoryTotalBytes))"))
-                        .font(.system(size: 9))
-                        .foregroundStyle(.secondary)
-                }
-                Spacer()
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Network"))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.down")
-                            .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(.green)
-                        Text(String(localized: "\(formatBytes(UInt64(metrics.networkRxSpeedBytes)))/s"))
-                            .font(.system(size: 11, weight: .semibold))
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(localized: "Processes"))
+                            .font(.system(size: 10, weight: .medium))
+                            .foregroundStyle(.secondary)
+                        Text(metrics.processCount, format: .number)
+                            .font(.system(size: 12, weight: .semibold))
                     }
-                    HStack(spacing: 8) {
-                        Image(systemName: "arrow.up")
-                            .font(.system(size: 9, weight: .semibold))
-                            .foregroundStyle(.blue)
-                        Text(String(localized: "\(formatBytes(UInt64(metrics.networkTxSpeedBytes)))/s"))
-                            .font(.system(size: 11, weight: .semibold))
-                    }
-                }
-            }
-            
-            // Swap, Processes
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Swap"))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    Text(String(localized: "\(formatBytes(metrics.swapUsedBytes)) / \(formatBytes(metrics.swapTotalBytes))"))
-                        .font(.system(size: 11, weight: .semibold))
-                }
-                Spacer()
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(String(localized: "Processes"))
-                        .font(.system(size: 10, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    Text(metrics.processCount, format: .number)
-                        .font(.system(size: 12, weight: .semibold))
                 }
             }
         }
@@ -169,7 +169,7 @@ struct SystemInfoPanelView: View {
                     Text(String(localized: "CPU"))
                         .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text(String(localized: "\(metrics.cpuModel) (\(metrics.cpuCores) cores)"))
+                    Text(String(format: String(localized: "%@ (%lld cores)"), metrics.cpuModel, Int64(metrics.cpuCores)))
                         .font(.system(size: 11, weight: .medium))
                 }
                 GridRow {
@@ -189,10 +189,10 @@ struct SystemInfoPanelView: View {
                             ProgressView(value: min(max(diskPercent, 0.0), 1.0))
                                 .progressViewStyle(.linear)
                                 .tint(.blue)
-                            Text(String(format: "%.0f%%", diskPercent * 100.0))
+                            Text(diskPercent, format: .percent.precision(.fractionLength(0)))
                                 .font(.system(size: 11, weight: .semibold))
                         }
-                        Text(String(localized: "\(formatBytes(metrics.diskUsedBytes)) / \(formatBytes(metrics.diskTotalBytes))"))
+                        Text(String(format: String(localized: "%@ / %@"), formatBytes(metrics.diskUsedBytes), formatBytes(metrics.diskTotalBytes)))
                             .font(.system(size: 9))
                             .foregroundStyle(.secondary)
                     }
@@ -254,19 +254,6 @@ struct SystemInfoPanelView: View {
             RoundedRectangle(cornerRadius: 12)
                 .stroke(Color(NSColor.separatorColor).opacity(0.5), lineWidth: 1)
         )
-    }
-
-    private func specRow(title: String, value: String) -> some View {
-        HStack(alignment: .top) {
-            Text(title)
-                .font(.system(size: 11, weight: .medium))
-                .foregroundStyle(.secondary)
-                .frame(width: 60, alignment: .leading)
-            Text(value)
-                .font(.system(size: 11, weight: .medium))
-                .multilineTextAlignment(.leading)
-            Spacer()
-        }
     }
 
     private func formatBytes(_ bytes: UInt64) -> String {
