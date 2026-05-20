@@ -368,14 +368,16 @@ final class TerminalSessionViewModel {
                 let softirq = parts.count > 6 ? parts[6] : 0
                 let steal = parts.count > 7 ? parts[7] : 0
                 
-                let totalTicks = user + nice + system + idle + iowait + irq + softirq + steal
-                let idleTicks = idle + iowait
+                let totalTicks = user &+ nice &+ system &+ idle &+ iowait &+ irq &+ softirq &+ steal
+                let idleTicks = idle &+ iowait
                 
                 if let prev = prevCpu {
                     let diffTotal = totalTicks >= prev.total ? totalTicks - prev.total : 0
                     let diffIdle = idleTicks >= prev.idle ? idleTicks - prev.idle : 0
-                    if diffTotal > 0 {
+                    if diffTotal > 0, diffTotal >= diffIdle {
                         newMetrics.cpuUsage = Double(diffTotal - diffIdle) / Double(diffTotal) * 100.0
+                    } else {
+                        newMetrics.cpuUsage = 0.0
                     }
                 }
                 prevCpu = (user, system, idle, totalTicks)
