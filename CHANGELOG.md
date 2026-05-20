@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.0] - 2026-05-20
+
+### Added
+- Added a segmented Picker tab control in the inspector sidebar, integrating the SFTP panel and the new Real-time System Monitor panel.
+- Implemented a Real-time System Monitor panel that displays remote CPU usage, memory, disk, network RX/TX bandwidth, uptime, and system specifications.
+- Added comprehensive Chinese (Simplified) translation support for the System Monitor dashboard.
+
+### Changed
+- Refactored the inspector sidebar to support user-adjustable resizable width, ranging between 280 and 600 pixels.
+
+### Fixed
+- Fixed the monitoring script evaluating as literal text by removing the nested shell Here-Doc `cat << 'EOF'` structure.
+- Fixed a potential arithmetic overflow/underflow crash during CPU ticks subtraction under CPU core frequency scaling or load fluctuations.
+
+---
+
+### Chinese
+### 新增
+- 侧边栏集成了分段式 Picker 标签切换控件，无缝整合 SFTP 面板和全新的系统实时监控面板。
+- 引入服务器系统实时监控面板，能够动态收集并呈现远程主机的 CPU 占用率、内存/SWAP 占用、磁盘用量、实时网速吞吐、运行时间及系统型号规格等核心指标。
+- 完成了系统监控面板所有界面文本的简体中文国际化适配。
+
+### 变更
+- 重构了侧边栏的宽度调整逻辑，允许用户自由拖动分割线以 280 至 600 像素范围缩放侧边栏。
+
+### 修复
+- 修复监控脚本因 nested Here-Doc `cat << 'EOF'` 机制导致以字面量形式输出命令原文而非执行结果的 Bug。
+- 修复了在远程主机 CPU 滴答数（ticks）数据偏差或频率变动时，计算 tick 减法差值可能导致 Swift 触发算术下溢崩溃的问题。
+
+---
+
 ## [1.1.0] - 2026-05-16
 
 ### Added
