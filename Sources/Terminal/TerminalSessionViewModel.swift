@@ -36,7 +36,7 @@ final class TerminalSessionViewModel {
     var rows: UInt16 = 24
 
     var metrics: SystemMetrics = SystemMetrics()
-    nonisolated(unsafe) private var monitorTask: Task<Void, Never>? = nil
+    private let monitorTaskHolder = TaskHolder()
     var appModel: AppModel? = nil
 
     private let monitorScript = """
@@ -84,9 +84,7 @@ final class TerminalSessionViewModel {
 
     deinit {
         let activeSession = self.session
-        let task = self.monitorTask
         Task.detached {
-            task?.cancel()
             await activeSession.disconnect()
         }
     }
@@ -143,8 +141,7 @@ final class TerminalSessionViewModel {
     }
 
     func disconnect() {
-        monitorTask?.cancel()
-        monitorTask = nil
+        monitorTaskHolder.cancel()
         Task {
             await session.disconnect()
             status = .idle
@@ -152,22 +149,26 @@ final class TerminalSessionViewModel {
     }
 
     func startMonitoring() {
-        monitorTask?.cancel()
-        monitorTask = Task {
+        monitorTaskHolder.cancel()
+        monitorTaskHolder.task = Task { [weak self] in
             var prevCpuTicks: (user: UInt64, system: UInt64, idle: UInt64, total: UInt64)? = nil
             var prevNetBytes: (rx: UInt64, tx: UInt64)? = nil
             var lastPollTime = Date()
             
             while !Task.isCancelled {
+                guard let self else { break }
+                let activeSession = self.session
+                let script = self.monitorScript
+                
                 do {
-                    let output = try await session.executeCommand(monitorScript)
+                    let output = try await activeSession.executeCommand(script)
                     if Task.isCancelled { break }
                     
                     let now = Date()
                     let timeInterval = now.timeIntervalSince(lastPollTime)
                     lastPollTime = now
                     
-                    await parseMetrics(output, timeInterval: timeInterval, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
+                    self.parseMetrics(output, timeInterval: timeInterval, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
                 } catch {
                     print("Monitoring error: \(error.localizedDescription)")
                 }
@@ -187,7 +188,7 @@ final class TerminalSessionViewModel {
                 let output = try await session.executeCommand(monitorScript)
                 var prevCpuTicks: (user: UInt64, system: UInt64, idle: UInt64, total: UInt64)? = nil
                 var prevNetBytes: (rx: UInt64, tx: UInt64)? = nil
-                await parseMetrics(output, timeInterval: 3.0, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
+                parseMetrics(output, timeInterval: 3.0, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
             } catch {
                 print("Force refresh failed: \(error.localizedDescription)")
             }
@@ -199,7 +200,7 @@ final class TerminalSessionViewModel {
         timeInterval: TimeInterval,
         prevCpu: inout (user: UInt64, system: UInt64, idle: UInt64, total: UInt64)?,
         prevNet: inout (rx: UInt64, tx: UInt64)?
-    ) async {
+    ) {
         var parsedValues: [String: String] = [:]
         let lines = rawText.components(separatedBy: .newlines)
         for line in lines {
@@ -238,7 +239,8 @@ final class TerminalSessionViewModel {
         
         // Load
         if let loadStr = parsedValues["Load"] {
-            let components = loadStr.split(separator: " ").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
+            let cleanLoadStr = loadStr.replacingOccurrences(of: ",", with: " ")
+            let components = cleanLoadStr.split(separator: " ").compactMap { Double($0.trimmingCharacters(in: .whitespaces)) }
             if components.count >= 3 {
                 newMetrics.load1Min = components[0]
                 newMetrics.load5Min = components[1]
@@ -255,10 +257,18 @@ final class TerminalSessionViewModel {
         
         newMetrics.memoryTotalBytes = memTotalKb * 1024
         if memAvailableKb > 0 {
-            newMetrics.memoryUsedBytes = (memTotalKb - memAvailableKb) * 1024
-        } else if memTotalKb > memFreeKb {
-            let usedKb = memTotalKb - memFreeKb - buffersKb - cachedKb
-            newMetrics.memoryUsedBytes = usedKb * 1024
+            if memTotalKb > memAvailableKb {
+                newMetrics.memoryUsedBytes = (memTotalKb - memAvailableKb) * 1024
+            } else {
+                newMetrics.memoryUsedBytes = 0
+            }
+        } else {
+            let overhead = memFreeKb + buffersKb + cachedKb
+            if memTotalKb > overhead {
+                newMetrics.memoryUsedBytes = (memTotalKb - overhead) * 1024
+            } else {
+                newMetrics.memoryUsedBytes = 0
+            }
         }
         
         // Swap Parsing (values in kB)
@@ -267,6 +277,8 @@ final class TerminalSessionViewModel {
         newMetrics.swapTotalBytes = swapTotalKb * 1024
         if swapTotalKb >= swapFreeKb {
             newMetrics.swapUsedBytes = (swapTotalKb - swapFreeKb) * 1024
+        } else {
+            newMetrics.swapUsedBytes = 0
         }
         
         // Disk Parsing (Total, Used in Bytes)
@@ -287,8 +299,13 @@ final class TerminalSessionViewModel {
                 if let prev = prevNet {
                     let deltaRx = currentRx >= prev.rx ? currentRx - prev.rx : 0
                     let deltaTx = currentTx >= prev.tx ? currentTx - prev.tx : 0
-                    newMetrics.networkRxSpeedBytes = Double(deltaRx) / timeInterval
-                    newMetrics.networkTxSpeedBytes = Double(deltaTx) / timeInterval
+                    if timeInterval > 0 {
+                        newMetrics.networkRxSpeedBytes = Double(deltaRx) / timeInterval
+                        newMetrics.networkTxSpeedBytes = Double(deltaTx) / timeInterval
+                    } else {
+                        newMetrics.networkRxSpeedBytes = 0
+                        newMetrics.networkTxSpeedBytes = 0
+                    }
                 }
                 prevNet = (currentRx, currentTx)
             }
@@ -342,5 +359,35 @@ final class TerminalSessionViewModel {
                 KeychainStore.deletePassword(account: account)
             }
         }
+    }
+}
+
+final class TaskHolder: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _task: Task<Void, Never>?
+    
+    var task: Task<Void, Never>? {
+        get {
+            lock.lock()
+            defer { lock.unlock() }
+            return _task
+        }
+        set {
+            lock.lock()
+            defer { lock.unlock() }
+            _task = newValue
+        }
+    }
+    
+    func cancel() {
+        lock.lock()
+        let t = _task
+        _task = nil
+        lock.unlock()
+        t?.cancel()
+    }
+    
+    deinit {
+        cancel()
     }
 }
