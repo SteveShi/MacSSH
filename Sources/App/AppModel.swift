@@ -247,6 +247,14 @@ final class AppModel {
             currentHistory = Array(currentHistory.prefix(10))
         }
         connections[index].history = currentHistory
+        
+        // Also update any active tabs holding this connection
+        for i in 0..<openTabs.count {
+            if openTabs[i].connection.id == connectionID {
+                openTabs[i].connection = connections[index]
+            }
+        }
+        
         persist()
     }
 

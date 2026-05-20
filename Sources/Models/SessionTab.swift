@@ -5,7 +5,7 @@ import Observation
 @MainActor
 final class SessionTab: Identifiable {
     let id: UUID
-    let connection: SSHConnection
+    var connection: SSHConnection
     var terminalModel: TerminalSessionViewModel?
 
     /// Cached surface view — created on first access and live for the tab lifetime.

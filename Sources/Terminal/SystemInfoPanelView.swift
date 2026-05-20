@@ -80,7 +80,7 @@ struct SystemInfoPanelView: View {
                         Text(String(format: "%.0f%%", memPercent * 100.0))
                             .font(.system(size: 11, weight: .semibold))
                     }
-                    Text("\(formatBytes(metrics.memoryUsedBytes)) / \(formatBytes(metrics.memoryTotalBytes))")
+                    Text(String(localized: "\(formatBytes(metrics.memoryUsedBytes)) / \(formatBytes(metrics.memoryTotalBytes))"))
                         .font(.system(size: 9))
                         .foregroundStyle(.secondary)
                 }
@@ -93,14 +93,14 @@ struct SystemInfoPanelView: View {
                         Image(systemName: "arrow.down")
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundStyle(.green)
-                        Text("\(formatBytes(UInt64(metrics.networkRxSpeedBytes)))/s")
+                        Text(String(localized: "\(formatBytes(UInt64(metrics.networkRxSpeedBytes)))/s"))
                             .font(.system(size: 11, weight: .semibold))
                     }
                     HStack(spacing: 8) {
                         Image(systemName: "arrow.up")
                             .font(.system(size: 9, weight: .semibold))
                             .foregroundStyle(.blue)
-                        Text("\(formatBytes(UInt64(metrics.networkTxSpeedBytes)))/s")
+                        Text(String(localized: "\(formatBytes(UInt64(metrics.networkTxSpeedBytes)))/s"))
                             .font(.system(size: 11, weight: .semibold))
                     }
                 }
@@ -112,7 +112,7 @@ struct SystemInfoPanelView: View {
                     Text(String(localized: "Swap"))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text("\(formatBytes(metrics.swapUsedBytes)) / \(formatBytes(metrics.swapTotalBytes))")
+                    Text(String(localized: "\(formatBytes(metrics.swapUsedBytes)) / \(formatBytes(metrics.swapTotalBytes))"))
                         .font(.system(size: 11, weight: .semibold))
                 }
                 Spacer()
@@ -120,10 +120,9 @@ struct SystemInfoPanelView: View {
                     Text(String(localized: "Processes"))
                         .font(.system(size: 10, weight: .medium))
                         .foregroundStyle(.secondary)
-                    Text("\(metrics.processCount)")
+                    Text(metrics.processCount, format: .number)
                         .font(.system(size: 12, weight: .semibold))
                 }
-                .frame(width: 120, alignment: .leading)
             }
         }
         .padding()
@@ -151,28 +150,52 @@ struct SystemInfoPanelView: View {
             
             Divider()
             
-            VStack(alignment: .leading, spacing: 8) {
-                specRow(title: String(localized: "OS"), value: metrics.osName)
-                specRow(title: String(localized: "Uptime"), value: formatUptime(metrics.uptimeSeconds))
-                specRow(title: String(localized: "CPU"), value: "\(metrics.cpuModel) (\(String(localized: "\(metrics.cpuCores) cores")))")
-                specRow(title: String(localized: "Memory"), value: formatBytes(metrics.memoryTotalBytes))
-                
-                // Disk Row with progress
-                VStack(alignment: .leading, spacing: 4) {
+            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
+                GridRow {
+                    Text(String(localized: "OS"))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                    Text(metrics.osName)
+                        .font(.system(size: 11, weight: .medium))
+                }
+                GridRow {
+                    Text(String(localized: "Uptime"))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                    Text(formatUptime(metrics.uptimeSeconds))
+                        .font(.system(size: 11, weight: .medium))
+                }
+                GridRow {
+                    Text(String(localized: "CPU"))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                    Text(String(localized: "\(metrics.cpuModel) (\(metrics.cpuCores) cores)"))
+                        .font(.system(size: 11, weight: .medium))
+                }
+                GridRow {
+                    Text(String(localized: "Memory"))
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                    Text(formatBytes(metrics.memoryTotalBytes))
+                        .font(.system(size: 11, weight: .medium))
+                }
+                GridRow {
                     Text(String(localized: "Disk"))
-                        .font(.system(size: 10, weight: .medium))
+                        .font(.system(size: 11, weight: .medium))
                         .foregroundStyle(.secondary)
-                    let diskPercent = metrics.diskTotalBytes > 0 ? Double(metrics.diskUsedBytes) / Double(metrics.diskTotalBytes) : 0.0
-                    HStack(spacing: 8) {
-                        ProgressView(value: min(max(diskPercent, 0.0), 1.0))
-                            .progressViewStyle(.linear)
-                            .tint(.blue)
-                        Text(String(format: "%.0f%%", diskPercent * 100.0))
-                            .font(.system(size: 11, weight: .semibold))
+                    VStack(alignment: .leading, spacing: 4) {
+                        let diskPercent = metrics.diskTotalBytes > 0 ? Double(metrics.diskUsedBytes) / Double(metrics.diskTotalBytes) : 0.0
+                        HStack(spacing: 8) {
+                            ProgressView(value: min(max(diskPercent, 0.0), 1.0))
+                                .progressViewStyle(.linear)
+                                .tint(.blue)
+                            Text(String(format: "%.0f%%", diskPercent * 100.0))
+                                .font(.system(size: 11, weight: .semibold))
+                        }
+                        Text(String(localized: "\(formatBytes(metrics.diskUsedBytes)) / \(formatBytes(metrics.diskTotalBytes))"))
+                            .font(.system(size: 9))
+                            .foregroundStyle(.secondary)
                     }
-                    Text("\(formatBytes(metrics.diskUsedBytes)) / \(formatBytes(metrics.diskTotalBytes))")
-                        .font(.system(size: 9))
-                        .foregroundStyle(.secondary)
                 }
             }
         }
