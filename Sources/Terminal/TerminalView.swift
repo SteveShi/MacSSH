@@ -106,13 +106,12 @@ struct TerminalView: View {
                     )
                 }
             }
-            .frame(minWidth: 280, maxWidth: .infinity)
         }
         .task {
             model.appModel = appModel
             model.connect()
         }
-        .inspectorColumnWidth(min: 280, ideal: 340)
+        .inspectorColumnWidth(min: 280, ideal: 340, max: 600)
         .confirmationDialog(
             hostKeyPromptTitle,
             isPresented: hostKeyPromptBinding,

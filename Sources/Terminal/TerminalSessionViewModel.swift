@@ -40,24 +40,60 @@ final class TerminalSessionViewModel {
     var appModel: AppModel? = nil
 
     private let monitorScript = """
-    cat << 'EOF'
-    OS: $([ -f /etc/os-release ] && . /etc/os-release && echo "$PRETTY_NAME" || uname -s) ($(uname -m))
-    Uptime: $(cat /proc/uptime 2>/dev/null | cut -d. -f1 || uptime | awk -F, '{print $1}')
-    CPU_Model: $(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs 2>/dev/null || sysctl -n machdep.cpu.brand_string 2>/dev/null || uname -m)
-    CPU_Cores: $(nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)
-    Mem_Total: $(awk '/MemTotal/ {print $2}' /proc/meminfo 2>/dev/null || sysctl -n hw.memsize 2>/dev/null | awk '{print $1/1024}' || echo 0)
-    Mem_Free: $(awk '/MemFree/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-    Mem_Available: $(awk '/MemAvailable/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-    Buffers: $(awk '/Buffers/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-    Cached: $(awk '/^Cached/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-    Swap_Total: $(awk '/SwapTotal/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-    Swap_Free: $(awk '/SwapFree/ {print $2}' /proc/meminfo 2>/dev/null || echo 0)
-    Load: $(cat /proc/loadavg 2>/dev/null | cut -d' ' -f1,2,3 || sysctl -n vm.loadavg 2>/dev/null | awk '{print $2,$3,$4}' || uptime | awk -F'load average:' '{print $2}' | xargs)
-    Processes: $(ps -ax 2>/dev/null | wc -l || ps -e 2>/dev/null | wc -l || echo 0)
-    Disk: $(df -B1 / 2>/dev/null | awk 'NR==2 {print $2,$3}' || df -k / 2>/dev/null | awk 'NR==2 {print $2*1024,$3*1024}')
-    Net_Dev: $(cat /proc/net/dev 2>/dev/null | tail -n +3 | awk '{rx+=$2; tx+=$10} END {print rx, tx}' || echo "0 0")
-    CPU_Stat: $(cat /proc/stat 2>/dev/null | grep -m1 '^cpu ' || echo "")
-    EOF
+    OS_NAME=$([ -f /etc/os-release ] && ( . /etc/os-release && echo "$PRETTY_NAME" ) || uname -s)
+    OS_ARCH=$(uname -m)
+    echo "OS: ${OS_NAME} (${OS_ARCH})"
+    if [ -f /proc/uptime ]; then
+        echo "Uptime: $(cut -d. -f1 /proc/uptime)"
+    else
+        echo "Uptime: $(uptime | awk -F, '{print $1}')"
+    fi
+    if [ -f /proc/cpuinfo ]; then
+        CPU_BRAND=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)
+    else
+        CPU_BRAND=$(sysctl -n machdep.cpu.brand_string 2>/dev/null || uname -m)
+    fi
+    echo "CPU_Model: ${CPU_BRAND}"
+    echo "CPU_Cores: $(nproc 2>/dev/null || grep -c '^processor' /proc/cpuinfo 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 1)"
+    if [ -f /proc/meminfo ]; then
+        echo "Mem_Total: $(awk '/MemTotal/ {print $2}' /proc/meminfo)"
+        echo "Mem_Free: $(awk '/MemFree/ {print $2}' /proc/meminfo)"
+        echo "Mem_Available: $(awk '/MemAvailable/ {print $2}' /proc/meminfo || awk '/MemFree/ {print $2}' /proc/meminfo)"
+        echo "Buffers: $(awk '/Buffers/ {print $2}' /proc/meminfo || echo 0)"
+        echo "Cached: $(awk '/^Cached/ {print $2}' /proc/meminfo || echo 0)"
+        echo "Swap_Total: $(awk '/SwapTotal/ {print $2}' /proc/meminfo || echo 0)"
+        echo "Swap_Free: $(awk '/SwapFree/ {print $2}' /proc/meminfo || echo 0)"
+    else
+        MEM_SIZE=$(sysctl -n hw.memsize 2>/dev/null || echo 0)
+        echo "Mem_Total: $((MEM_SIZE / 1024))"
+        echo "Mem_Free: 0"
+        echo "Mem_Available: 0"
+        echo "Buffers: 0"
+        echo "Cached: 0"
+        echo "Swap_Total: 0"
+        echo "Swap_Free: 0"
+    fi
+    if [ -f /proc/loadavg ]; then
+        echo "Load: $(cut -d' ' -f1,2,3 /proc/loadavg)"
+    else
+        echo "Load: $(uptime | awk -F'load average' '{print $2}' | awk -F: '{print $NF}' | xargs)"
+    fi
+    echo "Processes: $(ps -ax 2>/dev/null | wc -l || ps -e 2>/dev/null | wc -l || echo 0)"
+    if df -B1 / >/dev/null 2>&1; then
+        echo "Disk: $(df -B1 / | tail -n 1 | awk '{print $(NF-4),$(NF-3)}')"
+    else
+        echo "Disk: $(df -k / | tail -n 1 | awk '{print $(NF-4)*1024,$(NF-3)*1024}')"
+    fi
+    if [ -f /proc/net/dev ]; then
+        echo "Net_Dev: $(tail -n +3 /proc/net/dev | awk '{rx+=$2; tx+=$10} END {print rx, tx}')"
+    else
+        echo "Net_Dev: 0 0"
+    fi
+    if [ -f /proc/stat ]; then
+        echo "CPU_Stat: $(grep -m1 '^cpu ' /proc/stat)"
+    else
+        echo "CPU_Stat: "
+    fi
     """
 
     init(connection: SSHConnection) {
