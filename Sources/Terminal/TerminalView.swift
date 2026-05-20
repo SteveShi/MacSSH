@@ -6,16 +6,35 @@ struct TerminalView: View {
     let settings: AppSettings
     @Bindable var appModel: AppModel
 
+    enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
+        case sftp
+        case monitor
+        
+        var id: String { self.rawValue }
+        
+        var title: String {
+            switch self {
+            case .sftp:
+                return String(localized: "SFTP")
+            case .monitor:
+                return String(localized: "Monitor")
+            }
+        }
+    }
+
     @State private var showSftp: Bool = true
+    @State private var inspectorTab: InspectorTab = .sftp
     @State private var showReconnectError: Bool = false
     @State private var reconnectErrorMessage: String = ""
     @FocusState private var isTerminalFocused: Bool
 
     private var model: TerminalSessionViewModel {
         if let existing = tab.terminalModel {
+            existing.appModel = appModel
             return existing
         }
         let newModel = TerminalSessionViewModel(connection: tab.connection)
+        newModel.appModel = appModel
         tab.terminalModel = newModel
         return newModel
     }
@@ -70,7 +89,31 @@ struct TerminalView: View {
             }
         }
         .inspector(isPresented: $showSftp) {
-            SFTPPanelView(model: model.sftpViewModel)
+            VStack(spacing: 0) {
+                Picker("", selection: $inspectorTab) {
+                    ForEach(InspectorTab.allCases) { tab in
+                        Text(tab.title).tag(tab)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding()
+                
+                Divider()
+                
+                switch inspectorTab {
+                case .sftp:
+                    SFTPPanelView(model: model.sftpViewModel)
+                case .monitor:
+                    SystemInfoPanelView(
+                        connection: tab.connection,
+                        metrics: model.metrics,
+                        onRefresh: {
+                            model.forceRefreshMetrics()
+                        }
+                    )
+                }
+            }
+            .frame(minWidth: 280, maxWidth: .infinity)
         }
         .task {
             model.connect()
