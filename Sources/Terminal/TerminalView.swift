@@ -29,14 +29,7 @@ struct TerminalView: View {
     @FocusState private var isTerminalFocused: Bool
 
     private var model: TerminalSessionViewModel {
-        if let existing = tab.terminalModel {
-            existing.appModel = appModel
-            return existing
-        }
-        let newModel = TerminalSessionViewModel(connection: tab.connection)
-        newModel.appModel = appModel
-        tab.terminalModel = newModel
-        return newModel
+        tab.terminalModel
     }
 
     var body: some View {
@@ -116,6 +109,7 @@ struct TerminalView: View {
             .frame(minWidth: 280, maxWidth: .infinity)
         }
         .task {
+            model.appModel = appModel
             model.connect()
         }
         .inspectorColumnWidth(min: 280, ideal: 340)

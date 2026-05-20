@@ -6,7 +6,7 @@ import Observation
 final class SessionTab: Identifiable {
     let id: UUID
     var connection: SSHConnection
-    var terminalModel: TerminalSessionViewModel?
+    let terminalModel: TerminalSessionViewModel
 
     /// Cached surface view — created on first access and live for the tab lifetime.
     /// This ensures the SSH process (PTY) survives sidebar navigation in SwiftUI.
@@ -15,5 +15,6 @@ final class SessionTab: Identifiable {
     init(connection: SSHConnection) {
         self.id = UUID()
         self.connection = connection
+        self.terminalModel = TerminalSessionViewModel(connection: connection)
     }
 }

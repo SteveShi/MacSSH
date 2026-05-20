@@ -156,9 +156,12 @@ final class TerminalSessionViewModel {
             var lastPollTime = Date()
             
             while !Task.isCancelled {
-                guard let self else { break }
-                let activeSession = self.session
-                let script = self.monitorScript
+                let params: (activeSession: SSHSession, script: String)? = {
+                    guard let self else { return nil }
+                    return (self.session, self.monitorScript)
+                }()
+                
+                guard let (activeSession, script) = params else { break }
                 
                 do {
                     let output = try await activeSession.executeCommand(script)
@@ -168,7 +171,11 @@ final class TerminalSessionViewModel {
                     let timeInterval = now.timeIntervalSince(lastPollTime)
                     lastPollTime = now
                     
-                    self.parseMetrics(output, timeInterval: timeInterval, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
+                    if let self {
+                        self.parseMetrics(output, timeInterval: timeInterval, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
+                    } else {
+                        break
+                    }
                 } catch {
                     print("Monitoring error: \(error.localizedDescription)")
                 }

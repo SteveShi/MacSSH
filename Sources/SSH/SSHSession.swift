@@ -279,11 +279,15 @@ actor SSHSession {
 
     private func startReadingLoop() -> AsyncStream<Data> {
         AsyncStream { continuation in
-            outputContinuation = continuation
             Task { [weak self] in
+                await self?.saveContinuation(continuation)
                 await self?.readLoop(continuation: continuation)
             }
         }
+    }
+
+    private func saveContinuation(_ continuation: AsyncStream<Data>.Continuation) {
+        outputContinuation = continuation
     }
 
     private func readLoop(continuation: AsyncStream<Data>.Continuation) async {

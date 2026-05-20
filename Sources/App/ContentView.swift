@@ -71,7 +71,7 @@ struct ContentView: View {
 
                 Section(String(localized: "Connections")) {
                     ForEach(model.filteredConnections) { connection in
-                        let isConnected = model.openTabs.first(where: { $0.connection.id == connection.id })?.terminalModel?.status == .connected
+                        let isConnected = model.openTabs.first(where: { $0.connection.id == connection.id })?.terminalModel.status == .connected
                         let isActive = model.sidebarSelection == .connection(connection.id)
                         ConnectionRow(connection: connection, isSelected: isActive, isConnected: isConnected) {
                             model.openConnection(connection)
