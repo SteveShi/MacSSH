@@ -160,6 +160,56 @@ actor SSHSession {
         state = .disconnected
     }
 
+    func executeCommand(_ command: String) async throws -> String {
+        try await withRawSession { sessionPtr in
+            guard let channel = libssh2_channel_open_ex(
+                sessionPtr,
+                "session",
+                UInt32("session".utf8.count),
+                2 * 1024 * 1024,
+                32_768,
+                nil,
+                0
+            ) else {
+                throw SSHError.channelOpenFailed
+            }
+            
+            let rc = libssh2_channel_process_startup(
+                channel,
+                "exec",
+                UInt32("exec".utf8.count),
+                command,
+                UInt32(command.utf8.count)
+            )
+            guard rc == 0 else {
+                libssh2_channel_free(channel)
+                throw SSHError.shellFailed(rc)
+            }
+            
+            var resultData = Data()
+            var buffer = [UInt8](repeating: 0, count: 4096)
+            while true {
+                let bytesRead = buffer.withUnsafeMutableBytes { rawBuffer in
+                    libssh2_channel_read_ex(channel, 0, rawBuffer.bindMemory(to: Int8.self).baseAddress, rawBuffer.count)
+                }
+                if bytesRead > 0 {
+                    resultData.append(buffer, count: bytesRead)
+                } else if bytesRead == 0 {
+                    break
+                } else {
+                    break
+                }
+            }
+            
+            libssh2_channel_send_eof(channel)
+            libssh2_channel_close(channel)
+            libssh2_channel_free(channel)
+            
+            return String(decoding: resultData, as: UTF8.self)
+        }
+    }
+
+
     private func authenticateAndOpenChannel(auth: SSHAuth, cols: Int, rows: Int) async throws -> AsyncStream<Data> {
         guard let session else { throw SSHError.sessionInitFailed }
         guard let username = pendingUsername else { throw SSHError.sessionInitFailed }
