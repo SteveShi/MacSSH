@@ -35,7 +35,7 @@ actor SSHSession {
     /// guarded by `initLock` — `nonisolated(unsafe)` is required because
     /// actor-isolated `static` storage is otherwise unreachable from the lock-
     /// guarded helpers below under Swift 6 strict concurrency.
-    nonisolated(unsafe) private static let initLock = NSLock()
+    nonisolated private static let initLock = NSLock()
     nonisolated(unsafe) private static var initRefCount: Int = 0
 
     private nonisolated static func libsshInit() throws {

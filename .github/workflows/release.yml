@@ -81,7 +81,7 @@ jobs:
         run: |
           xcodebuild -resolvePackageDependencies -project MacSSH.xcodeproj -scheme MacSSH
 
-      - name: Build Universal Binary
+      - name: Build arm64 Binary
         run: |
           VERSION_CLEAN=${{ env.VERSION }}
           xcodebuild -scheme MacSSH \
@@ -106,8 +106,8 @@ jobs:
           APP_NAME=$(basename "$APP_PATH")
           APP_DIR=$(dirname "$APP_PATH")
           VERSION_CLEAN=${{ env.VERSION }}
-          ZIP_NAME="MacSSH-${VERSION_CLEAN}-Universal.zip"
-          DMG_NAME="MacSSH-${VERSION_CLEAN}-Universal.dmg"
+          ZIP_NAME="MacSSH-${VERSION_CLEAN}-arm64.zip"
+          DMG_NAME="MacSSH-${VERSION_CLEAN}-arm64.dmg"
           
           echo "Applying deep ad-hoc signature to satisfy Sparkle validation..."
           codesign --force --deep -s - "$APP_PATH"

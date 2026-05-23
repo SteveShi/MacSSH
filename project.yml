@@ -14,6 +14,8 @@ settings:
     PRODUCT_NAME: "MacSSH"
     MARKETING_VERSION: "1.5.1"
     CURRENT_PROJECT_VERSION: "151"
+    ARCHS: "arm64"
+    ONLY_ACTIVE_ARCH: "NO"
 
 packages:
   Sparkle:
@@ -60,10 +62,10 @@ targets:
     postBuildScripts:
       - name: Embed libghostty-vt
         runOnlyForDeploymentPostprocessing: false
-        basedOnDependencyAnalysis: false
-        inputs:
+        basedOnDependencyAnalysis: true
+        inputFiles:
           - $(SRCROOT)/ThirdParty/lib/libghostty-vt.dylib
-        outputs:
+        outputFiles:
           - $(TARGET_BUILD_DIR)/$(FRAMEWORKS_FOLDER_PATH)/libghostty-vt.dylib
         script: |
           set -euo pipefail

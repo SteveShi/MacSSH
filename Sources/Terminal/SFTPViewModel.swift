@@ -137,9 +137,4 @@ final class SFTPViewModel {
             }
         }
     }
-
-    deinit {
-        refreshTask?.cancel()
-        transferTask?.cancel()
-    }
 }
