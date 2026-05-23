@@ -16,19 +16,33 @@ final class SFTPViewModel {
     var items: [SFTPItem] = []
     var status: Status = .idle
 
+    /// Tracks the currently running directory listing / refresh so that a new
+    /// navigation cancels any in-flight one. Without this, fast clicks could
+    /// race and stale results from an earlier directory would overwrite the
+    /// newer ones in `items`.
+    private var refreshTask: Task<Void, Never>?
+    private var transferTask: Task<Void, Never>?
+
     init(service: SFTPService) {
         self.service = service
     }
 
     func refresh() {
+        refreshTask?.cancel()
         status = .loading
-        Task {
+        let path = currentPath
+        refreshTask = Task { [weak self] in
+            guard let self else { return }
             do {
-                let items = try await service.list(path: currentPath)
+                let items = try await self.service.list(path: path)
+                if Task.isCancelled { return }
+                // Drop the result if the user navigated away while we were waiting.
+                guard path == self.currentPath else { return }
                 self.items = items
-                status = .idle
+                self.status = .idle
             } catch {
-                status = .error(error.localizedDescription)
+                if Task.isCancelled { return }
+                self.status = .error(error.localizedDescription)
             }
         }
     }
@@ -48,59 +62,84 @@ final class SFTPViewModel {
     }
 
     func download(_ item: SFTPItem, to url: URL) {
+        transferTask?.cancel()
         status = .transferring(item.name)
-        Task {
+        transferTask = Task { [weak self] in
+            guard let self else { return }
             do {
-                try await service.download(remotePath: item.path, localURL: url)
-                status = .idle
+                try await self.service.download(remotePath: item.path, localURL: url)
+                if Task.isCancelled { return }
+                self.status = .idle
             } catch {
-                status = .error(error.localizedDescription)
+                if Task.isCancelled { return }
+                self.status = .error(error.localizedDescription)
             }
         }
     }
 
     func download(_ items: [SFTPItem], to directory: URL) {
+        transferTask?.cancel()
         status = .loading
-        Task {
+        transferTask = Task { [weak self] in
+            guard let self else { return }
             do {
                 for item in items where !item.isDirectory {
-                    status = .transferring(item.name)
+                    if Task.isCancelled { return }
+                    self.status = .transferring(item.name)
                     let target = directory.appendingPathComponent(item.name)
-                    try await service.download(remotePath: item.path, localURL: target)
+                    try await self.service.download(remotePath: item.path, localURL: target)
                 }
-                status = .idle
+                if Task.isCancelled { return }
+                self.status = .idle
             } catch {
-                status = .error(error.localizedDescription)
+                if Task.isCancelled { return }
+                self.status = .error(error.localizedDescription)
             }
         }
     }
 
     func upload(from url: URL) {
+        transferTask?.cancel()
         status = .transferring(url.lastPathComponent)
         let target = currentPath.hasSuffix("/") ? currentPath + url.lastPathComponent : currentPath + "/" + url.lastPathComponent
-        Task {
+        transferTask = Task { [weak self] in
+            guard let self else { return }
             do {
-                try await service.upload(localURL: url, remotePath: target)
-                refresh()
+                try await self.service.upload(localURL: url, remotePath: target)
+                if Task.isCancelled { return }
+                self.refresh()
             } catch {
-                status = .error(error.localizedDescription)
+                if Task.isCancelled { return }
+                self.status = .error(error.localizedDescription)
             }
         }
     }
 
     func upload(from urls: [URL]) {
+        transferTask?.cancel()
         status = .loading
-        Task {
+        transferTask = Task { [weak self] in
+            guard let self else { return }
             do {
                 for url in urls {
-                    status = .transferring(url.lastPathComponent)
-                    let target = currentPath.hasSuffix("/") ? currentPath + url.lastPathComponent : currentPath + "/" + url.lastPathComponent
-                    try await service.upload(localURL: url, remotePath: target)
+                    if Task.isCancelled { return }
+                    self.status = .transferring(url.lastPathComponent)
+                    let target = self.currentPath.hasSuffix("/")
+                        ? self.currentPath + url.lastPathComponent
+                        : self.currentPath + "/" + url.lastPathComponent
+                    try await self.service.upload(localURL: url, remotePath: target)
                 }
-                refresh()
+                if Task.isCancelled { return }
+                self.refresh()
             } catch {
-                status = .error(error.localizedDescription)
+                if Task.isCancelled { return }
+                self.status = .error(error.localizedDescription)
             }
         }
+    }
+
+    deinit {
+        refreshTask?.cancel()
+        transferTask?.cancel()
     }
 }

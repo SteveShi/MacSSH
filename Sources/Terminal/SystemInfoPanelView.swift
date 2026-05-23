@@ -257,16 +257,31 @@ struct SystemInfoPanelView: View {
     }
 
     private func formatBytes(_ bytes: UInt64) -> String {
-        let formatter = ByteCountFormatter()
-        formatter.allowedUnits = [.useAll]
-        formatter.countStyle = .file
-        return formatter.string(fromByteCount: Int64(bytes))
+        SystemInfoFormatters.byteFormatter.string(fromByteCount: Int64(bytes))
     }
 
     private func formatUptime(_ seconds: Int) -> String {
-        let formatter = DateComponentsFormatter()
-        formatter.allowedUnits = [.day, .hour, .minute]
-        formatter.unitsStyle = .abbreviated
-        return formatter.string(from: TimeInterval(seconds)) ?? ""
+        SystemInfoFormatters.uptimeFormatter.string(from: TimeInterval(seconds)) ?? ""
     }
+}
+
+/// Heavy `Foundation` formatters are expensive to construct (locale lookup,
+/// CFNumberFormatter cache, …). The system info card re-renders every 3s and
+/// calls these helpers ~10 times per render — re-creating the formatters each
+/// time was a measurable hotspot under Instruments.
+@MainActor
+private enum SystemInfoFormatters {
+    static let byteFormatter: ByteCountFormatter = {
+        let f = ByteCountFormatter()
+        f.allowedUnits = [.useAll]
+        f.countStyle = .file
+        return f
+    }()
+
+    static let uptimeFormatter: DateComponentsFormatter = {
+        let f = DateComponentsFormatter()
+        f.allowedUnits = [.day, .hour, .minute]
+        f.unitsStyle = .abbreviated
+        return f
+    }()
 }

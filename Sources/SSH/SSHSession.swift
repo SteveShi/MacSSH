@@ -29,6 +29,34 @@ actor SSHSession {
     private var pendingHostStatus: HostKeyStatus?
     private var pendingUsername: String?
 
+    /// libssh2_init / libssh2_exit reference counting (process-wide).
+    /// libssh2 documents that init/exit must be balanced, and calling init
+    /// concurrently across multiple sessions can race. The mutable count is
+    /// guarded by `initLock` — `nonisolated(unsafe)` is required because
+    /// actor-isolated `static` storage is otherwise unreachable from the lock-
+    /// guarded helpers below under Swift 6 strict concurrency.
+    nonisolated(unsafe) private static let initLock = NSLock()
+    nonisolated(unsafe) private static var initRefCount: Int = 0
+
+    private nonisolated static func libsshInit() throws {
+        initLock.lock()
+        defer { initLock.unlock() }
+        if initRefCount == 0 {
+            guard libssh2_init(0) == 0 else { throw SSHError.initializationFailed }
+        }
+        initRefCount += 1
+    }
+
+    private nonisolated static func libsshExit() {
+        initLock.lock()
+        defer { initLock.unlock() }
+        guard initRefCount > 0 else { return }
+        initRefCount -= 1
+        if initRefCount == 0 {
+            libssh2_exit()
+        }
+    }
+
     func withRawSession<T: Sendable>(_ body: @Sendable (OpaquePointer) throws -> T) throws -> T {
         guard let session else { throw SSHError.notConnected }
         libssh2_session_set_blocking(session, 1)
@@ -37,49 +65,75 @@ actor SSHSession {
     }
 
     func connect(connection: SSHConnection, auth: SSHAuth, cols: Int = 80, rows: Int = 24) async throws -> AsyncStream<Data> {
+        // Reentry guard: if a previous attempt left state inconsistent, clean up first.
+        if session != nil || socketFD != -1 {
+            await disconnect()
+        }
         state = .connecting
 
-        let fd = try openSocket(host: connection.host, port: connection.port)
-        socketFD = fd
+        var didInit = false
+        var localFD: Int32 = -1
+        var localSession: OpaquePointer? = nil
 
-        guard libssh2_init(0) == 0 else {
-            throw SSHError.initializationFailed
+        // Cleanup helper for the failure path — frees only what we acquired locally,
+        // leaves no half-initialized resources behind in `self`.
+        func rollback() {
+            if let s = localSession { libssh2_session_free(s) }
+            if localFD != -1 { close(localFD) }
+            if didInit { SSHSession.libsshExit() }
+            self.session = nil
+            self.socketFD = -1
+            state = .disconnected
         }
 
-        guard let session = libssh2_session_init_ex(nil, nil, nil, nil) else {
-            throw SSHError.sessionInitFailed
+        do {
+            localFD = try openSocket(host: connection.host, port: connection.port)
+
+            try SSHSession.libsshInit()
+            didInit = true
+
+            guard let s = libssh2_session_init_ex(nil, nil, nil, nil) else {
+                throw SSHError.sessionInitFailed
+            }
+            localSession = s
+            libssh2_session_set_blocking(s, 1)
+
+            let handshake = libssh2_session_handshake(s, localFD)
+            guard handshake == 0 else { throw SSHError.handshakeFailed(handshake) }
+
+            // Commit to `self` only once handshake succeeded.
+            self.socketFD = localFD
+            self.session = s
+            pendingUsername = connection.username
+
+            switch try KnownHostsStore.check(session: s, host: connection.host, port: connection.port) {
+            case .match:
+                break
+            case .notFound(let keyData, let keyType):
+                pendingHostKey = keyData
+                pendingHostKeyType = keyType
+                pendingHost = connection.host
+                pendingPort = connection.port
+                pendingHostStatus = .notFound
+                throw SSHError.hostKeyNotTrusted(.notFound)
+            case .mismatch(let keyData, let keyType):
+                pendingHostKey = keyData
+                pendingHostKeyType = keyType
+                pendingHost = connection.host
+                pendingPort = connection.port
+                pendingHostStatus = .mismatch
+                throw SSHError.hostKeyNotTrusted(.mismatch)
+            }
+
+            return try await authenticateAndOpenChannel(auth: auth, cols: cols, rows: rows)
+        } catch SSHError.hostKeyNotTrusted(let status) {
+            // Keep socket+session alive so the user can accept the key and continue.
+            // The pending* fields are already populated above.
+            throw SSHError.hostKeyNotTrusted(status)
+        } catch {
+            rollback()
+            throw error
         }
-        self.session = session
-
-        libssh2_session_set_blocking(session, 1)
-
-        let handshake = libssh2_session_handshake(session, fd)
-        guard handshake == 0 else {
-            throw SSHError.handshakeFailed(handshake)
-        }
-
-        pendingUsername = connection.username
-
-        switch try KnownHostsStore.check(session: session, host: connection.host, port: connection.port) {
-        case .match:
-            break
-        case .notFound(let keyData, let keyType):
-            pendingHostKey = keyData
-            pendingHostKeyType = keyType
-            pendingHost = connection.host
-            pendingPort = connection.port
-            pendingHostStatus = .notFound
-            throw SSHError.hostKeyNotTrusted(.notFound)
-        case .mismatch(let keyData, let keyType):
-            pendingHostKey = keyData
-            pendingHostKeyType = keyType
-            pendingHost = connection.host
-            pendingPort = connection.port
-            pendingHostStatus = .mismatch
-            throw SSHError.hostKeyNotTrusted(.mismatch)
-        }
-
-        return try await authenticateAndOpenChannel(auth: auth, cols: cols, rows: rows)
     }
 
     func acceptHostKeyAndConnect(auth: SSHAuth, cols: Int = 80, rows: Int = 24) async throws -> AsyncStream<Data> {
@@ -112,7 +166,9 @@ actor SSHSession {
                 return libssh2_channel_write_ex(channel, 0, base.advanced(by: totalSent), buffer.count - totalSent)
             }
             if sent == Int(LIBSSH2_ERROR_EAGAIN) {
-                try? await Task.sleep(nanoseconds: 10_000_000)
+                // Yield to the actor so other consumers (read loop, monitoring) can progress
+                // without busy-spinning on the lock.
+                try await Task.sleep(nanoseconds: 5_000_000)
                 continue
             }
             if sent < 0 {
@@ -156,7 +212,7 @@ actor SSHSession {
         pendingHostStatus = nil
         pendingUsername = nil
 
-        libssh2_exit()
+        SSHSession.libsshExit()
         state = .disconnected
     }
 
@@ -174,10 +230,9 @@ actor SSHSession {
                 throw SSHError.channelOpenFailed
             }
             defer {
-                libssh2_channel_close(channel)
                 libssh2_channel_free(channel)
             }
-            
+
             let rc = libssh2_channel_process_startup(
                 channel,
                 "exec",
@@ -188,9 +243,9 @@ actor SSHSession {
             guard rc == 0 else {
                 throw SSHError.shellFailed(rc)
             }
-            
+
             var resultData = Data()
-            var buffer = [UInt8](repeating: 0, count: 4096)
+            var buffer = [UInt8](repeating: 0, count: 8192)
             while true {
                 let bytesRead = buffer.withUnsafeMutableBytes { rawBuffer in
                     libssh2_channel_read_ex(channel, 0, rawBuffer.bindMemory(to: Int8.self).baseAddress, rawBuffer.count)
@@ -200,14 +255,22 @@ actor SSHSession {
                 } else if bytesRead == 0 {
                     break
                 } else {
-                    // Under blocking mode (which withRawSession enforces), the call blocks
-                    // and EAGAIN won't be returned, so checking < 0 and breaking is correct and safe.
+                    // In blocking mode EAGAIN should not occur; any negative
+                    // return is a hard error — surface it instead of silently
+                    // truncating the output.
+                    if bytesRead != Int(LIBSSH2_ERROR_EAGAIN) {
+                        // Clean shutdown order: EOF -> close -> free (via defer).
+                        libssh2_channel_send_eof(channel)
+                        libssh2_channel_close(channel)
+                        throw SSHError.readFailed(Int32(bytesRead))
+                    }
                     break
                 }
             }
-            
+
             libssh2_channel_send_eof(channel)
-            
+            libssh2_channel_close(channel)
+
             return String(decoding: resultData, as: UTF8.self)
         }
     }
@@ -292,7 +355,12 @@ actor SSHSession {
 
     private func readLoop(continuation: AsyncStream<Data>.Continuation) async {
         var buffer = [UInt8](repeating: 0, count: 16 * 1024)
-        while true {
+        // Adaptive backoff: idle period grows when nothing arrives,
+        // shrinks immediately when data appears. Avoids a hot 10ms spin
+        // while keeping latency low under load.
+        var idleNanos: UInt64 = 2_000_000   // 2ms
+        let maxIdle: UInt64 = 50_000_000    // 50ms
+        while !Task.isCancelled {
             guard let channel else { break }
             let rc = buffer.withUnsafeMutableBytes { rawBuffer in
                 libssh2_channel_read_ex(channel, 0, rawBuffer.bindMemory(to: Int8.self).baseAddress, rawBuffer.count)
@@ -300,13 +368,20 @@ actor SSHSession {
             if rc > 0 {
                 let data = Data(buffer[0..<rc])
                 continuation.yield(data)
+                idleNanos = 2_000_000
                 continue
             }
             if rc == 0 {
-                break
+                // EOF only when channel really reports closed.
+                if libssh2_channel_eof(channel) != 0 { break }
+                // Otherwise treat as transient and back off.
+                do { try await Task.sleep(nanoseconds: idleNanos) } catch { break }
+                idleNanos = min(idleNanos * 2, maxIdle)
+                continue
             }
             if rc == Int(LIBSSH2_ERROR_EAGAIN) {
-                try? await Task.sleep(nanoseconds: 10_000_000)
+                do { try await Task.sleep(nanoseconds: idleNanos) } catch { break }
+                idleNanos = min(idleNanos * 2, maxIdle)
                 continue
             }
             break
@@ -334,10 +409,23 @@ actor SSHSession {
         }
         defer { freeaddrinfo(result) }
 
+        // 15s connect timeout per address. The default kernel timeout
+        // (~75s) makes the UI feel hung when the host is unreachable.
+        var timeout = timeval(tv_sec: 15, tv_usec: 0)
+
         var current: UnsafeMutablePointer<addrinfo>? = result
         while let addrInfo = current?.pointee {
             let fd = socket(addrInfo.ai_family, addrInfo.ai_socktype, addrInfo.ai_protocol)
             if fd >= 0 {
+                // Apply a send/recv timeout so a stalled peer can't wedge the actor.
+                setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+                setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout<timeval>.size))
+                // Disable Nagle to reduce input latency for an interactive shell.
+                var one: Int32 = 1
+                setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &one, socklen_t(MemoryLayout<Int32>.size))
+                // Enable TCP keepalive so half-open connections get detected.
+                setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &one, socklen_t(MemoryLayout<Int32>.size))
+
                 let connectResult = Darwin.connect(fd, addrInfo.ai_addr, addrInfo.ai_addrlen)
                 if connectResult == 0 {
                     return fd
@@ -360,6 +448,7 @@ enum SSHError: LocalizedError {
     case ptyFailed(Int32)
     case shellFailed(Int32)
     case writeFailed(Int)
+    case readFailed(Int32)
     case resolutionFailed(String)
     case connectionFailed
     case notConnected
@@ -388,6 +477,8 @@ enum SSHError: LocalizedError {
             return "SSH shell failed (\(code))"
         case .writeFailed(let code):
             return "SSH write failed (\(code))"
+        case .readFailed(let code):
+            return "SSH read failed (\(code))"
         case .resolutionFailed(let message):
             return "DNS resolution failed (\(message))"
         case .connectionFailed:

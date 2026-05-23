@@ -1,4 +1,7 @@
 import Foundation
+import os
+
+private let storeLog = Logger(subsystem: "com.steveshi.macssh", category: "ConnectionsStore")
 
 struct ConnectionsStore {
     static func load() -> [SSHConnection] {
@@ -14,7 +17,7 @@ struct ConnectionsStore {
             let data = try JSONEncoder().encode(connections)
             try data.write(to: url, options: .atomic)
         } catch {
-            // Intentionally ignore persistence errors for now.
+            storeLog.error("Failed to save connections: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -23,7 +26,7 @@ struct ConnectionsStore {
             let data = try JSONEncoder().encode(connections)
             try data.write(to: url, options: .atomic)
         } catch {
-            // Ignore export errors for now.
+            storeLog.error("Failed to export connections: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -36,6 +39,7 @@ struct ConnectionsStore {
         do {
             return try JSONDecoder().decode([SSHConnection].self, from: data)
         } catch {
+            storeLog.error("Failed to decode connections: \(error.localizedDescription, privacy: .public)")
             return []
         }
     }

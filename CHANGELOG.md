@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.1] - 2026-05-23
+
+### Changed
+- Reworked the SSH session lifecycle so failed handshakes and host-key checks no longer leak sockets, libssh2 sessions, or the global init counter; concurrent connections are now reference-counted safely.
+- Made the libssh2 read loop adaptive (2 ms → 50 ms backoff with real EOF detection) instead of a fixed 10 ms spin, cutting idle CPU usage of every open SSH tab.
+- Added a 15 s socket connect/IO timeout plus `TCP_NODELAY` and `SO_KEEPALIVE` so unreachable hosts fail fast and interactive input feels snappier.
+- Cached `ByteCountFormatter` and `DateComponentsFormatter` in the System Monitor card; the panel re-renders every 3 s and the formatters were a measurable hotspot.
+
+### Fixed
+- Fixed the SFTP panel showing stale directory contents when the user quickly switched folders — listings and transfers now cancel the previous in-flight task and discard outdated results.
+- Fixed `executeCommand` closing the SSH channel before sending EOF and silently truncating output on non-EAGAIN read errors.
+- Fixed reconnect attempts being able to overlap each other; the previous connect task is now cancelled before a new one starts.
+- Replaced silent persistence failures in `ConnectionsStore` with `os.Logger` diagnostics.
+
+---
+
+### Chinese
+### 变更
+- 重写 SSH 会话生命周期：握手或 known-hosts 校验失败时不再泄漏 socket、libssh2 会话与全局初始化计数；多连接并发时改为线程安全的引用计数。
+- 将 libssh2 读取循环由固定 10 ms 自旋改为 2 ms→50 ms 自适应退避，并通过 `libssh2_channel_eof` 区分真实 EOF，显著降低空闲 SSH 标签的 CPU 占用。
+- 增加 15 秒 socket 连接/收发超时，并启用 `TCP_NODELAY` 与 `SO_KEEPALIVE`，不可达主机能快速失败，交互输入更跟手。
+- 系统监控卡片中复用 `ByteCountFormatter`/`DateComponentsFormatter`，避免每 3 秒重绘时重复构造格式化器的性能热点。
+
+### 修复
+- 修复快速切换目录时 SFTP 面板出现旧结果覆盖新结果的竞态：列举与传输任务现在会取消上一个进行中的任务并丢弃过期结果。
+- 修复 `executeCommand` 在发送 EOF 之前已关闭通道，以及非 EAGAIN 读错误时静默截断输出的问题。
+- 修复重复点击连接时多个 connect Task 同时运行的问题：新连接启动前会取消前一个任务。
+- 将 `ConnectionsStore` 中被静默吞掉的持久化错误改为通过 `os.Logger` 输出诊断信息。
+
+---
+
 ## [1.5.0] - 2026-05-20
 
 ### Added

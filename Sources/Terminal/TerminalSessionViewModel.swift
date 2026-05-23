@@ -37,6 +37,7 @@ final class TerminalSessionViewModel {
 
     var metrics: SystemMetrics = SystemMetrics()
     private let monitorTaskHolder = TaskHolder()
+    private let connectTaskHolder = TaskHolder()
     var appModel: AppModel? = nil
 
     private let monitorScript = """
@@ -127,61 +128,73 @@ final class TerminalSessionViewModel {
 
     func connect() {
         guard status != .connected else { return }
+        // Replace any in-flight connect attempt to avoid double-auth racing.
+        connectTaskHolder.cancel()
         status = .connecting
 
         let auth = makeAuth()
 
-        Task {
+        connectTaskHolder.task = Task { [weak self] in
+            guard let self else { return }
             do {
-                _ = try await session.connect(connection: connection, auth: auth)
-                status = .connected
-                handlePasswordPersistence(auth)
-                appModel?.recordHistory(for: connection.id, isSuccess: true)
-                startMonitoring()
-                sftpViewModel.refresh()
+                _ = try await self.session.connect(connection: self.connection, auth: auth)
+                if Task.isCancelled { return }
+                self.status = .connected
+                self.handlePasswordPersistence(auth)
+                self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
+                self.startMonitoring()
+                self.sftpViewModel.refresh()
             } catch let error as SSHError {
-                appModel?.recordHistory(for: connection.id, isSuccess: false)
+                if Task.isCancelled { return }
+                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
                 switch error {
                 case .hostKeyNotTrusted(let status):
-                    hostKeyPrompt = HostKeyPrompt(host: connection.host, status: status)
+                    self.hostKeyPrompt = HostKeyPrompt(host: self.connection.host, status: status)
                     self.status = .idle
                 default:
                     self.status = .failed(error.localizedDescription)
+                    self.lastErrorMessage = error.localizedDescription
                 }
             } catch {
-                appModel?.recordHistory(for: connection.id, isSuccess: false)
-                status = .failed(error.localizedDescription)
-                lastErrorMessage = error.localizedDescription
+                if Task.isCancelled { return }
+                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+                self.status = .failed(error.localizedDescription)
+                self.lastErrorMessage = error.localizedDescription
             }
         }
     }
 
     func trustHostKeyAndConnect() {
         guard status != .connected else { return }
+        connectTaskHolder.cancel()
         status = .connecting
         let auth = makeAuth()
-        Task {
+        connectTaskHolder.task = Task { [weak self] in
+            guard let self else { return }
             do {
-                _ = try await session.acceptHostKeyAndConnect(auth: auth)
-                hostKeyPrompt = nil
-                status = .connected
-                handlePasswordPersistence(auth)
-                appModel?.recordHistory(for: connection.id, isSuccess: true)
-                startMonitoring()
+                _ = try await self.session.acceptHostKeyAndConnect(auth: auth)
+                if Task.isCancelled { return }
+                self.hostKeyPrompt = nil
+                self.status = .connected
+                self.handlePasswordPersistence(auth)
+                self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
+                self.startMonitoring()
             } catch {
-                appModel?.recordHistory(for: connection.id, isSuccess: false)
-                status = .failed(error.localizedDescription)
-                lastErrorMessage = error.localizedDescription
+                if Task.isCancelled { return }
+                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+                self.status = .failed(error.localizedDescription)
+                self.lastErrorMessage = error.localizedDescription
             }
         }
     }
 
     func disconnect() {
         monitorTaskHolder.cancel()
-        Task {
+        connectTaskHolder.cancel()
+        Task { [session] in
             await session.disconnect()
-            status = .idle
         }
+        status = .idle
     }
 
     func startMonitoring() {
