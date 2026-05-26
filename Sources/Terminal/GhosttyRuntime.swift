@@ -22,6 +22,63 @@ private func ghostty_wakeup_callback(userdata: UnsafeMutableRawPointer?) {
     }
 }
 
+private func ghostty_read_clipboard_callback(
+    userdata: UnsafeMutableRawPointer?,
+    clipboard: ghostty_clipboard_e,
+    request: UnsafeMutableRawPointer?
+) -> Bool {
+    guard let request else { return false }
+    let requestAddress = Int(bitPattern: request)
+    
+    DispatchQueue.main.async {
+        guard let reqPtr = UnsafeMutableRawPointer(bitPattern: requestAddress) else { return }
+        let surface = unsafeBitCast(reqPtr, to: ghostty_surface_t.self)
+        
+        let pasteboard = NSPasteboard.general
+        if let text = pasteboard.string(forType: .string) {
+            text.withCString { cStr in
+                ghostty_surface_complete_clipboard_request(surface, cStr, reqPtr, true)
+            }
+        } else {
+            ghostty_surface_complete_clipboard_request(surface, nil, reqPtr, false)
+        }
+    }
+    return true
+}
+
+private func ghostty_write_clipboard_callback(
+    userdata: UnsafeMutableRawPointer?,
+    clipboard: ghostty_clipboard_e,
+    content: UnsafePointer<ghostty_clipboard_content_s>?,
+    contentLen: Int,
+    confirm: Bool
+) {
+    guard let content, contentLen > 0 else { return }
+    
+    // String is Sendable, so we copy it out on the calling background thread
+    // before sending it to the MainActor
+    var textToCopy: String? = nil
+    for i in 0..<contentLen {
+        let item = content[i]
+        guard let mimePtr = item.mime, let dataPtr = item.data else { continue }
+        let mime = String(cString: mimePtr)
+        let data = String(cString: dataPtr)
+        
+        if mime == "text/plain" || mime.hasPrefix("text/") {
+            textToCopy = data
+            break
+        }
+    }
+    
+    guard let text = textToCopy else { return }
+    
+    DispatchQueue.main.async {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+    }
+}
+
 @MainActor
 final class GhosttyRuntime {
     static let shared = GhosttyRuntime()
@@ -47,9 +104,9 @@ final class GhosttyRuntime {
         
         // Use empty closures for other callbacks to avoid any potential isolation issues in inline closures
         runtimeCfg.action_cb = { _, _, _ in false }
-        runtimeCfg.read_clipboard_cb = { _, _, _ in false }
+        runtimeCfg.read_clipboard_cb = ghostty_read_clipboard_callback
         runtimeCfg.confirm_read_clipboard_cb = { _, _, _, _ in }
-        runtimeCfg.write_clipboard_cb = { _, _, _, _, _ in }
+        runtimeCfg.write_clipboard_cb = ghostty_write_clipboard_callback
         runtimeCfg.close_surface_cb = { _, _ in }
 
         if let cfg {

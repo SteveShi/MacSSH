@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.3] - 2026-05-27
+
+### Fixed
+- Fixed clipboard copy and paste operations in the Ghostty terminal by implementing the native NSPasteboard-backed read and write callbacks.
+
+---
+
+### Chinese
+### 修复
+- 修复了 Ghostty 终端剪切板复制与粘贴失效的问题，通过对接 macOS 原生 NSPasteboard 实现了剪切板的读取与写入回调。
+
+---
+
 ## [1.5.2] - 2026-05-26
 
 ### Fixed
