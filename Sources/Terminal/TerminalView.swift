@@ -6,24 +6,6 @@ struct TerminalView: View {
     let settings: AppSettings
     @Bindable var appModel: AppModel
 
-    enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
-        case sftp
-        case monitor
-        
-        var id: String { self.rawValue }
-        
-        var title: String {
-            switch self {
-            case .sftp:
-                return String(localized: "SFTP")
-            case .monitor:
-                return String(localized: "Monitor")
-            }
-        }
-    }
-
-    @State private var showSftp: Bool = true
-    @State private var inspectorTab: InspectorTab = .sftp
     @State private var showReconnectError: Bool = false
     @State private var reconnectErrorMessage: String = ""
     @FocusState private var isTerminalFocused: Bool
@@ -35,6 +17,7 @@ struct TerminalView: View {
     var body: some View {
         @Bindable var model = self.model
         @Bindable var settings = self.settings
+        @Bindable var tab = self.tab
 
         VStack(spacing: 0) {
             // Use GhosttyTerminalView which caches back into tab.cachedSurface on first make.
@@ -74,44 +57,17 @@ struct TerminalView: View {
                 .help(String(localized: "Close Session Tab"))
                 .foregroundStyle(.red)
 
-                Toggle(isOn: $showSftp) {
+                Toggle(isOn: $tab.showInspector) {
                     Label(String(localized: "SFTP"), systemImage: "sidebar.right")
                 }
                 .toggleStyle(.button)
                 .help(String(localized: "Show SFTP Inspector"))
             }
         }
-        .inspector(isPresented: $showSftp) {
-            VStack(spacing: 0) {
-                Picker("", selection: $inspectorTab) {
-                    ForEach(InspectorTab.allCases) { tab in
-                        Text(tab.title).tag(tab)
-                    }
-                }
-                .pickerStyle(.segmented)
-                .padding()
-                
-                Divider()
-                
-                switch inspectorTab {
-                case .sftp:
-                    SFTPPanelView(model: model.sftpViewModel)
-                case .monitor:
-                    SystemInfoPanelView(
-                        connection: tab.connection,
-                        metrics: model.metrics,
-                        onRefresh: {
-                            model.forceRefreshMetrics()
-                        }
-                    )
-                }
-            }
-        }
         .task {
             model.appModel = appModel
             model.connect()
         }
-        .inspectorColumnWidth(min: 280, ideal: 340, max: 600)
         .confirmationDialog(
             hostKeyPromptTitle,
             isPresented: hostKeyPromptBinding,

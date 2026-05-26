@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.2] - 2026-05-26
+
+### Fixed
+- Fixed the inspector window layout in fullscreen mode by elevating the `.inspector` modifier to the window-level `NavigationSplitView`.
+- Fixed connection sidebar and inspector sidebar resizability by applying explicit column width configurations.
+
+---
+
+### Chinese
+### 修复
+- 修复在全屏模式下右侧 Inspector 顶部多出圆角分隔和黑色背景的问题，将 `.inspector` 提升至窗口级最外层 `NavigationSplitView` 上渲染。
+- 修复左侧连接列表侧边栏和右侧监控侧边栏宽度不可调节的问题，分别显式应用了最小、理想及最大列宽配置。
+
+---
+
 ## [1.5.1] - 2026-05-23
 
 ### Changed
