@@ -70,6 +70,23 @@ jobs:
         with:
           xcode-version: 'latest-stable'
 
+      - name: Free Disk Space
+        run: |
+          echo "=== Disk space before cleanup ==="
+          df -h
+          CURRENT_XCODE=$(xcode-select -p)
+          CURRENT_XCODE_APP=$(echo "$CURRENT_XCODE" | sed -E 's|(/Applications/Xcode_[^/]+\.app).*|\1|')
+          echo "Current Xcode App in use: $CURRENT_XCODE_APP"
+          for app in /Applications/Xcode_*.app; do
+            if [ "$app" != "$CURRENT_XCODE_APP" ] && [ -d "$app" ]; then
+              echo "Removing unused Xcode: $app"
+              sudo rm -rf "$app"
+            fi
+          done
+          sudo rm -rf /Library/Developer/CoreSimulator/Profiles/Runtimes/*
+          echo "=== Disk space after cleanup ==="
+          df -h
+
       - name: Install Tooling
         run: brew install xcodegen
 
