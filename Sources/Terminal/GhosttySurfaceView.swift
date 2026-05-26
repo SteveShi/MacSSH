@@ -11,6 +11,10 @@ final class GhosttySurfaceView: NSView {
     private var surface = SurfaceHandle(value: nil)
     private var surfaceConfig = GhosttySurfaceConfiguration()
 
+    var rawSurface: ghostty_surface_t? {
+        surface.value
+    }
+
     init(runtime: GhosttyRuntime = .shared, config: GhosttySurfaceConfiguration = GhosttySurfaceConfiguration()) {
         self.runtime = runtime
         self.surfaceConfig = config

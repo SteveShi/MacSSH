@@ -27,12 +27,16 @@ private func ghostty_read_clipboard_callback(
     clipboard: ghostty_clipboard_e,
     request: UnsafeMutableRawPointer?
 ) -> Bool {
-    guard let request else { return false }
+    guard let userdata, let request else { return false }
+    let viewAddress = Int(bitPattern: userdata)
     let requestAddress = Int(bitPattern: request)
     
     DispatchQueue.main.async {
+        guard let viewPtr = UnsafeMutableRawPointer(bitPattern: viewAddress) else { return }
         guard let reqPtr = UnsafeMutableRawPointer(bitPattern: requestAddress) else { return }
-        let surface = unsafeBitCast(reqPtr, to: ghostty_surface_t.self)
+        
+        let surfaceView = Unmanaged<GhosttySurfaceView>.fromOpaque(viewPtr).takeUnretainedValue()
+        guard let surface = surfaceView.rawSurface else { return }
         
         let pasteboard = NSPasteboard.general
         if let text = pasteboard.string(forType: .string) {
