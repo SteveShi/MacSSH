@@ -163,29 +163,7 @@ struct ContentView: View {
                 model.openConnection(updated)
             }
         }
-        .inspector(isPresented: Binding(
-            get: {
-                if case .connection(let id) = model.sidebarSelection,
-                   let tab = model.openTabs.first(where: { $0.connection.id == id }) {
-                    return tab.showInspector
-                }
-                return false
-            },
-            set: { newValue in
-                if case .connection(let id) = model.sidebarSelection,
-                   let tab = model.openTabs.first(where: { $0.connection.id == id }) {
-                    tab.showInspector = newValue
-                }
-            }
-        )) {
-            if case .connection(let id) = model.sidebarSelection,
-               let tab = model.openTabs.first(where: { $0.connection.id == id }) {
-                InspectorContentView(tab: tab)
-            } else {
-                EmptyView()
-            }
-        }
-        .inspectorColumnWidth(min: 280, ideal: 340, max: 600)
+
     }
 
     private func importConnections() {

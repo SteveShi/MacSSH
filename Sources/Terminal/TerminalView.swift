@@ -29,6 +29,10 @@ struct TerminalView: View {
                 .ignoresSafeArea(.container, edges: .bottom)
         }
         .navigationTitle(tab.connection.name)
+        .inspector(isPresented: $tab.showInspector) {
+            InspectorContentView(tab: tab)
+        }
+        .inspectorColumnWidth(min: 280, ideal: 340, max: 600)
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 let isConnected = model.status == .connected
