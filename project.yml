@@ -56,7 +56,6 @@ targets:
         LIBRARY_SEARCH_PATHS: "$(SRCROOT)/ThirdParty/lib"
         FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/ThirdParty/lib"
         OTHER_CFLAGS: "-I$(SRCROOT)/ThirdParty/include"
-        SWIFT_OBJC_BRIDGING_HEADER: Sources/App/MacSSH-Bridging-Header.h
         OTHER_LDFLAGS: "-lghostty-vt -lc++ -framework Carbon -Wl,-no_fixup_chains -Wl,-ld_classic"
         LD_USE_CLASSIC_LINKER: "YES"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
