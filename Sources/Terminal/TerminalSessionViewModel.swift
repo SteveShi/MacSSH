@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import libssh2_swift
 
 @MainActor
 @Observable
@@ -137,7 +138,7 @@ final class TerminalSessionViewModel {
         connectTaskHolder.task = Task { [weak self] in
             guard let self else { return }
             do {
-                _ = try await self.session.connect(connection: self.connection, auth: auth)
+                _ = try await self.session.connect(host: self.connection.host, port: self.connection.port, username: self.connection.username, auth: auth)
                 if Task.isCancelled { return }
                 self.status = .connected
                 self.handlePasswordPersistence(auth)

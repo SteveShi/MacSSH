@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.5.4] - 2026-05-28
+
+### Changed
+- Decoupled SSH protocol and cryptography core from MacSSH and extracted into a standalone package `libssh2-swift` to enable lightweight CI build automation.
+- Replaced local bulky static `.a` binary libraries with SPM remote targets via GitHub Release zip assets.
+
+### Fixed
+- Fixed duplicate command execution warnings and `module.modulemap` collisions between dependencies (such as GhosttyKit) during compilation by wrapping libraries using an external bridge C target `Clibssh2`.
+- Fixed data race compiler errors under Swift 6 strict concurrency by making `SSHAuth` conform to `Sendable`.
+
+---
+
+### Chinese
+### 变更
+- 从 MacSSH 主壳程序中彻底解耦了 SSH 协议及加密核心，并抽离为独立的 `libssh2-swift` 远程依赖包，实现了极为轻量的 CI 自动化构建。
+- 用基于 GitHub Release zip 的 SPM 远程 Target 依赖，取代了本地体积庞大的 `.a` 静态二进制库。
+
+### 修复
+- 通过引入外部 C 桥接目标 `Clibssh2` 重新包装 C 头文件与模块字典，修复了编译时由于多个第三方依赖包（如 GhosttyKit 与 libssh2）重复拷贝 `module.modulemap` 引起的冲突错误。
+- 将 `SSHAuth` 升级符合 `Sendable` 协议规范，消除了在 Swift 6 严格并发检查下跨 Actor 边界传参导致的数据竞争错误。
+
+---
+
 ## [1.5.3] - 2026-05-27
 
 ### Fixed

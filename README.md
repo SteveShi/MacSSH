@@ -1,64 +1,57 @@
 # MacSSH
 
-A modern, high-performance SSH & SFTP client for macOS, powered by the **Ghostty** terminal engine.
+[中文版](README_zh.md)
 
-> [!WARNING]
-> **早期预览版本 / Early Preview**
-> MacSSH 目前处于早期开发阶段，功能尚未完整，可能存在 Bug 和不稳定情况，请谨慎用于生产环境。  
-> MacSSH is currently in early development. It may contain bugs and stability issues. Use in production environments at your own risk.
+`MacSSH` is a modern, fast, and native **SSH & SFTP client** handcrafted for macOS.
 
-## Features
+Built entirely with SwiftUI, it features GPU-accelerated terminal rendering driven by the Ghostty emulator engine (`libghostty-swift`) and robust SSH2 session handling via an isolated SPM package (`libssh2-swift`).
 
-- **Ghostty Terminal Engine**: Blazing fast rendering with modern terminal features.
-- **True Color Support**: Full 24-bit TrueColor and 256-color palette support for a rich CLI experience.
-- **SFTP Integration**: Built-in SFTP browser with drag-and-drop support and real-time transfer progress.
-- **Native macOS Experience**: Built with SwiftUI, featuring native tabs, searchable connection lists, and modern layout tokens.
-- **Advanced Connectivity**: Reliable SSH sessions using `libssh2` with non-blocking I/O for maximum stability.
-- **Localized UI**: Fully localized and ready for internationalization.
+---
 
-## Installation
+## Modular Architecture
 
-You can install **MacSSH** via [Steve's Homebrew Tap](https://github.com/SteveShi/homebrew-tap):
+To ensure separation of concerns and maintain a repository size under 1MB, `MacSSH` decomposes its modules cleanly:
 
-```bash
-brew tap SteveShi/tap
-brew install --cask macssh
+```mermaid
+graph TD
+    App[MacSSH App SwiftUI] --> |UI Layer / SFTP Panels| Core
+    Core[App Logic & ViewModels] --> |Terminal Emulator View| Ghostty[libghostty-swift]
+    Core --> |SSH2 & SFTP Protocol| SSH[libssh2-swift Package]
+    SSH --> |Remote BinaryTarget| C_Libs["libssh2 & openssl XCFrameworks"]
 ```
 
-## Requirements
+- **Host Application (`MacSSH`)**: Governs SSH settings editor, tabs management, Keychain data flow, side-panel dashboard, and localized SwiftUI assets.
+- **Terminal System (`libghostty-swift`)**: Embeds high-performance virtual terminal state machines and Metal views.
+- **Connection Core (`libssh2-swift`)**: Bridges raw TCP socket structures to Swift `actor` mechanisms, resolving low-level C libraries (`libssh2` and `openssl`) via remote binary targets.
 
-- macOS 15.0 or later
-- Xcode 16.0 or later (for development)
-- [XcodeGen](https://github.com/yonaskolb/XcodeGen) (to generate the project)
+---
+
+## Core Features
+
+- ⚡ **Metal-Accelerated VT**: Powered by Ghostty's core, offering lag-free interactive shell rendering.
+- 📦 **Ultra Lightweight**: No bulky static binary `.a` files committed to Git. Resolved strictly on-demand during build phases.
+- 🛡️ **Swift 6 Concurrency**: Conforms 100% to rigid concurrency rules, eliminating data-races during multiplexed SSH channel tasks.
+- 📊 **Host System Monitor**: Displays host health metrics (CPU utilization, physical memory usage, disk storage, and average loads) right in the sidebar.
+- 📁 **Built-in SFTP Panels**: Visual directory inspector enabling instant recursive uploads, downloads, and navigation.
+
+---
 
 ## Getting Started
 
-1. Clone the repository:
+The Xcode project file (`MacSSH.xcodeproj`) is generated dynamically using [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+
+1. **Install XcodeGen**:
    ```bash
-   git clone https://github.com/SteveShi/MacSSH.git
-   cd MacSSH
+   brew install xcodegen
    ```
 
-2. Install dependencies (requires `cmake` and `git`):
+2. **Generate Xcode Project**:
+   Run this command in the project directory root:
    ```bash
-   ./scripts/build_deps.sh
+   xcodegen
    ```
 
-3. Generate the Xcode project:
-   ```bash
-   xcodegen generate
-   ```
-
-4. Open `MacSSH.xcodeproj` and build the project.
-
-## Development
-
-This project uses **Git LFS** for managing large binary dependencies. Ensure you have Git LFS installed:
-```bash
-git lfs install
-git lfs pull
-```
-
-## License
-
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+3. **Build & Run**:
+   - Launch `MacSSH.xcodeproj`.
+   - On the first load, Xcode will fetch remote Swift packages (it might take a minute to download the XCFramework binaries).
+   - Target the `MacSSH` scheme and press `Cmd + R` to run the application.

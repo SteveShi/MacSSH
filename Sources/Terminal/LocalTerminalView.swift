@@ -1,4 +1,5 @@
 import SwiftUI
+import libghostty_swift
 
 struct LocalTerminalView: View {
     let settings: AppSettings

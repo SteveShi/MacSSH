@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import libssh2_swift
 
 struct SFTPPanelView: View {
     @Bindable var model: SFTPViewModel

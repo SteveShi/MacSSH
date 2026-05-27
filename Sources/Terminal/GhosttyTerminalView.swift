@@ -1,4 +1,7 @@
 import SwiftUI
+import libghostty_swift
+import Foundation
+import libssh2_swift
 
 // MARK: - Surface View Host (persistent surface reuse)
 

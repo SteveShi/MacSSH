@@ -1,6 +1,0 @@
-module libssh2 [system] {
-  header "libssh2.h"
-  header "libssh2_sftp.h"
-  link "ssh2"
-  export *
-}

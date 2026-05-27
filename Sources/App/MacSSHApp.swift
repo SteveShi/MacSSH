@@ -1,4 +1,5 @@
 import SwiftUI
+import libghostty_swift
 
 @main
 struct MacSSHApp: App {

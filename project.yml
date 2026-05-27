@@ -12,8 +12,8 @@ settings:
     MACOSX_DEPLOYMENT_TARGET: "15.0"
     SWIFT_VERSION: "6.2"
     PRODUCT_NAME: "MacSSH"
-    MARKETING_VERSION: "1.5.3"
-    CURRENT_PROJECT_VERSION: "153"
+    MARKETING_VERSION: "1.5.4"
+    CURRENT_PROJECT_VERSION: "154"
     ARCHS: "arm64"
     ONLY_ACTIVE_ARCH: "NO"
 
@@ -21,6 +21,13 @@ packages:
   Sparkle:
     url: https://github.com/sparkle-project/Sparkle
     from: 2.0.0
+  libghostty-swift:
+    url: https://github.com/SteveShi/libghostty-swift.git
+    branch: main
+  libssh2-swift:
+    url: https://github.com/SteveShi/libssh2-swift.git
+    from: 1.2.1
+
 
 schemes:
   MacSSH:
@@ -49,16 +56,17 @@ targets:
         LIBRARY_SEARCH_PATHS: "$(SRCROOT)/ThirdParty/lib"
         FRAMEWORK_SEARCH_PATHS: "$(SRCROOT)/ThirdParty/lib"
         OTHER_CFLAGS: "-I$(SRCROOT)/ThirdParty/include"
-        OTHER_SWIFT_FLAGS: "-Xcc -fmodule-map-file=$(SRCROOT)/ThirdParty/include/module.modulemap"
         SWIFT_OBJC_BRIDGING_HEADER: Sources/App/MacSSH-Bridging-Header.h
-        OTHER_LDFLAGS: "-lssh2 -lssl -lcrypto -lghostty-vt -lc++ -framework Carbon -Wl,-no_fixup_chains -Wl,-ld_classic"
+        OTHER_LDFLAGS: "-lghostty-vt -lc++ -framework Carbon -Wl,-no_fixup_chains -Wl,-ld_classic"
         LD_USE_CLASSIC_LINKER: "YES"
         LD_RUNPATH_SEARCH_PATHS: "$(inherited) @executable_path/../Frameworks"
     dependencies:
       - package: Sparkle
         product: Sparkle
-      - framework: ThirdParty/lib/GhosttyKit.xcframework
-        embed: false
+      - package: libghostty-swift
+        product: libghostty-swift
+      - package: libssh2-swift
+        product: libssh2-swift
     postBuildScripts:
       - name: Embed libghostty-vt
         runOnlyForDeploymentPostprocessing: false

@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import libghostty_swift
 
 enum SidebarItem: Hashable, Identifiable {
     case localTerminal
