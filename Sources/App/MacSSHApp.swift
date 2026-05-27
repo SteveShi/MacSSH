@@ -15,6 +15,11 @@ struct MacSSHApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(model: model, settings: settings)
+                .onAppear {
+                    if !settings.defaultInputSourceID.isEmpty {
+                        InputSourceManager.selectInputSource(id: settings.defaultInputSourceID)
+                    }
+                }
         }
         .commands {
             CommandGroup(after: .appInfo) {

@@ -18,6 +18,7 @@ final class AppSettings {
         static let vibrancyEnabled = "vibrancyEnabled"
         static let showGrid = "showGrid"
         static let terminalGlow = "terminalGlow"
+        static let defaultInputSourceID = "defaultInputSourceID"
     }
 
     var fontSize: Double {
@@ -45,6 +46,10 @@ final class AppSettings {
         didSet { save() }
     }
 
+    var defaultInputSourceID: String {
+        didSet { save() }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let savedSize = defaults.double(forKey: Keys.fontSize)
@@ -58,6 +63,7 @@ final class AppSettings {
         vibrancyEnabled = defaults.object(forKey: Keys.vibrancyEnabled) as? Bool ?? true
         showGrid = defaults.object(forKey: Keys.showGrid) as? Bool ?? false
         terminalGlow = defaults.object(forKey: Keys.terminalGlow) as? Bool ?? true
+        defaultInputSourceID = defaults.string(forKey: Keys.defaultInputSourceID) ?? ""
     }
 
     var availableFonts: [String] {
@@ -94,5 +100,6 @@ final class AppSettings {
         defaults.set(vibrancyEnabled, forKey: Keys.vibrancyEnabled)
         defaults.set(showGrid, forKey: Keys.showGrid)
         defaults.set(terminalGlow, forKey: Keys.terminalGlow)
+        defaults.set(defaultInputSourceID, forKey: Keys.defaultInputSourceID)
     }
 }

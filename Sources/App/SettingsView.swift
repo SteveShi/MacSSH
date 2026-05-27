@@ -97,6 +97,8 @@ struct SettingsView: View {
         }
     }
     
+    @State private var availableInputSources: [InputSourceManager.InputSource] = []
+
     private var generalTab: some View {
         Form {
             Section {
@@ -110,8 +112,24 @@ struct SettingsView: View {
                 Toggle(String(localized: "Confirm before disconnecting"), isOn: .constant(true))
                 Toggle(String(localized: "Automatically reconnect on failure"), isOn: .constant(false))
             }
+
+            Section {
+                Picker(String(localized: "Default Input Method"), selection: $settings.defaultInputSourceID) {
+                    Text(String(localized: "Do Not Switch")).tag("")
+                    ForEach(availableInputSources) { source in
+                        Text(source.localizedName).tag(source.id)
+                    }
+                }
+            } header: {
+                Text(String(localized: "Input Method"))
+            } footer: {
+                Text(String(localized: "Automatically switch to the selected input method when the app is activated."))
+            }
         }
         .formStyle(.grouped)
+        .onAppear {
+            availableInputSources = InputSourceManager.enabledInputSources()
+        }
     }
     
     private var terminalTab: some View {

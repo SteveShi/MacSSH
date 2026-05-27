@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.0] - 2026-05-28
+
+### Added
+- Added a "Default Input Method" option in Settings → General, allowing users to select a preferred input method that is automatically activated when the app launches.
+- The input method list is dynamically populated from all enabled keyboard input sources on the system.
+
+---
+
+### Chinese
+### 新增
+- 在设置 → 通用中新增「默认输入法」选项，用户可选择一个首选输入法，应用启动时将自动切换到该输入法。
+- 输入法列表动态读取系统中所有已启用的键盘输入源。
+
+---
+
 ## [1.5.4] - 2026-05-28
 
 ### Changed
