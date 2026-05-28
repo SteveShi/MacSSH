@@ -41,11 +41,13 @@ ThirdParty/build/
 ThirdParty/bin/
 ThirdParty/etc/
 ThirdParty/share/
+ThirdParty/libssh2kit.xcframework/
+ThirdParty/libssh2kit.xcframework.zip
 
 # Keep only the compiled libraries and headers if you want others to build immediately
 # Alternatively, use scripts to build them locally.
-# ThirdParty/lib/
-# ThirdParty/include/
+ThirdParty/lib/
+ThirdParty/include/
 
 # Misc
 *.swiftmodule
