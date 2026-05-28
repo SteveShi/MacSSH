@@ -71,6 +71,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           LATEST_LIBSSH2_VER: ${{ steps.check-deps.outputs.latest_libssh2 }}
           LATEST_GHOSTTY_VER: ${{ steps.check-deps.outputs.latest_ghostty }}
+          SPARKLE_SECRET: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+          HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
           set -euo pipefail
 
@@ -105,6 +107,14 @@ jobs:
 
           ---
           EOF
+
+          # Extract English and Chinese Release Notes
+          sed -n '1,/### Chinese/p' changelog_temp.md | grep -v "### Chinese" > release_notes_en.md
+          sed -n '/### Chinese/,$p' changelog_temp.md | sed '1d' > release_notes_zh.md
+
+          if [ ! -s release_notes_zh.md ]; then cp release_notes_en.md release_notes_zh.md; fi
+          if [ ! -s release_notes_en.md ]; then cp changelog_temp.md release_notes_en.md; fi
+
           cat changelog_temp.md CHANGELOG.md > changelog_merged.md
           mv changelog_merged.md CHANGELOG.md
           rm changelog_temp.md
@@ -116,19 +126,103 @@ jobs:
           # Build release bundle
           xcodebuild -scheme MacSSH -configuration Release -derivedDataPath BuildData build
 
+          # Locate compiled App and sign it
+          APP_PATH=$(find BuildData/Build/Products/Release -name "MacSSH.app" -type d | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "CRITICAL ERROR: MacSSH.app not found!"
+            exit 1
+          fi
+
+          echo "Applying deep ad-hoc signature..."
+          codesign --force --deep -s - "$APP_PATH"
+
           # Zip executable app bundle
-          cd BuildData/Build/Products/Release
-          zip -qy -r ../../../../MacSSH.zip MacSSH.app
+          APP_DIR=$(dirname "$APP_PATH")
+          APP_NAME=$(basename "$APP_PATH")
+          cd "$APP_DIR"
+          zip -qy -r "$GITHUB_WORKSPACE/MacSSH.zip" "$APP_NAME"
           cd -
 
-          # Configure Git and push
+          # Create DMG
+          rm -rf dmg_root
+          mkdir -p dmg_root
+          cp -R "$APP_PATH" dmg_root/
+          hdiutil create -volname "MacSSH" -srcfolder dmg_root -ov -format UDZO "MacSSH.dmg"
+          rm -rf dmg_root
+
+          # Generate Sparkle Appcast
+          SPARKLE_VERSION=$(gh api repos/sparkle-project/Sparkle/releases/latest --jq '.tag_name' | sed 's/^v//')
+          curl -fL -H "User-Agent: curl" -o Sparkle.tar.xz "https://github.com/sparkle-project/Sparkle/releases/download/${SPARKLE_VERSION}/Sparkle-${SPARKLE_VERSION}.tar.xz"
+          tar -xf Sparkle.tar.xz
+
+          CLEAN_KEY=$(echo "$SPARKLE_SECRET" | sed 's/EdDSAPrivateKey://' | tr -dc 'A-Za-z0-9+/=')
+          
+          if [ -z "$CLEAN_KEY" ]; then
+            echo "ERROR: SPARKLE_PRIVATE_KEY secret is missing!"
+            exit 1
+          fi
+
+          mkdir -p deploy
+          cp MacSSH.zip deploy/
+          cp release_notes_en.md "deploy/release_notes_en.md"
+          cp release_notes_zh.md "deploy/release_notes_zh.md"
+          cp release_notes_en.md "deploy/release_notes.md"
+          
+          export DYLD_FRAMEWORK_PATH="$PWD"
+          
+          echo "$CLEAN_KEY" | ./bin/generate_appcast \
+            --ed-key-file - \
+            --download-url-prefix "https://github.com/SteveShi/MacSSH/releases/download/v${NEXT_APP_VER}/" \
+            deploy/
+          
+          if [ -f "deploy/appcast.xml" ]; then
+            mv deploy/appcast.xml .
+            sed -i.bak '/<description>/d' appcast.xml
+            sed -i.bak '/<sparkle:releaseNotesLink>/d' appcast.xml
+            
+            EN_LINK="https://github.com/SteveShi/MacSSH/releases/download/v${NEXT_APP_VER}/release_notes_en.md"
+            ZH_LINK="https://github.com/SteveShi/MacSSH/releases/download/v${NEXT_APP_VER}/release_notes_zh.md"
+            
+            sed -i.bak "/<enclosure/i\\
+            <sparkle:releaseNotesLink xml:lang=\"en\">$EN_LINK</sparkle:releaseNotesLink>" appcast.xml
+            sed -i.bak "/<enclosure/i\\
+            <sparkle:releaseNotesLink xml:lang=\"zh-Hans\">$ZH_LINK</sparkle:releaseNotesLink>" appcast.xml
+            
+            rm appcast.xml.bak
+          else
+            echo "ERROR: generate_appcast failed to produce appcast.xml."
+            exit 1
+          fi
+
+          # Configure Git and push (Do this BEFORE creating release)
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add project.yml CHANGELOG.md
           git commit -m "Auto bump dependencies and version to ${NEXT_APP_VER} [skip ci]"
           git push origin main
 
-          # Create Release and upload App zip
-          gh release create "v${NEXT_APP_VER}" MacSSH.zip \
+          # Create Release and upload assets
+          gh release create "v${NEXT_APP_VER}" \
+            MacSSH.zip \
+            MacSSH.dmg \
+            appcast.xml \
+            release_notes_en.md \
+            release_notes_zh.md \
             --title "v${NEXT_APP_VER}" \
             --notes "Automatically compiled and released with updated dependencies: libssh2-swift ${LATEST_LIBSSH2_VER} and libghostty-swift ${LATEST_GHOSTTY_VER}"
+
+          # Update Homebrew tap Cask
+          SHA256=$(shasum -a 256 "MacSSH.dmg" | awk '{print $1}')
+          
+          git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/SteveShi/homebrew-tap.git tap-repo
+          cd tap-repo
+          
+          sed -i '' "s/version \".*\"/version \"${NEXT_APP_VER}\"/" Casks/macssh.rb
+          sed -i '' -E "s/sha256 (\"[a-f0-9]+\"|:no_check)/sha256 \"$SHA256\"/" Casks/macssh.rb
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add Casks/macssh.rb
+          git commit -m "Update macssh to ${NEXT_APP_VER}"
+          git push
+          cd -
