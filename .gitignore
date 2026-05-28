@@ -38,6 +38,9 @@ Package.resolved
 # Ignore the source code and build artifacts of dependencies (very large)
 ThirdParty/src/
 ThirdParty/build/
+ThirdParty/bin/
+ThirdParty/etc/
+ThirdParty/share/
 
 # Keep only the compiled libraries and headers if you want others to build immediately
 # Alternatively, use scripts to build them locally.
