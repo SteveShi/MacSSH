@@ -89,21 +89,20 @@ jobs:
           sed -i '' "s/CURRENT_PROJECT_VERSION: \"$CURRENT_BUILD_VER\"/CURRENT_PROJECT_VERSION: \"$NEXT_BUILD_VER\"/g" project.yml
 
           # Prepend CHANGELOG.md
-          cat <<EOF > changelog_temp.md
-## [${NEXT_APP_VER}] - $(date +%Y-%m-%d)
+          cat <<'EOF' | sed 's/^          //' > changelog_temp.md
+          ## [${NEXT_APP_VER}] - $(date +%Y-%m-%d)
 
-### Changed
-- Automatically bumped dependencies to libssh2-swift version ${LATEST_LIBSSH2_VER} and libghostty-swift version ${LATEST_GHOSTTY_VER}.
+          ### Changed
+          - Automatically bumped dependencies to libssh2-swift version ${LATEST_LIBSSH2_VER} and libghostty-swift version ${LATEST_GHOSTTY_VER}.
 
----
+          ---
 
-### Chinese
-### 变更
-- 自动更新依赖项 libssh2-swift 至版本 ${LATEST_LIBSSH2_VER}，libghostty-swift 至版本 ${LATEST_GHOSTTY_VER}。
+          ### Chinese
+          ### 变更
+          - 自动更新依赖项 libssh2-swift 至版本 ${LATEST_LIBSSH2_VER}，libghostty-swift 至版本 ${LATEST_GHOSTTY_VER}。
 
----
-
-EOF
+          ---
+          EOF
           cat changelog_temp.md CHANGELOG.md > changelog_merged.md
           mv changelog_merged.md CHANGELOG.md
           rm changelog_temp.md
