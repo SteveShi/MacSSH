@@ -75,8 +75,8 @@ jobs:
           set -euo pipefail
 
           # Get current versions
-          CURRENT_APP_VER=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*MARKETING_VERSION: "\(.*\)"/\1/')
-          CURRENT_BUILD_VER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | sed 's/.*CURRENT_PROJECT_VERSION: "\(.*\)"/\1/')
+          CURRENT_APP_VER=$(grep "MARKETING_VERSION:" project.yml | head -n 1 | sed 's/.*MARKETING_VERSION: "\(.*\)"/\1/')
+          CURRENT_BUILD_VER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | head -n 1 | sed 's/.*CURRENT_PROJECT_VERSION: "\(.*\)"/\1/')
 
           IFS='.' read -r -a APP_PARTS <<< "$CURRENT_APP_VER"
           NEXT_APP_PATCH=$((APP_PARTS[2] + 1))
