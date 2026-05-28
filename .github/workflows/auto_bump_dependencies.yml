@@ -1,0 +1,133 @@
+name: Auto Bump Dependencies and Release App
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-release:
+    runs-on: macos-15
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Check Dependencies Versions
+        id: check-deps
+        run: |
+          set -euo pipefail
+
+          # Get latest remote versions
+          LATEST_LIBSSH2=$(curl -s https://api.github.com/repos/SteveShi/libssh2-swift/releases/latest | jq -r .tag_name)
+          LATEST_LIBSSH2_VER=${LATEST_LIBSSH2#v}
+
+          LATEST_GHOSTTY=$(curl -s https://api.github.com/repos/SteveShi/libghostty-swift/releases/latest | jq -r .tag_name)
+          LATEST_GHOSTTY_VER=${LATEST_GHOSTTY#v}
+
+          echo "Latest remote libssh2-swift: $LATEST_LIBSSH2_VER"
+          echo "Latest remote libghostty-swift: $LATEST_GHOSTTY_VER"
+
+          # Parse current local versions from project.yml
+          CURRENT_LIBSSH2_VER=$(grep -A 2 "libssh2-swift:" project.yml | grep "from:" | sed 's/.*from: //')
+          CURRENT_GHOSTTY_VER=$(grep -A 2 "libghostty-swift:" project.yml | grep "from:" | sed 's/.*from: //')
+
+          echo "Current local libssh2-swift: $CURRENT_LIBSSH2_VER"
+          echo "Current local libghostty-swift: $CURRENT_GHOSTTY_VER"
+
+          UPDATED=false
+          if [[ "$LATEST_LIBSSH2_VER" != "$CURRENT_LIBSSH2_VER" ]]; then
+            echo "libssh2-swift needs update: $CURRENT_LIBSSH2_VER -> $LATEST_LIBSSH2_VER"
+            sed -i '' "/libssh2-swift:/,/from:/s/from: $CURRENT_LIBSSH2_VER/from: $LATEST_LIBSSH2_VER/" project.yml
+            UPDATED=true
+          fi
+
+          if [[ "$LATEST_GHOSTTY_VER" != "$CURRENT_GHOSTTY_VER" ]]; then
+            echo "libghostty-swift needs update: $CURRENT_GHOSTTY_VER -> $LATEST_GHOSTTY_VER"
+            sed -i '' "/libghostty-swift:/,/from:/s/from: $CURRENT_GHOSTTY_VER/from: $LATEST_GHOSTTY_VER/" project.yml
+            UPDATED=true
+          fi
+
+          if [[ "$UPDATED" == "true" ]]; then
+            echo "updates_available=true" >> "$GITHUB_OUTPUT"
+            echo "latest_libssh2=$LATEST_LIBSSH2_VER" >> "$GITHUB_OUTPUT"
+            echo "latest_ghostty=$LATEST_GHOSTTY_VER" >> "$GITHUB_OUTPUT"
+          else
+            echo "updates_available=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build and Release App
+        if: steps.check-deps.outputs.updates_available == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          LATEST_LIBSSH2_VER: ${{ steps.check-deps.outputs.latest_libssh2 }}
+          LATEST_GHOSTTY_VER: ${{ steps.check-deps.outputs.latest_ghostty }}
+        run: |
+          set -euo pipefail
+
+          # Get current versions
+          CURRENT_APP_VER=$(grep "MARKETING_VERSION:" project.yml | sed 's/.*MARKETING_VERSION: "\(.*\)"/\1/')
+          CURRENT_BUILD_VER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | sed 's/.*CURRENT_PROJECT_VERSION: "\(.*\)"/\1/')
+
+          IFS='.' read -r -a APP_PARTS <<< "$CURRENT_APP_VER"
+          NEXT_APP_PATCH=$((APP_PARTS[2] + 1))
+          NEXT_APP_VER="${APP_PARTS[0]}.${APP_PARTS[1]}.${NEXT_APP_PATCH}"
+          NEXT_BUILD_VER=$((CURRENT_BUILD_VER + 1))
+
+          echo "Bumping app version: $CURRENT_APP_VER -> $NEXT_APP_VER"
+          echo "Bumping build version: $CURRENT_BUILD_VER -> $NEXT_BUILD_VER"
+
+          # Apply version updates
+          sed -i '' "s/MARKETING_VERSION: \"$CURRENT_APP_VER\"/MARKETING_VERSION: \"$NEXT_APP_VER\"/g" project.yml
+          sed -i '' "s/CURRENT_PROJECT_VERSION: \"$CURRENT_BUILD_VER\"/CURRENT_PROJECT_VERSION: \"$NEXT_BUILD_VER\"/g" project.yml
+
+          # Prepend CHANGELOG.md
+          cat <<EOF > changelog_temp.md
+## [${NEXT_APP_VER}] - $(date +%Y-%m-%d)
+
+### Changed
+- Automatically bumped dependencies to libssh2-swift version ${LATEST_LIBSSH2_VER} and libghostty-swift version ${LATEST_GHOSTTY_VER}.
+
+---
+
+### Chinese
+### 变更
+- 自动更新依赖项 libssh2-swift 至版本 ${LATEST_LIBSSH2_VER}，libghostty-swift 至版本 ${LATEST_GHOSTTY_VER}。
+
+---
+
+EOF
+          cat changelog_temp.md CHANGELOG.md > changelog_merged.md
+          mv changelog_merged.md CHANGELOG.md
+          rm changelog_temp.md
+
+          # Regenerate Xcode Project and resolve packages
+          xcodegen
+          xcodebuild -resolvePackageDependencies -project MacSSH.xcodeproj
+
+          # Build release bundle
+          xcodebuild -scheme MacSSH -configuration Release -derivedDataPath BuildData build
+
+          # Zip executable app bundle
+          cd BuildData/Build/Products/Release
+          zip -qy -r ../../../../MacSSH.zip MacSSH.app
+          cd -
+
+          # Configure Git and push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add project.yml Package.resolved CHANGELOG.md
+          git commit -m "Auto bump dependencies and version to ${NEXT_APP_VER} [skip ci]"
+          git push origin main
+
+          # Create Release and upload App zip
+          gh release create "v${NEXT_APP_VER}" MacSSH.zip \
+            --title "v${NEXT_APP_VER}" \
+            --notes "Automatically compiled and released with updated dependencies: libssh2-swift ${LATEST_LIBSSH2_VER} and libghostty-swift ${LATEST_GHOSTTY_VER}"

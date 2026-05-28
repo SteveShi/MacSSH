@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+VERSION="${1:-0.20260526.0}"
+
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC="$ROOT/ThirdParty/src/boringssl"
 BUILD="$ROOT/ThirdParty/build/boringssl_macos15"
@@ -14,8 +16,8 @@ else
   git -C "$SRC" fetch --tags
 fi
 
-echo "Checking out BoringSSL version 0.20260526.0..."
-git -C "$SRC" checkout 0.20260526.0
+echo "Checking out BoringSSL version $VERSION..."
+git -C "$SRC" checkout "$VERSION"
 
 echo "Configuring BoringSSL with CMake..."
 cmake -S "$SRC" -B "$BUILD" \
