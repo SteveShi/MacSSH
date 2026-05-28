@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.7.0] - 2026-05-28
+
+### Changed
+- Switched the underlying cryptographic and SSL/TLS backend of libssh2 from LibreSSL to BoringSSL (version 0.20260526.0).
+- Renamed the binary target library references inside dependencies to `libssh2kit`.
+
+---
+
+### Chinese
+### 变更
+- 将底层的密码学和 SSL/TLS 加密内核从 LibreSSL 切换为了 BoringSSL（版本 0.20260526.0）。
+- 将依赖库内部引用的二进制目标文件整合重命名为了 `libssh2kit`。
+
+---
+
 ## [1.6.1] - 2026-05-28
 
 ### Changed
