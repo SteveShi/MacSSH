@@ -14,6 +14,9 @@ else
   git -C "$SRC" pull --rebase
 fi
 
+# Ensure we are using version 4.3.2
+git -C "$SRC" checkout v4.3.2
+
 # LibreSSL from git requires autotools to generate configure scripts.
 # If you have a tagged release tarball, you can skip autogen.sh.
 if [[ -x "$SRC/autogen.sh" ]]; then

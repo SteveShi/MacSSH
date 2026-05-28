@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.6.1] - 2026-05-28
+
+### Changed
+- Upgraded the underlying LibreSSL dependency of libssh2 to 4.3.2.
+- Renamed the binary target inside libssh2-swift package from `libssh2` to `libssh2kit`.
+
+---
+
+### Chinese
+### 变更
+- 将底层的 LibreSSL 加密核心依赖升级到了最新的 4.3.2 版本。
+- 将 `libssh2-swift` 中的二进制目标从 `libssh2` 重命名为了 `libssh2kit`。
+
+---
+
 ## [1.6.0] - 2026-05-28
 
 ### Added
