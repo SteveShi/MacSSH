@@ -65,6 +65,12 @@ jobs:
             echo "updates_available=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Set up Xcode
+        if: steps.check-deps.outputs.updates_available == 'true'
+        uses: SteveShi/setup-xcode@v2
+        with:
+          xcode-version: 'latest-stable'
+
       - name: Build and Release App
         if: steps.check-deps.outputs.updates_available == 'true'
         env:
