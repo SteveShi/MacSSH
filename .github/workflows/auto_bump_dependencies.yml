@@ -115,6 +115,11 @@ jobs:
           if [ ! -s release_notes_zh.md ]; then cp release_notes_en.md release_notes_zh.md; fi
           if [ ! -s release_notes_en.md ]; then cp changelog_temp.md release_notes_en.md; fi
 
+          # Generate release_notes.md for Release notes-file body
+          cat release_notes_en.md > release_notes.md
+          echo -e "\n---\n" >> release_notes.md
+          cat release_notes_zh.md >> release_notes.md
+
           cat changelog_temp.md CHANGELOG.md > changelog_merged.md
           mv changelog_merged.md CHANGELOG.md
           rm changelog_temp.md
@@ -209,7 +214,7 @@ jobs:
             release_notes_en.md \
             release_notes_zh.md \
             --title "v${NEXT_APP_VER}" \
-            --notes "Automatically compiled and released with updated dependencies: libssh2-swift ${LATEST_LIBSSH2_VER} and libghostty-swift ${LATEST_GHOSTTY_VER}"
+            --notes-file release_notes.md
 
           # Update Homebrew tap Cask
           SHA256=$(shasum -a 256 "MacSSH.dmg" | awk '{print $1}')
