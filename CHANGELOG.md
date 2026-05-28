@@ -1,3 +1,15 @@
+## [1.7.2] - 2026-05-28
+
+### Changed
+- Automatically bumped dependencies to libssh2-swift version 1.3.2 and libghostty-swift version 1.0.0.
+
+---
+
+### Chinese
+### 变更
+- 自动更新依赖项 libssh2-swift 至版本 1.3.2，libghostty-swift 至版本 1.0.0。
+
+---
 ## [1.7.1] - 2026-05-28
 
 ### Changed
