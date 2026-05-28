@@ -91,7 +91,7 @@ jobs:
           sed -i '' "s/CURRENT_PROJECT_VERSION: \"$CURRENT_BUILD_VER\"/CURRENT_PROJECT_VERSION: \"$NEXT_BUILD_VER\"/g" project.yml
 
           # Prepend CHANGELOG.md
-          cat <<'EOF' | sed 's/^          //' > changelog_temp.md
+          cat <<EOF | sed 's/^          //' > changelog_temp.md
           ## [${NEXT_APP_VER}] - $(date +%Y-%m-%d)
 
           ### Changed
