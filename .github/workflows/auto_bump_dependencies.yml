@@ -158,7 +158,7 @@ jobs:
           rm -rf dmg_root
           mkdir -p dmg_root
           cp -R "$APP_PATH" dmg_root/
-          hdiutil create -volname "MacSSH" -srcfolder dmg_root -ov -format UDZO "MacSSH.dmg"
+          hdiutil create -volname "MacSSH" -srcfolder dmg_root -ov -format UDZO "MacSSH-AppleSilicon.dmg"
           rm -rf dmg_root
 
           # Generate Sparkle Appcast
@@ -215,7 +215,7 @@ jobs:
           # Create Release and upload assets
           gh release create "v${NEXT_APP_VER}" \
             MacSSH.zip \
-            MacSSH.dmg \
+            MacSSH-AppleSilicon.dmg \
             appcast.xml \
             release_notes_en.md \
             release_notes_zh.md \
@@ -223,7 +223,7 @@ jobs:
             --notes-file release_notes.md
 
           # Update Homebrew tap Cask
-          SHA256=$(shasum -a 256 "MacSSH.dmg" | awk '{print $1}')
+          SHA256=$(shasum -a 256 "MacSSH-AppleSilicon.dmg" | awk '{print $1}')
           
           git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/SteveShi/homebrew-tap.git tap-repo
           cd tap-repo
