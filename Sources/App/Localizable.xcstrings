@@ -309,6 +309,22 @@
         }
       }
     },
+    "Automatically switch to the selected input method when the app is activated." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically switch to the selected input method when the app is activated."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "应用激活时自动切换到选定的输入法。"
+          }
+        }
+      }
+    },
     "Backup & Restore" : {
       "localizations" : {
         "zh-Hans" : {
@@ -633,6 +649,22 @@
         }
       }
     },
+    "Default Input Method" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default Input Method"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "默认输入法"
+          }
+        }
+      }
+    },
     "Delete" : {
       "localizations" : {
         "en" : {
@@ -683,6 +715,22 @@
     },
     "Disk" : {
 
+    },
+    "Do Not Switch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do Not Switch"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "不切换"
+          }
+        }
+      }
     },
     "Download" : {
       "localizations" : {
@@ -992,6 +1040,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "导入连接..."
+          }
+        }
+      }
+    },
+    "Input Method" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Input Method"
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "输入法"
           }
         }
       }
