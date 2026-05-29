@@ -1,3 +1,29 @@
+## [1.8.0] - 2026-05-30
+
+### Added
+- Added a "Default Input Method" option in Settings → General that automatically switches to the selected input method whenever the app becomes active.
+- The input method list is dynamically populated from all system-enabled keyboard input sources.
+
+### Fixed
+- Fixed all placeholder settings toggles (Confirm before disconnecting, Auto reconnect, Show hidden files, Overwrite existing files) that were previously display-only with hardcoded `.constant()` values — they are now fully persisted via UserDefaults.
+- Fixed the About tab showing a hardcoded version "0.1.0 (1)" instead of the actual app version; it now reads from the app bundle dynamically.
+- Fixed input method switching not triggering on app activation by replacing `.onAppear` with `NSApplication.didBecomeActiveNotification`.
+
+---
+
+### Chinese
+### 新增
+- 在设置 → 通用中新增「默认输入法」选项，应用每次被激活时自动切换到用户选择的输入法。
+- 输入法列表动态读取系统中所有已启用的键盘输入源。
+
+### 修复
+- 修复通用和 SFTP 标签页中 4 个设置开关（断开前确认、自动重连、显示隐藏文件、覆盖已有文件）仅为展示效果、无法实际切换的问题，现已全部接入 UserDefaults 持久化。
+- 修复关于页面版本号硬编码为 "0.1.0 (1)" 的问题，改为从应用 Bundle 动态读取实际版本号。
+- 修复输入法切换功能未生效的问题，将 `.onAppear` 替换为监听 `NSApplication.didBecomeActiveNotification`，确保每次应用激活时触发切换。
+
+---
+
+
 ## [1.7.6] - 2026-05-28
 
 ### Changed

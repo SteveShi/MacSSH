@@ -1,10 +1,13 @@
 import Carbon
+import os.log
 
 /// Encapsulates macOS input source (input method) management via the TIS API.
 enum InputSourceManager {
 
+    private static let logger = Logger(subsystem: "com.steveshi.macssh", category: "InputSource")
+
     /// Represents a single enabled keyboard input source.
-    struct InputSource: Identifiable, Hashable {
+    struct InputSource: Identifiable, Hashable, Sendable {
         let id: String
         let localizedName: String
     }
@@ -18,10 +21,11 @@ enum InputSourceManager {
         ] as CFDictionary
 
         guard let sourceList = TISCreateInputSourceList(conditions, false)?.takeRetainedValue() as? [TISInputSource] else {
+            logger.warning("Failed to retrieve input source list from TIS API")
             return []
         }
 
-        return sourceList.compactMap { source in
+        let sources = sourceList.compactMap { source -> InputSource? in
             guard let idPtr = TISGetInputSourceProperty(source, kTISPropertyInputSourceID),
                   let namePtr = TISGetInputSourceProperty(source, kTISPropertyLocalizedName) else {
                 return nil
@@ -30,6 +34,8 @@ enum InputSourceManager {
             let name = Unmanaged<CFString>.fromOpaque(namePtr).takeUnretainedValue() as String
             return InputSource(id: id, localizedName: name)
         }
+        logger.debug("Found \(sources.count) enabled input sources")
+        return sources
     }
 
     /// Selects (activates) the input source with the given identifier.
@@ -41,8 +47,15 @@ enum InputSourceManager {
 
         guard let sourceList = TISCreateInputSourceList(conditions, false)?.takeRetainedValue() as? [TISInputSource],
               let source = sourceList.first else {
+            logger.error("Input source not found for id: \(id)")
             return
         }
-        TISSelectInputSource(source)
+
+        let status = TISSelectInputSource(source)
+        if status == noErr {
+            logger.info("Switched input source to: \(id)")
+        } else {
+            logger.error("TISSelectInputSource failed with status: \(status) for id: \(id)")
+        }
     }
 }

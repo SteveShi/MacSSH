@@ -15,7 +15,7 @@ struct MacSSHApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(model: model, settings: settings)
-                .onAppear {
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
                     if !settings.defaultInputSourceID.isEmpty {
                         InputSourceManager.selectInputSource(id: settings.defaultInputSourceID)
                     }

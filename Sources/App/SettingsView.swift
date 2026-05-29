@@ -35,7 +35,7 @@ struct SettingsView: View {
         }
     }
     
-    @SceneStorage("settingsSelectedTab") private var selectedTab: Tab = .appearance
+    @SceneStorage("settingsSelectedTab") private var selectedTab: Tab = .general
 
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -109,8 +109,8 @@ struct SettingsView: View {
             }
             
             Section {
-                Toggle(String(localized: "Confirm before disconnecting"), isOn: .constant(true))
-                Toggle(String(localized: "Automatically reconnect on failure"), isOn: .constant(false))
+                Toggle(String(localized: "Confirm before disconnecting"), isOn: $settings.confirmBeforeDisconnect)
+                Toggle(String(localized: "Automatically reconnect on failure"), isOn: $settings.autoReconnect)
             }
 
             Section {
@@ -201,8 +201,8 @@ struct SettingsView: View {
             }
             
             Section {
-                Toggle(String(localized: "Show hidden files"), isOn: .constant(false))
-                Toggle(String(localized: "Overwrite existing files"), isOn: .constant(true))
+                Toggle(String(localized: "Show hidden files"), isOn: $settings.showHiddenFiles)
+                Toggle(String(localized: "Overwrite existing files"), isOn: $settings.overwriteExistingFiles)
             }
         }
         .formStyle(.grouped)
@@ -274,7 +274,9 @@ struct SettingsView: View {
             VStack(spacing: 4) {
                 Text(String(localized: "MacSSH"))
                     .font(.title).bold()
-                Text(String(localized: "Version 0.1.0 (1)"))
+                let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "–"
+                let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "–"
+                Text("Version \(version) (\(build))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
