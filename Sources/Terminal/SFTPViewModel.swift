@@ -71,9 +71,11 @@ final class SFTPViewModel {
                 try await self.service.download(remotePath: item.path, localURL: url)
                 if Task.isCancelled { return }
                 self.status = .idle
+                NotificationService.shared.notifySFTP(success: true, name: item.name)
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)
+                NotificationService.shared.notifySFTP(success: false, name: item.name)
             }
         }
     }
@@ -92,9 +94,11 @@ final class SFTPViewModel {
                 }
                 if Task.isCancelled { return }
                 self.status = .idle
+                NotificationService.shared.notifySFTP(success: true, name: String(localized: "Multiple files"))
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)
+                NotificationService.shared.notifySFTP(success: false, name: String(localized: "Multiple files"))
             }
         }
     }
@@ -109,9 +113,11 @@ final class SFTPViewModel {
                 try await self.service.upload(localURL: url, remotePath: target)
                 if Task.isCancelled { return }
                 self.refresh()
+                NotificationService.shared.notifySFTP(success: true, name: url.lastPathComponent)
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)
+                NotificationService.shared.notifySFTP(success: false, name: url.lastPathComponent)
             }
         }
     }
@@ -132,9 +138,11 @@ final class SFTPViewModel {
                 }
                 if Task.isCancelled { return }
                 self.refresh()
+                NotificationService.shared.notifySFTP(success: true, name: String(localized: "Multiple files"))
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)
+                NotificationService.shared.notifySFTP(success: false, name: String(localized: "Multiple files"))
             }
         }
     }

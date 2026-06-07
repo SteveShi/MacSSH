@@ -1,13 +1,19 @@
 ## [1.8.3] - 2026-06-07
 
+### Added
+- System notifications for SSH connection success/failure, SFTP transfer completion/failure, and local terminal events — app-requested notifications (OSC 9 / OSC 777), process exit, and the terminal bell. Configurable per category in Settings → General → Notifications; by default they only fire while the app is in the background (the bell is off by default).
+
 ### Changed
-- Automatically bumped dependencies to libssh2-swift version 1.3.3 and libghostty-swift version 1.0.7.
+- Automatically bumped dependencies to libssh2-swift 1.3.3 and libghostty-swift 1.0.8.
 
 ---
 
 ### Chinese
+### 新增
+- 新增系统通知:SSH 连接成功/失败、SFTP 传输完成/失败,以及本地终端事件——应用请求的通知(OSC 9 / OSC 777)、进程退出、终端响铃。可在 设置 → 通用 → 通知 中分类开关;默认仅当应用在后台时提醒(响铃默认关闭)。
+
 ### 变更
-- 自动更新依赖项 libssh2-swift 至版本 1.3.3，libghostty-swift 至版本 1.0.7。
+- 自动更新依赖项 libssh2-swift 至 1.3.3，libghostty-swift 至 1.0.8。
 
 ---
 ## [1.8.2] - 2026-06-07

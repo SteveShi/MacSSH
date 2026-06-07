@@ -23,7 +23,7 @@ packages:
     from: 2.0.0
   libghostty-swift:
     url: https://github.com/SteveShi/libghostty-swift.git
-    from: 1.0.7
+    from: 1.0.8
   libssh2-swift:
     url: https://github.com/SteveShi/libssh2-swift.git
     from: 1.3.3

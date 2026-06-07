@@ -4,6 +4,108 @@
     "" : {
 
     },
+    "Connected to %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Connected to %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已连接到 %@" } }
+      }
+    },
+    "Enable Notifications" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Notifications" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用通知" } }
+      }
+    },
+    "Exited with code %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Exited with code %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "退出码 %@" } }
+      }
+    },
+    "Failed to connect to %@" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Failed to connect to %@" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法连接到 %@" } }
+      }
+    },
+    "Multiple files" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Multiple files" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "多个文件" } }
+      }
+    },
+    "Notifications" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知" } }
+      }
+    },
+    "Only when app is in the background" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Only when app is in the background" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "仅当应用在后台时" } }
+      }
+    },
+    "Process Exited" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Process Exited" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "进程已退出" } }
+      }
+    },
+    "Receive system notifications for connection, transfer, and terminal events." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Receive system notifications for connection, transfer, and terminal events." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "为连接、传输和终端事件接收系统通知。" } }
+      }
+    },
+    "SFTP transfer events" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "SFTP transfer events" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "SFTP 传输事件" } }
+      }
+    },
+    "SSH Connected" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "SSH Connected" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "已连接" } }
+      }
+    },
+    "SSH Connection Failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "SSH Connection Failed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "连接失败" } }
+      }
+    },
+    "SSH connection events" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "SSH connection events" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "SSH 连接事件" } }
+      }
+    },
+    "Terminal app notifications & process exit" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Terminal app notifications & process exit" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "终端应用通知与进程退出" } }
+      }
+    },
+    "Terminal Bell" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Terminal Bell" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "终端响铃" } }
+      }
+    },
+    "Transfer Complete" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Transfer Complete" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "传输完成" } }
+      }
+    },
+    "Transfer Failed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Transfer Failed" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "传输失败" } }
+      }
+    },
     "[disconnected]" : {
       "extractionState" : "stale",
       "localizations" : {

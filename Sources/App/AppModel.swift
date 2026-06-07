@@ -248,6 +248,7 @@ final class AppModel {
             currentHistory = Array(currentHistory.prefix(10))
         }
         connections[index].history = currentHistory
+        NotificationService.shared.notifyConnection(success: isSuccess, name: connections[index].name)
         
         // Also update any active tabs holding this connection
         for i in 0..<openTabs.count {

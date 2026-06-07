@@ -125,6 +125,22 @@ struct SettingsView: View {
             } footer: {
                 Text(String(localized: "Automatically switch to the selected input method when the app is activated."))
             }
+
+            Section {
+                Toggle(String(localized: "Enable Notifications"), isOn: $settings.notificationsEnabled)
+                Group {
+                    Toggle(String(localized: "SSH connection events"), isOn: $settings.notifyConnectionEvents)
+                    Toggle(String(localized: "SFTP transfer events"), isOn: $settings.notifySFTPEvents)
+                    Toggle(String(localized: "Terminal app notifications & process exit"), isOn: $settings.notifyTerminalEvents)
+                    Toggle(String(localized: "Terminal Bell"), isOn: $settings.notifyTerminalBell)
+                    Toggle(String(localized: "Only when app is in the background"), isOn: $settings.notifyOnlyWhenInactive)
+                }
+                .disabled(!settings.notificationsEnabled)
+            } header: {
+                Text(String(localized: "Notifications"))
+            } footer: {
+                Text(String(localized: "Receive system notifications for connection, transfer, and terminal events."))
+            }
         }
         .formStyle(.grouped)
         .onAppear {

@@ -20,6 +20,15 @@ struct MacSSHApp: App {
                         InputSourceManager.selectInputSource(id: settings.defaultInputSourceID)
                     }
                 }
+                .onAppear {
+                    NotificationService.shared.configure(settings: settings)
+                    GhosttyRuntime.shared.onTerminalEvent = { event in
+                        MainActor.assumeIsolated {
+                            NotificationService.shared.notifyTerminal(event)
+                        }
+                    }
+                    NotificationService.shared.requestAuthorizationIfNeeded()
+                }
         }
         .commands {
             CommandGroup(after: .appInfo) {

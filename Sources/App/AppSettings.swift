@@ -23,6 +23,12 @@ final class AppSettings {
         static let autoReconnect = "autoReconnect"
         static let showHiddenFiles = "showHiddenFiles"
         static let overwriteExistingFiles = "overwriteExistingFiles"
+        static let notificationsEnabled = "notificationsEnabled"
+        static let notifyConnectionEvents = "notifyConnectionEvents"
+        static let notifySFTPEvents = "notifySFTPEvents"
+        static let notifyTerminalEvents = "notifyTerminalEvents"
+        static let notifyTerminalBell = "notifyTerminalBell"
+        static let notifyOnlyWhenInactive = "notifyOnlyWhenInactive"
     }
 
     var fontSize: Double {
@@ -70,6 +76,32 @@ final class AppSettings {
         didSet { save() }
     }
 
+    // MARK: - Notifications
+
+    var notificationsEnabled: Bool {
+        didSet { save() }
+    }
+
+    var notifyConnectionEvents: Bool {
+        didSet { save() }
+    }
+
+    var notifySFTPEvents: Bool {
+        didSet { save() }
+    }
+
+    var notifyTerminalEvents: Bool {
+        didSet { save() }
+    }
+
+    var notifyTerminalBell: Bool {
+        didSet { save() }
+    }
+
+    var notifyOnlyWhenInactive: Bool {
+        didSet { save() }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let savedSize = defaults.double(forKey: Keys.fontSize)
@@ -88,6 +120,12 @@ final class AppSettings {
         autoReconnect = defaults.object(forKey: Keys.autoReconnect) as? Bool ?? false
         showHiddenFiles = defaults.object(forKey: Keys.showHiddenFiles) as? Bool ?? false
         overwriteExistingFiles = defaults.object(forKey: Keys.overwriteExistingFiles) as? Bool ?? true
+        notificationsEnabled = defaults.object(forKey: Keys.notificationsEnabled) as? Bool ?? true
+        notifyConnectionEvents = defaults.object(forKey: Keys.notifyConnectionEvents) as? Bool ?? true
+        notifySFTPEvents = defaults.object(forKey: Keys.notifySFTPEvents) as? Bool ?? true
+        notifyTerminalEvents = defaults.object(forKey: Keys.notifyTerminalEvents) as? Bool ?? true
+        notifyTerminalBell = defaults.object(forKey: Keys.notifyTerminalBell) as? Bool ?? false
+        notifyOnlyWhenInactive = defaults.object(forKey: Keys.notifyOnlyWhenInactive) as? Bool ?? true
     }
 
     var availableFonts: [String] {
@@ -129,5 +167,11 @@ final class AppSettings {
         defaults.set(autoReconnect, forKey: Keys.autoReconnect)
         defaults.set(showHiddenFiles, forKey: Keys.showHiddenFiles)
         defaults.set(overwriteExistingFiles, forKey: Keys.overwriteExistingFiles)
+        defaults.set(notificationsEnabled, forKey: Keys.notificationsEnabled)
+        defaults.set(notifyConnectionEvents, forKey: Keys.notifyConnectionEvents)
+        defaults.set(notifySFTPEvents, forKey: Keys.notifySFTPEvents)
+        defaults.set(notifyTerminalEvents, forKey: Keys.notifyTerminalEvents)
+        defaults.set(notifyTerminalBell, forKey: Keys.notifyTerminalBell)
+        defaults.set(notifyOnlyWhenInactive, forKey: Keys.notifyOnlyWhenInactive)
     }
 }
