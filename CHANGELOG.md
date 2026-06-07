@@ -1,3 +1,21 @@
+## [1.8.2] - 2026-06-07
+
+### Changed
+- Redesigned the local terminal tab bar: native-style in-window tabs with per-tab close and rename, adopting Liquid Glass on macOS 26 (translucent material on earlier systems).
+
+### Fixed
+- Fixed being unable to select terminal text — including in SSH sessions — with the mouse; mouse button and drag events are now forwarded to the terminal engine (libghostty-swift 1.0.6).
+
+---
+
+### Chinese
+### 变更
+- 重新设计本地终端标签栏：窗口内原生风格标签，支持逐个标签的关闭与重命名；在 macOS 26 上采用 Liquid Glass 毛玻璃效果（更早系统回退为半透明材质）。
+
+### 修复
+- 修复终端（含 SSH 会话）无法用鼠标选中文本的问题；现已将鼠标按键与拖拽事件转发给终端引擎（libghostty-swift 1.0.6）。
+
+---
 ## [1.8.1] - 2026-05-30
 
 ### Changed

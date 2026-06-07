@@ -9,6 +9,8 @@ final class LocalTerminalTab: Identifiable {
     var name: String
     /// The actual NSView is owned here so it survives SwiftUI navigation.
     let surfaceView: GhosttySurfaceView
+    /// Drives the rename sheet hosted by the tab's own window.
+    var isRenaming: Bool = false
 
     init(number: Int, surfaceView: GhosttySurfaceView) {
         self.id = UUID()

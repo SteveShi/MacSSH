@@ -39,12 +39,18 @@ struct MacSSHApp: App {
                 .disabled(model.selectedTab == nil)
 
                 Button(String(localized: "Close Tab")) {
-                    if let tabID = model.selectedTabID {
+                    if model.sidebarSelection == .localTerminal {
+                        if let id = model.selectedLocalTabID {
+                            model.removeLocalTab(id)
+                        }
+                    } else if let tabID = model.selectedTabID {
                         model.closeTab(tabID)
                     }
                 }
                 .keyboardShortcut("w", modifiers: .command)
-                .disabled(model.selectedTabID == nil)
+                .disabled(model.sidebarSelection == .localTerminal
+                          ? model.localTabs.count <= 1
+                          : model.selectedTabID == nil)
             }
             
             CommandMenu(String(localized: "Tab")) {
@@ -57,7 +63,15 @@ struct MacSSHApp: App {
                     model.previousTab()
                 }
                 .keyboardShortcut("[", modifiers: .command)
-                
+
+                Button(String(localized: "Rename Tab")) {
+                    if let id = model.selectedLocalTabID,
+                       let tab = model.localTabs.first(where: { $0.id == id }) {
+                        tab.isRenaming = true
+                    }
+                }
+                .disabled(model.sidebarSelection != .localTerminal || model.selectedLocalTabID == nil)
+
                 Divider()
                 
                 if model.sidebarSelection == .localTerminal {
