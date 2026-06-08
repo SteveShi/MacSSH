@@ -16,11 +16,14 @@ struct LocalTerminalView: View {
         .navigationTitle(selectedTabName)
         .onAppear {
             if appModel.localTabs.isEmpty {
-                addTab()
+                appModel.restoreLocalTabs(settings: settings)
+                if appModel.localTabs.isEmpty {
+                    addTab()
+                }
             }
         }
         .sheet(item: renamingTab) { tab in
-            RenameTabSheet(tab: tab)
+            RenameTabSheet(tab: tab, appModel: appModel)
         }
     }
 
@@ -238,6 +241,7 @@ struct LocalTerminalView: View {
 
 private struct RenameTabSheet: View {
     @Bindable var tab: LocalTerminalTab
+    let appModel: AppModel
     @State private var text: String = ""
 
     var body: some View {
@@ -264,7 +268,10 @@ private struct RenameTabSheet: View {
 
     private func apply() {
         let trimmed = text.trimmingCharacters(in: .whitespaces)
-        if !trimmed.isEmpty { tab.name = trimmed }
+        if !trimmed.isEmpty {
+            tab.name = trimmed
+            appModel.persistTabs()
+        }
         dismiss()
     }
 

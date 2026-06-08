@@ -27,7 +27,11 @@ final class AppModel {
 
     // Local terminal tab pool — lives at app scope so PTYs survive SwiftUI navigation
     var localTabs: [LocalTerminalTab] = []
-    var selectedLocalTabID: UUID?
+    var selectedLocalTabID: UUID? {
+        didSet {
+            persistTabs()
+        }
+    }
     private var localTabCounter: Int = 0
 
     var filteredConnections: [SSHConnection] {
@@ -44,6 +48,9 @@ final class AppModel {
     private enum TabKeys {
         static let openTabConnections = "openTabConnections"
         static let selectedTabConnection = "selectedTabConnection"
+        static let localTabs = "localTabs"
+        static let selectedLocalTabID = "selectedLocalTabID"
+        static let localTabCounter = "localTabCounter"
     }
 
     init() {
@@ -129,12 +136,14 @@ final class AppModel {
         let tab = LocalTerminalTab(number: localTabCounter, surfaceView: surface)
         localTabs.append(tab)
         selectedLocalTabID = tab.id
+        persistTabs()
     }
 
     /// Removes a local terminal tab by ID.
     func removeLocalTab(_ id: UUID) {
         localTabs.removeAll { $0.id == id }
         selectedLocalTabID = localTabs.last?.id
+        persistTabs()
     }
 
 
@@ -265,7 +274,7 @@ final class AppModel {
         persistTabs()
     }
 
-    private func persistTabs() {
+    func persistTabs() {
         let defaults = UserDefaults.standard
         let connectionIDs = openTabs.map { $0.connection.id.uuidString }
         defaults.set(connectionIDs, forKey: TabKeys.openTabConnections)
@@ -274,6 +283,16 @@ final class AppModel {
         } else {
             defaults.removeObject(forKey: TabKeys.selectedTabConnection)
         }
+
+        let localTabsData = localTabs.map { tab -> [String: String] in
+            return [
+                "id": tab.id.uuidString,
+                "name": tab.name
+            ]
+        }
+        defaults.set(localTabsData, forKey: TabKeys.localTabs)
+        defaults.set(selectedLocalTabID?.uuidString, forKey: TabKeys.selectedLocalTabID)
+        defaults.set(localTabCounter, forKey: TabKeys.localTabCounter)
     }
 
     @MainActor
@@ -297,6 +316,51 @@ final class AppModel {
             } else {
                 sidebarSelection = .localTerminal
             }
+        }
+    }
+
+    @MainActor
+    func restoreLocalTabs(settings: AppSettings) {
+        let defaults = UserDefaults.standard
+        self.localTabCounter = defaults.integer(forKey: TabKeys.localTabCounter)
+        
+        guard let savedTabs = defaults.array(forKey: TabKeys.localTabs) as? [[String: String]],
+              !savedTabs.isEmpty else {
+            return
+        }
+        
+        var env = ProcessInfo.processInfo.environment
+        if env["TERM"] == nil || env["TERM"] == "dumb" {
+            env["TERM"] = "xterm-256color"
+        }
+        
+        for tabDict in savedTabs {
+            guard let idString = tabDict["id"],
+                  let uuid = UUID(uuidString: idString),
+                  let name = tabDict["name"] else {
+                continue
+            }
+            
+            if localTabs.contains(where: { $0.id == uuid }) {
+                continue
+            }
+            
+            var config = GhosttySurfaceConfiguration()
+            config.fontSize = Float(settings.fontSize)
+            config.environmentVariables = env
+            config.workingDirectory = NSHomeDirectory()
+            
+            let surface = GhosttySurfaceView(config: config)
+            let restoredTab = LocalTerminalTab(id: uuid, name: name, surfaceView: surface)
+            localTabs.append(restoredTab)
+        }
+        
+        if let selectedIDString = defaults.string(forKey: TabKeys.selectedLocalTabID),
+           let selectedUUID = UUID(uuidString: selectedIDString),
+           localTabs.contains(where: { $0.id == selectedUUID }) {
+            self.selectedLocalTabID = selectedUUID
+        } else {
+            self.selectedLocalTabID = localTabs.last?.id
         }
     }
 }

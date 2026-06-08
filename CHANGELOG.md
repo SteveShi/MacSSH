@@ -1,3 +1,20 @@
+## [1.8.6] - 2026-06-08
+
+### Added
+- Added multi-stage input source auto-switch retry mechanism (immediate, 0.2s, 0.6s, 1.5s delay) to resolve input method failure on application startup.
+- Implemented automatic local terminal tabs persistence and restoration on application restart.
+- Enabled instant persistence after renaming local terminal tabs.
+
+---
+
+### Chinese
+### 新增
+- 引入了输入法多级延迟自动切换与重试机制（立即、0.2秒、0.6秒及1.5秒延迟），彻底解决软件启动和焦点抖动时输入法切换偶尔失效的问题。
+- 实现了本地终端标签页的自动记忆与重启恢复。
+- 支持本地终端标签页重命名后即时保存。
+
+---
+
 ## [1.8.5] - 2026-06-07
 
 ### Changed

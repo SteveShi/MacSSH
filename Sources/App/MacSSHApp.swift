@@ -15,11 +15,6 @@ struct MacSSHApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(model: model, settings: settings)
-                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-                    if !settings.defaultInputSourceID.isEmpty {
-                        InputSourceManager.selectInputSource(id: settings.defaultInputSourceID)
-                    }
-                }
                 .onAppear {
                     NotificationService.shared.configure(settings: settings)
                     GhosttyRuntime.shared.onTerminalEvent = { event in

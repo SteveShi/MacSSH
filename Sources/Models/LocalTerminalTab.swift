@@ -17,4 +17,10 @@ final class LocalTerminalTab: Identifiable {
         self.name = "Terminal \(number)"
         self.surfaceView = surfaceView
     }
+
+    init(id: UUID, name: String, surfaceView: GhosttySurfaceView) {
+        self.id = id
+        self.name = name
+        self.surfaceView = surfaceView
+    }
 }

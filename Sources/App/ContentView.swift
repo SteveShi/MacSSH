@@ -44,8 +44,42 @@ struct ContentView: View {
             Text("Are you sure you want to delete the selected connection?", comment: "Delete connection confirmation message")
         }
         .onChange(of: model.sidebarSelection) { _, _ in
-            // No longer auto-opening on selection.
-            // Selection just changes the detail view state.
+            triggerInputSourceSwitchWithRetry()
+        }
+        .onChange(of: model.selectedTabID) { _, _ in
+            triggerInputSourceSwitchWithRetry()
+        }
+        .onChange(of: model.selectedLocalTabID) { _, _ in
+            triggerInputSourceSwitchWithRetry()
+        }
+        .onAppear {
+            triggerInputSourceSwitchWithRetry()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
+            triggerInputSourceSwitchWithRetry()
+        }
+    }
+
+    private func triggerInputSourceSwitchWithRetry() {
+        guard !settings.defaultInputSourceID.isEmpty else { return }
+        let id = settings.defaultInputSourceID
+        
+        // 1. 立即切换
+        InputSourceManager.selectInputSource(id: id)
+        
+        // 2. 0.2 秒后切换
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            InputSourceManager.selectInputSource(id: id)
+        }
+        
+        // 3. 0.6 秒后切换
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+            InputSourceManager.selectInputSource(id: id)
+        }
+        
+        // 4. 1.5 秒后切换
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            InputSourceManager.selectInputSource(id: id)
         }
     }
 
