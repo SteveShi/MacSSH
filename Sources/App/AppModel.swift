@@ -329,22 +329,19 @@ final class AppModel {
             return
         }
         
-        var env = ProcessInfo.processInfo.environment
-        if env["TERM"] == nil || env["TERM"] == "dumb" {
-            env["TERM"] = "xterm-256color"
-        }
-        
+        let env = LocalShellEnvironment.make()
+
         for tabDict in savedTabs {
             guard let idString = tabDict["id"],
                   let uuid = UUID(uuidString: idString),
                   let name = tabDict["name"] else {
                 continue
             }
-            
+
             if localTabs.contains(where: { $0.id == uuid }) {
                 continue
             }
-            
+
             var config = GhosttySurfaceConfiguration()
             config.fontSize = Float(settings.fontSize)
             config.environmentVariables = env

@@ -227,11 +227,7 @@ struct LocalTerminalView: View {
     private func addTab() {
         var config = GhosttySurfaceConfiguration()
         config.fontSize = Float(settings.fontSize)
-        var env = ProcessInfo.processInfo.environment
-        if env["TERM"] == nil || env["TERM"] == "dumb" {
-            env["TERM"] = "xterm-256color"
-        }
-        config.environmentVariables = env
+        config.environmentVariables = LocalShellEnvironment.make()
         config.workingDirectory = NSHomeDirectory()
         appModel.addLocalTab(config: config)
     }
