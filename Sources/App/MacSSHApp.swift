@@ -24,6 +24,9 @@ struct MacSSHApp: App {
                     }
                     NotificationService.shared.requestAuthorizationIfNeeded()
                 }
+                .onOpenURL { url in
+                    model.handleURL(url)
+                }
         }
         .commands {
             CommandGroup(after: .appInfo) {

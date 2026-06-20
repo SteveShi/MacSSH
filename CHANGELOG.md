@@ -1,3 +1,26 @@
+## [1.8.7] - 2026-06-20
+
+### Added
+- Added CLI helper script and registered URL schemes (ssh:// and macssh://) to support launching SSH sessions from terminal commands, browsers, and shortcuts.
+- Added native right-click context menu (Copy/Paste) inside the terminal view.
+- Added accessibility support (NSAccessibility role .textArea and notification broadcasts) to support PopClip and command-line prompt autocomplete tools (Kiro CLI, Fig).
+
+### Changed
+- Pointed libghostty-swift package dependency to version 1.0.10.
+
+---
+
+### Chinese
+### 新增
+- 增加了命令行 Helper 脚本并注册了自定义 URL 协议（ssh:// 和 macssh://），支持从终端、浏览器以及快捷方式唤起并自动开启 SSH 会话。
+- 终端界面内支持右键原生上下文菜单（包含“复制”与“粘贴”选项）。
+- 增加了系统级辅助功能支持（重构 NSAccessibility textArea 角色并发送 selectedTextChanged / valueChanged 变化通知），实现对 PopClip 以及终端自动命令补全提示工具（Kiro CLI / Fig）的完美兼容。
+
+### 变更
+- 更新 libghostty-swift 依赖至版本 1.0.10。
+
+---
+
 ## [1.8.6] - 2026-06-08
 
 ### Added

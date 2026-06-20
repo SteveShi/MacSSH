@@ -360,4 +360,65 @@ final class AppModel {
             self.selectedLocalTabID = localTabs.last?.id
         }
     }
+
+    @MainActor
+    func handleURL(_ url: URL) {
+        guard let scheme = url.scheme?.lowercased() else { return }
+        
+        var host = ""
+        var port = 22
+        var username = "root"
+        
+        if scheme == "ssh" {
+            // Parse ssh://[username@]host[:port]
+            if let hostStr = url.host {
+                host = hostStr
+            }
+            if let portNum = url.port {
+                port = portNum
+            }
+            if let userStr = url.user {
+                username = userStr
+            }
+        } else if scheme == "macssh" {
+            // Parse macssh://connect?host=xxx&port=xxx&user=xxx
+            guard url.host == "connect" else { return }
+            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+            guard let queryItems = components.queryItems else { return }
+            
+            for item in queryItems {
+                if item.name == "host", let val = item.value {
+                    host = val
+                } else if item.name == "port", let val = item.value, let p = Int(val) {
+                    port = p
+                } else if item.name == "user", let val = item.value {
+                    username = val
+                }
+            }
+        } else {
+            return
+        }
+        
+        guard !host.isEmpty else { return }
+        
+        // Find existing connection to reuse saved credentials (like Keychain password)
+        if let existingConnection = connections.first(where: {
+            $0.host.lowercased() == host.lowercased() &&
+            $0.port == port &&
+            $0.username.lowercased() == username.lowercased()
+        }) {
+            openConnection(existingConnection)
+        } else {
+            // Create a new connection profile dynamically
+            let newConnection = SSHConnection(
+                name: "\(username)@\(host)",
+                host: host,
+                port: port,
+                username: username
+            )
+            connections.append(newConnection)
+            persist()
+            openConnection(newConnection)
+        }
+    }
 }

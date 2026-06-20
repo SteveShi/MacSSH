@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# MacSSH CLI Helper
+# Usage:
+#   macssh [ssh://]username@host[:port]
+#   macssh host
+#
+# Examples:
+#   macssh root@192.168.1.1
+#   macssh ssh://admin@example.com:2222
+
+if [ -z "$1" ]; then
+    echo "MacSSH CLI Helper"
+    echo "================="
+    echo "Usage:"
+    echo "  macssh [ssh://]username@host[:port]"
+    echo "  macssh host"
+    echo ""
+    echo "Examples:"
+    echo "  macssh root@192.168.1.1"
+    echo "  macssh ssh://admin@example.com:2222"
+    exit 1
+fi
+
+INPUT="$1"
+
+# If it is not a URI, prepend ssh://
+if [[ ! "$INPUT" =~ ^(ssh|macssh):// ]]; then
+    INPUT="ssh://$INPUT"
+fi
+
+echo "Connecting to \$INPUT via MacSSH..."
+open "\$INPUT"
