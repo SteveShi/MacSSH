@@ -2,32 +2,49 @@
 
 # MacSSH CLI Helper
 # Usage:
-#   macssh [ssh://]username@host[:port]
-#   macssh host
+#   macssh [username@]host[:port]
 #
 # Examples:
 #   macssh root@192.168.1.1
-#   macssh ssh://admin@example.com:2222
+#   macssh 192.168.1.1:2222
 
 if [ -z "$1" ]; then
     echo "MacSSH CLI Helper"
     echo "================="
     echo "Usage:"
-    echo "  macssh [ssh://]username@host[:port]"
-    echo "  macssh host"
+    echo "  macssh [username@]host[:port]"
     echo ""
     echo "Examples:"
     echo "  macssh root@192.168.1.1"
-    echo "  macssh ssh://admin@example.com:2222"
+    echo "  macssh admin@example.com:2222"
     exit 1
 fi
 
 INPUT="$1"
 
-# If it is not a URI, prepend ssh://
-if [[ ! "$INPUT" =~ ^(ssh|macssh):// ]]; then
-    INPUT="ssh://$INPUT"
+# Remove prefix ssh:// or macssh://connect? if present
+INPUT=$(echo "$INPUT" | sed -E 's/^(ssh|macssh):\/\/connect\?//' | sed -E 's/^(ssh|macssh):\/\///')
+
+# Now parse [user@]host[:port]
+USER="root"
+PORT="22"
+HOST=""
+
+if [[ "$INPUT" == *"@"* ]]; then
+    USER="${INPUT%%@*}"
+    REMAIN="${INPUT#*@}"
+else
+    REMAIN="$INPUT"
 fi
 
-echo "Connecting to \$INPUT via MacSSH..."
-open "\$INPUT"
+if [[ "$REMAIN" == *":"* ]]; then
+    HOST="${REMAIN%%:*}"
+    PORT="${REMAIN#*:}"
+else
+    HOST="$REMAIN"
+fi
+
+URI="macssh://connect?host=${HOST}&port=${PORT}&user=${USER}"
+
+echo "Connecting to ${USER}@${HOST}:${PORT} via MacSSH..."
+open "$URI"

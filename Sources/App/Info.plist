@@ -40,7 +40,6 @@
       <key>CFBundleURLSchemes</key>
       <array>
         <string>macssh</string>
-        <string>ssh</string>
       </array>
     </dict>
   </array>

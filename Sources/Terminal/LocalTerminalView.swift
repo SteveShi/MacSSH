@@ -39,9 +39,44 @@ struct LocalTerminalView: View {
             // selected one is visible and interactive.
             ZStack {
                 ForEach(appModel.localTabs) { tab in
-                    SurfaceViewHost(surface: tab.surfaceView)
-                        .opacity(tab.id == appModel.selectedLocalTabID ? 1 : 0)
-                        .allowsHitTesting(tab.id == appModel.selectedLocalTabID)
+                    let mainTerminal = SurfaceViewHost(surface: tab.surfaceView)
+                    
+                    Group {
+                        if tab.isSplit, let splitSurface = tab.splitSurface {
+                            let splitView = SurfaceViewHost(surface: splitSurface)
+                            
+                            switch tab.splitDirection {
+                            case .right:
+                                HStack(spacing: 1) {
+                                    mainTerminal
+                                    splitView
+                                }
+                                .background(Color.gray.opacity(0.3))
+                            case .left:
+                                HStack(spacing: 1) {
+                                    splitView
+                                    mainTerminal
+                                }
+                                .background(Color.gray.opacity(0.3))
+                            case .down:
+                                VStack(spacing: 1) {
+                                    mainTerminal
+                                    splitView
+                                }
+                                .background(Color.gray.opacity(0.3))
+                            case .up:
+                                VStack(spacing: 1) {
+                                    splitView
+                                    mainTerminal
+                                }
+                                .background(Color.gray.opacity(0.3))
+                            }
+                        } else {
+                            mainTerminal
+                        }
+                    }
+                    .opacity(tab.id == appModel.selectedLocalTabID ? 1 : 0)
+                    .allowsHitTesting(tab.id == appModel.selectedLocalTabID)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)

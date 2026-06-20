@@ -1,3 +1,48 @@
+## [1.8.8] - 2026-06-20
+
+### Added
+- Integrated native terminal right-click context menu with fully functional features:
+  - Copy and Paste.
+  - "Search with Google" to automatically search selected text in the default web browser.
+  - Terminal split screen sessions (Split Left, Split Right, Split Up, Split Down) rendering multiple interactive terminals in a single tab.
+  - "Reset Terminal" to clear and reset the terminal state.
+  - "Toggle Terminal Inspector" to collapse or expand the SFTP monitor panel.
+  - "Terminal Read-only" mode to toggle keyboard input interception.
+  - "Change Tab/Terminal Title..." with alert dialog inputs.
+  - AutoFill support to input SSH username or retrieve and paste password from Keychain.
+- Added localization strings for all new context menu items in English and Simplified Chinese.
+
+### Changed
+- Removed support for `ssh://` URL scheme to avoid conflicts with system utilities; `macssh://` is now the only protocol handler.
+- Pointed the `libghostty-swift` package dependency to the newly released remote tag version `1.0.12`.
+
+### Fixed
+- Fixed a linker error in Xcode 15/16 / macOS 15.0 SDK where `___dso_handle` from `libghostty-fat.a` could not be resolved by the new linker.
+
+---
+
+### Chinese
+### 新增
+- 接入了全新的终端原生右键菜单，所有选项均已对接真实功能：
+  - 复制与粘贴。
+  - “使用Google搜索”：支持在有选中文本时自动通过默认浏览器搜索选中关键字。
+  - 终端分屏：支持在同一个标签页内进行向左/向右/向上/向下多终端交互式分屏会话。
+  - “重置终端”：发送重置控制序列清空终端屏幕状态。
+  - “切换终端监控”：显示或收起右侧 SFTP/系统监控面板。
+  - “终端只读”：一键锁定终端输入，拦截全部键盘按键。
+  - “修改标签标题...” / “修改终端标题...”：支持通过弹窗输入修改当前终端标签名。
+  - “自动填充”：支持自动往终端填充 SSH 用户名或从 Keychain 钥匙串提取对应密码进行粘贴。
+- 新增了所有右键菜单英文与简体中文的本地化翻译支持。
+
+### 变更
+- 去除了对 `ssh://` 协议解析的支持，避免与系统自带终端或其他 SSH 客户端冲突，仅保留 `macssh://` 专属协议。
+- 更新并锁定了 `libghostty-swift` 依赖至最新的线上正式发布版本 `1.0.12`，不依赖本地路径。
+
+### 修复
+- 修复了在 Xcode 15/16 / macOS 15.0 SDK 编译环境下，因新版链接器无法解析 `libghostty-fat.a` 中的 `___dso_handle` 符号导致链接失败的 Bug。
+
+---
+
 ## [1.8.7] - 2026-06-20
 
 ### Added

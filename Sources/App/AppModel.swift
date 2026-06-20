@@ -363,40 +363,25 @@ final class AppModel {
 
     @MainActor
     func handleURL(_ url: URL) {
-        guard let scheme = url.scheme?.lowercased() else { return }
+        guard let scheme = url.scheme?.lowercased(), scheme == "macssh" else { return }
         
         var host = ""
         var port = 22
         var username = "root"
         
-        if scheme == "ssh" {
-            // Parse ssh://[username@]host[:port]
-            if let hostStr = url.host {
-                host = hostStr
+        // Parse macssh://connect?host=xxx&port=xxx&user=xxx
+        guard url.host == "connect" else { return }
+        guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
+        guard let queryItems = components.queryItems else { return }
+        
+        for item in queryItems {
+            if item.name == "host", let val = item.value {
+                host = val
+            } else if item.name == "port", let val = item.value, let p = Int(val) {
+                port = p
+            } else if item.name == "user", let val = item.value {
+                username = val
             }
-            if let portNum = url.port {
-                port = portNum
-            }
-            if let userStr = url.user {
-                username = userStr
-            }
-        } else if scheme == "macssh" {
-            // Parse macssh://connect?host=xxx&port=xxx&user=xxx
-            guard url.host == "connect" else { return }
-            guard let components = URLComponents(url: url, resolvingAgainstBaseURL: true) else { return }
-            guard let queryItems = components.queryItems else { return }
-            
-            for item in queryItems {
-                if item.name == "host", let val = item.value {
-                    host = val
-                } else if item.name == "port", let val = item.value, let p = Int(val) {
-                    port = p
-                } else if item.name == "user", let val = item.value {
-                    username = val
-                }
-            }
-        } else {
-            return
         }
         
         guard !host.isEmpty else { return }

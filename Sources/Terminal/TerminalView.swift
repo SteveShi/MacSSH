@@ -20,13 +20,45 @@ struct TerminalView: View {
         @Bindable var tab = self.tab
 
         VStack(spacing: 0) {
-            // Use GhosttyTerminalView which caches back into tab.cachedSurface on first make.
-            // The .id() on reconnectRequests causes it to discard the cached surface and
-            // build a fresh one, which reconnects the SSH session.
-            GhosttyTerminalView(tab: tab, settings: settings)
+            let mainTerminal = GhosttyTerminalView(tab: tab, settings: settings)
                 .id("ghostty-\(tab.id)-\(appModel.reconnectRequests[tab.connection.id]?.uuidString ?? "")")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea(.container, edges: .bottom)
+            
+            if tab.isSplit, let splitSurface = tab.splitSurface {
+                let splitView = SurfaceViewHost(surface: splitSurface)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .ignoresSafeArea(.container, edges: .bottom)
+                
+                switch tab.splitDirection {
+                case .right:
+                    HStack(spacing: 1) {
+                        mainTerminal
+                        splitView
+                    }
+                    .background(Color.gray.opacity(0.3))
+                case .left:
+                    HStack(spacing: 1) {
+                        splitView
+                        mainTerminal
+                    }
+                    .background(Color.gray.opacity(0.3))
+                case .down:
+                    VStack(spacing: 1) {
+                        mainTerminal
+                        splitView
+                    }
+                    .background(Color.gray.opacity(0.3))
+                case .up:
+                    VStack(spacing: 1) {
+                        splitView
+                        mainTerminal
+                    }
+                    .background(Color.gray.opacity(0.3))
+                }
+            } else {
+                mainTerminal
+            }
         }
         .navigationTitle(tab.connection.name)
         .inspector(isPresented: $tab.showInspector) {

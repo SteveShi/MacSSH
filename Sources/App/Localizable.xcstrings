@@ -2373,6 +2373,114 @@
           }
         }
       }
+    },
+    "Copy" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copy" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "复制" } }
+      }
+    },
+    "Paste" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Paste" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "粘贴" } }
+      }
+    },
+    "Search with Google" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Search with Google" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "使用Google搜索" } }
+      }
+    },
+    "Split Right" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Split Right" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "向右分屏" } }
+      }
+    },
+    "Split Left" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Split Left" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "向左分屏" } }
+      }
+    },
+    "Split Down" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Split Down" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "向下分屏" } }
+      }
+    },
+    "Split Up" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Split Up" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "向上分屏" } }
+      }
+    },
+    "Reset Terminal" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reset Terminal" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重置终端" } }
+      }
+    },
+    "Toggle Terminal Inspector" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Toggle Terminal Inspector" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "切换终端检查器" } }
+      }
+    },
+    "Terminal Read-only" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Terminal Read-only" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "终端只读" } }
+      }
+    },
+    "Change Tab Title..." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change Tab Title..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "修改标签标题..." } }
+      }
+    },
+    "Change Terminal Title..." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change Terminal Title..." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "修改终端标题..." } }
+      }
+    },
+    "AutoFill" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "AutoFill" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "自动填充" } }
+      }
+    },
+    "Fill Username" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fill Username" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "填充用户名" } }
+      }
+    },
+    "Fill Password" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Fill Password" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "填充密码" } }
+      }
+    },
+    "Services" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Services" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "服务" } }
+      }
+    },
+    "Change Tab Title" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Change Tab Title" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "修改标签标题" } }
+      }
+    },
+    "Enter new title for this tab:" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enter new title for this tab:" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "输入此标签页的新标题：" } }
+      }
     }
   },
   "version" : "1.0"
