@@ -115,6 +115,18 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
     func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {}
 
+    /// Removes stale auth helper files (expect scripts + plaintext password files)
+    /// left in the temp dir by a previous session that exited before its expect
+    /// script could delete them. Safe to call at launch: no live session's files
+    /// exist yet. ponytail: bounds plaintext-password lifetime to one app session.
+    static func cleanupStaleAuthFiles() {
+        let tmp = NSTemporaryDirectory()
+        guard let names = try? FileManager.default.contentsOfDirectory(atPath: tmp) else { return }
+        for name in names where name.hasPrefix("macssh_") && (name.hasSuffix(".pwd") || name.hasSuffix(".exp")) {
+            try? FileManager.default.removeItem(atPath: tmp + name)
+        }
+    }
+
     private static func shellQuoted(_ value: String) -> String {
         "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }

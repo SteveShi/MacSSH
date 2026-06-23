@@ -2,12 +2,14 @@
 
 ### Fixed
 - Fixed an intermittent bug where keyboard input could freeze in the terminal (mouse, menus, and scrolling still worked) when a default input source was configured. The automatic input-source switch now skips re-selection when the target source is already active, preventing the text input client from being wedged mid-composition.
+- Hardened password authentication cleanup: any plaintext password / expect helper files left in the temporary directory by a previous abnormal exit are now purged on launch, so credentials no longer linger on disk.
 
 ---
 
 ### Chinese
 ### 修复
 - 修复了在设置了默认输入法后，终端偶发的键盘输入失灵问题（鼠标、菜单、滚动均正常，仅无法输入文字）。自动输入法切换现在会在目标输入源已激活时跳过重复选择，避免在组字过程中锁死文本输入通道。
+- 加固了密码认证的清理逻辑：上次异常退出时残留在临时目录中的明文密码 / expect 辅助文件，现在会在启动时被清除，避免凭据滞留磁盘。
 
 ---
 

@@ -10,6 +10,8 @@ struct MacSSHApp: App {
     init() {
         // Ensure Ghostty is initialized on the main thread immediately
         _ = GhosttyRuntime.shared
+        // Purge any plaintext password / expect files leaked by a prior crash.
+        GhosttyTerminalView.cleanupStaleAuthFiles()
     }
 
     var body: some Scene {
