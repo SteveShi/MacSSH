@@ -38,9 +38,26 @@ enum InputSourceManager {
         return sources
     }
 
+    /// Returns the `kTISPropertyInputSourceID` of the currently selected keyboard input source.
+    static func currentInputSourceID() -> String? {
+        guard let source = TISCopyCurrentKeyboardInputSource()?.takeRetainedValue(),
+              let idPtr = TISGetInputSourceProperty(source, kTISPropertyInputSourceID) else {
+            return nil
+        }
+        return Unmanaged<CFString>.fromOpaque(idPtr).takeUnretainedValue() as String
+    }
+
     /// Selects (activates) the input source with the given identifier.
     /// - Parameter id: The `kTISPropertyInputSourceID` value, e.g. `"com.apple.keylayout.ABC"`.
     static func selectInputSource(id: String) {
+        // Skip redundant re-selection: forcing TISSelectInputSource while it is
+        // already the active source (e.g. the multi-shot retry firing mid-composition)
+        // can wedge the text input client and freeze keyboard input. ponytail: guard, not retry-spam.
+        if currentInputSourceID() == id {
+            logger.debug("Input source already \(id); skipping re-selection")
+            return
+        }
+
         let conditions: CFDictionary = [
             kTISPropertyInputSourceID as String: id,
         ] as CFDictionary
