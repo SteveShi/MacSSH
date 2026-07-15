@@ -1,3 +1,28 @@
+## [1.9.0] - 2026-07-15
+
+### Added
+- Persistence of the main window's custom size and position across launches, ensuring the workspace layout is remembered.
+- Sidebar connections list enhancement: right-click context menu now supports "Copy IP" and "Copy Password" (auto-disabled if no password exists).
+- Optional zero-knowledge e2e encryption for sync data. Users can enable "Encrypt Sync Data" and set a "Sync Master Password" to encrypt metadata locally using AES-256 (GCM) via Apple's native CryptoKit framework.
+- Connection fail diagnostics: the Inspector's "System Monitor" panel now renders a detailed red error alert containing connection diagnostic messages.
+
+### Fixed
+- Fixed an issue where the background ssh monitoring connection would get stuck on `hostKeyNotTrusted` because the confirmation dialog got suppressed by SwiftUI split navigation rendering. The app now silently auto-trusts unknown host keys on first connection (matching CLI ssh behavior).
+
+---
+
+### Chinese
+### 新增
+- 自动记住上次调整后的窗口大小与位置，跨启动持久化窗口布局。
+- 侧栏远程连接项目右键菜单功能增强：新增“复制 IP”与“复制密码”（若未设置密码则自动置灰）。
+- 支持可选的端到端强加密多云同步配置。用户可以在设置中启用“加密同步配置”并输入“同步主密码”，利用苹果原生 CryptoKit 框架对本地连接配置进行 AES-256 (GCM) 级别加密。
+- 完善了连接异常诊断：在 Inspector 右侧的“系统监控”面板中，增加了专门展示连接失败具体错误信息的红色警告卡片。
+
+### 修复
+- 修复了因为首次连接未知主机时 SwiftUI 拆分视图渲染 Bug 吞掉确认弹窗，导致 `libssh2` 后台监控静默连接被迫卡死在未连接状态的问题。现在首次连接时会静默自动信任未知的 HostKey 并记录，与命令行 ssh 的自动信任体验对齐。
+
+---
+
 ## [1.8.10] - 2026-06-27
 
 ### Changed

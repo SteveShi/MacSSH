@@ -5,11 +5,34 @@ import AppKit
 struct SystemInfoPanelView: View {
     let connection: SSHConnection
     let metrics: SystemMetrics
+    let status: TerminalSessionViewModel.Status
+    let lastErrorMessage: String
     var onRefresh: @MainActor () -> Void
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
+                if case .failed(let errorMsg) = status {
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle.fill")
+                                .foregroundStyle(.red)
+                            Text(String(localized: "Connection Failed"))
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(.red)
+                        }
+                        Text(errorMsg)
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+                            .textSelection(.enabled)
+                    }
+                    .padding(10)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.red.opacity(0.1))
+                    .cornerRadius(6)
+                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red.opacity(0.2), lineWidth: 1))
+                }
+
                 realTimeMonitorCard
                 serverSpecsCard
                 connectionHistoryCard

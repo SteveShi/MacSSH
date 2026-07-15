@@ -237,6 +237,24 @@ final class AppModel {
         persist()
     }
 
+    func importConnectionsData(_ data: Data, mode: ImportMode) throws {
+        let decoder = JSONDecoder()
+        guard let imported = try? decoder.decode([SSHConnection].self, from: data) else {
+            throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Failed to decode connections")])
+        }
+        switch mode {
+        case .merge:
+            let merged = mergeConnections(existing: connections, incoming: imported)
+            connections = merged
+        case .replace:
+            connections = imported
+        }
+        if let first = connections.first {
+            sidebarSelection = .connection(first.id)
+        }
+        persist()
+    }
+
     private func mergeConnections(existing: [SSHConnection], incoming: [SSHConnection]) -> [SSHConnection] {
         var result = existing
         for item in incoming {

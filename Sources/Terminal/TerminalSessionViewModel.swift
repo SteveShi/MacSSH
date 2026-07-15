@@ -147,12 +147,12 @@ final class TerminalSessionViewModel {
                 self.sftpViewModel.refresh()
             } catch let error as SSHError {
                 if Task.isCancelled { return }
-                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
                 switch error {
                 case .hostKeyNotTrusted(let status):
                     self.hostKeyPrompt = HostKeyPrompt(host: self.connection.host, status: status)
-                    self.status = .idle
+                    self.trustHostKeyAndConnect()
                 default:
+                    self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
                     self.status = .failed(error.localizedDescription)
                     self.lastErrorMessage = error.localizedDescription
                 }

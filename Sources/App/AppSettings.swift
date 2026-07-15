@@ -29,6 +29,11 @@ final class AppSettings {
         static let notifyTerminalEvents = "notifyTerminalEvents"
         static let notifyTerminalBell = "notifyTerminalBell"
         static let notifyOnlyWhenInactive = "notifyOnlyWhenInactive"
+        static let syncGithubToken = "syncGithubToken"
+        static let syncGithubGistId = "syncGithubGistId"
+        static let syncDropboxToken = "syncDropboxToken"
+        static let syncEncryptData = "syncEncryptData"
+        static let syncMasterPassword = "syncMasterPassword"
     }
 
     var fontSize: Double {
@@ -102,6 +107,26 @@ final class AppSettings {
         didSet { save() }
     }
 
+    var syncGithubToken: String {
+        didSet { save() }
+    }
+
+    var syncGithubGistId: String {
+        didSet { save() }
+    }
+
+    var syncDropboxToken: String {
+        didSet { save() }
+    }
+
+    var syncEncryptData: Bool {
+        didSet { save() }
+    }
+
+    var syncMasterPassword: String {
+        didSet { save() }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let savedSize = defaults.double(forKey: Keys.fontSize)
@@ -126,6 +151,11 @@ final class AppSettings {
         notifyTerminalEvents = defaults.object(forKey: Keys.notifyTerminalEvents) as? Bool ?? true
         notifyTerminalBell = defaults.object(forKey: Keys.notifyTerminalBell) as? Bool ?? false
         notifyOnlyWhenInactive = defaults.object(forKey: Keys.notifyOnlyWhenInactive) as? Bool ?? true
+        syncGithubToken = defaults.string(forKey: Keys.syncGithubToken) ?? ""
+        syncGithubGistId = defaults.string(forKey: Keys.syncGithubGistId) ?? ""
+        syncDropboxToken = defaults.string(forKey: Keys.syncDropboxToken) ?? ""
+        syncEncryptData = defaults.object(forKey: Keys.syncEncryptData) as? Bool ?? false
+        syncMasterPassword = defaults.string(forKey: Keys.syncMasterPassword) ?? ""
     }
 
     var availableFonts: [String] {
@@ -173,5 +203,10 @@ final class AppSettings {
         defaults.set(notifyTerminalEvents, forKey: Keys.notifyTerminalEvents)
         defaults.set(notifyTerminalBell, forKey: Keys.notifyTerminalBell)
         defaults.set(notifyOnlyWhenInactive, forKey: Keys.notifyOnlyWhenInactive)
+        defaults.set(syncGithubToken, forKey: Keys.syncGithubToken)
+        defaults.set(syncGithubGistId, forKey: Keys.syncGithubGistId)
+        defaults.set(syncDropboxToken, forKey: Keys.syncDropboxToken)
+        defaults.set(syncEncryptData, forKey: Keys.syncEncryptData)
+        defaults.set(syncMasterPassword, forKey: Keys.syncMasterPassword)
     }
 }

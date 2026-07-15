@@ -7,9 +7,11 @@ struct SettingsView: View {
     @State private var pendingImportURL: URL?
     @State private var showImportDialog: Bool = false
     @State private var importMode: ImportMode = .merge
+    @State private var syncStatus: String = ""
+    @State private var syncSuccess: Bool = true
     
     private enum Tab: String, CaseIterable, Identifiable {
-        case general, appearance, terminal, sftp, data, about
+        case general, appearance, terminal, sftp, data, sync, about
         var id: String { rawValue }
         
         var label: String {
@@ -19,6 +21,7 @@ struct SettingsView: View {
             case .terminal: return String(localized: "Terminal")
             case .sftp: return String(localized: "SFTP")
             case .data: return String(localized: "Data")
+            case .sync: return String(localized: "Sync")
             case .about: return String(localized: "About")
             }
         }
@@ -30,6 +33,7 @@ struct SettingsView: View {
             case .terminal: return "terminal"
             case .sftp: return "folder.badge.plus"
             case .data: return "square.and.arrow.up.on.square"
+            case .sync: return "arrow.triangle.2.circlepath"
             case .about: return "info.circle"
             }
         }
@@ -68,6 +72,12 @@ struct SettingsView: View {
                     Label(Tab.data.label, systemImage: Tab.data.icon)
                 }
                 .tag(Tab.data)
+            
+            syncTab
+                .tabItem {
+                    Label(Tab.sync.label, systemImage: Tab.sync.icon)
+                }
+                .tag(Tab.sync)
             
             aboutTab
                 .tabItem {
@@ -248,6 +258,164 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+    }
+
+    private var syncTab: some View {
+        Form {
+            Section {
+                Text(String(localized: "Configure cloud synchronization for all your connection configurations."))
+                    .foregroundStyle(.secondary)
+            } header: {
+                Text(String(localized: "Cloud Sync"))
+            }
+
+            Section {
+                Toggle(String(localized: "Encrypt Sync Data"), isOn: $settings.syncEncryptData)
+                if settings.syncEncryptData {
+                    SecureField(String(localized: "Sync Master Password"), text: $settings.syncMasterPassword)
+                }
+            } header: {
+                Text(String(localized: "Security"))
+            }
+
+            Section {
+                TextField(String(localized: "Personal Access Token"), text: $settings.syncGithubToken)
+                TextField(String(localized: "Gist ID (Optional)"), text: $settings.syncGithubGistId)
+                
+                HStack(spacing: 12) {
+                    Button(String(localized: "Upload to Gist")) {
+                        Task {
+                            await performGistSync(upload: true)
+                        }
+                    }
+                    .disabled(settings.syncGithubToken.isEmpty || (settings.syncEncryptData && settings.syncMasterPassword.isEmpty))
+                    
+                    Button(String(localized: "Download & Merge")) {
+                        Task {
+                            await performGistSync(upload: false)
+                        }
+                    }
+                    .disabled(settings.syncGithubToken.isEmpty || settings.syncGithubGistId.isEmpty)
+                }
+            } header: {
+                Text(String(localized: "GitHub Gist"))
+            }
+
+            Section {
+                SecureField(String(localized: "Access Token"), text: $settings.syncDropboxToken)
+                
+                HStack(spacing: 12) {
+                    Button(String(localized: "Upload to Dropbox")) {
+                        Task {
+                            await performDropboxSync(upload: true)
+                        }
+                    }
+                    .disabled(settings.syncDropboxToken.isEmpty || (settings.syncEncryptData && settings.syncMasterPassword.isEmpty))
+                    
+                    Button(String(localized: "Download & Merge")) {
+                        Task {
+                            await performDropboxSync(upload: false)
+                        }
+                    }
+                    .disabled(settings.syncDropboxToken.isEmpty)
+                }
+            } header: {
+                Text(String(localized: "Dropbox"))
+            }
+
+            if !syncStatus.isEmpty {
+                Section {
+                    Text(syncStatus)
+                        .foregroundStyle(syncSuccess ? .green : .red)
+                        .font(.subheadline)
+                        .textSelection(.enabled)
+                } header: {
+                    Text(String(localized: "Sync Status"))
+                }
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private func performGistSync(upload: Bool) async {
+        syncStatus = String(localized: "Syncing...")
+        syncSuccess = true
+        do {
+            let password = settings.syncEncryptData ? settings.syncMasterPassword : nil
+            if upload {
+                let gistId = try await GistSyncService.upload(
+                    token: settings.syncGithubToken,
+                    gistId: settings.syncGithubGistId,
+                    connections: model.connections,
+                    password: password
+                )
+                settings.syncGithubGistId = gistId
+                syncStatus = String(localized: "Successfully uploaded to Gist.")
+            } else {
+                let data = try await GistSyncService.download(
+                    token: settings.syncGithubToken,
+                    gistId: settings.syncGithubGistId
+                )
+                
+                let finalData: Data
+                if let contentString = String(data: data, encoding: .utf8), contentString.hasPrefix("MACSSH_ENC:") {
+                    guard !settings.syncMasterPassword.isEmpty else {
+                        throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Data is encrypted. Please provide your master password.")])
+                    }
+                    let decryptedString = try EncryptionHelper.decrypt(encryptedText: contentString, password: settings.syncMasterPassword)
+                    guard let decryptedData = decryptedString.data(using: .utf8) else {
+                        throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Failed to convert decrypted text to data")])
+                    }
+                    finalData = decryptedData
+                } else {
+                    finalData = data
+                }
+                
+                try model.importConnectionsData(finalData, mode: .merge)
+                syncStatus = String(localized: "Successfully downloaded and merged from Gist.")
+            }
+        } catch {
+            syncSuccess = false
+            syncStatus = String(localized: "Gist sync failed: ") + error.localizedDescription
+        }
+    }
+
+    private func performDropboxSync(upload: Bool) async {
+        syncStatus = String(localized: "Syncing...")
+        syncSuccess = true
+        do {
+            let password = settings.syncEncryptData ? settings.syncMasterPassword : nil
+            if upload {
+                try await DropboxSyncService.upload(
+                    token: settings.syncDropboxToken,
+                    connections: model.connections,
+                    password: password
+                )
+                syncStatus = String(localized: "Successfully uploaded to Dropbox.")
+            } else {
+                let data = try await DropboxSyncService.download(token: settings.syncDropboxToken)
+                
+                let finalData: Data
+                if let contentString = String(data: data, encoding: .utf8), contentString.hasPrefix("MACSSH_ENC:") {
+                    guard !settings.syncMasterPassword.isEmpty else {
+                        throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Data is encrypted. Please provide your master password.")])
+                    }
+                    let decryptedString = try EncryptionHelper.decrypt(encryptedText: contentString, password: settings.syncMasterPassword)
+                    guard let decryptedData = decryptedString.data(using: .utf8) else {
+                        throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Failed to convert decrypted text to data")])
+                    }
+                    finalData = decryptedData
+                } else {
+                    finalData = data
+                }
+                
+                try model.importConnectionsData(finalData, mode: .merge)
+                syncStatus = String(localized: "Successfully downloaded and merged from Dropbox.")
+            }
+        } catch {
+            syncSuccess = false
+            syncStatus = String(localized: "Dropbox sync failed: ") + error.localizedDescription
+        }
     }
     
     // MARK: - Handlers

@@ -28,6 +28,8 @@ struct InspectorContentView: View {
                 SystemInfoPanelView(
                     connection: tab.connection,
                     metrics: tab.terminalModel.metrics,
+                    status: tab.terminalModel.status,
+                    lastErrorMessage: tab.terminalModel.lastErrorMessage,
                     onRefresh: {
                         tab.terminalModel.forceRefreshMetrics()
                     }

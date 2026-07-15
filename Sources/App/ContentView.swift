@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import libssh2_swift
 
 struct ContentView: View {
     @Bindable var model: AppModel
@@ -12,6 +13,8 @@ struct ContentView: View {
 
     var body: some View {
         splitView
+        .frame(minWidth: 800, minHeight: 550)
+        .background(WindowAccessor())
         .confirmationDialog(
             String(localized: "Import Connections"),
             isPresented: $showImportDialog,
@@ -93,6 +96,16 @@ struct ContentView: View {
         }
     }
 
+    private func copyToPasteboard(_ text: String) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+    }
+
+    private func hasPassword(for connection: SSHConnection) -> Bool {
+        KeychainStore.loadPassword(account: connection.keychainAccount) != nil
+    }
+
     @ViewBuilder
     private var splitView: some View {
         NavigationSplitView {
@@ -126,6 +139,21 @@ struct ContentView: View {
                             } label: {
                                 Label(String(localized: "Edit"), systemImage: "pencil")
                             }
+
+                            Button {
+                                copyToPasteboard(connection.host)
+                            } label: {
+                                Label(String(localized: "Copy IP"), systemImage: "doc.on.doc")
+                            }
+
+                            Button {
+                                if let password = KeychainStore.loadPassword(account: connection.keychainAccount) {
+                                    copyToPasteboard(password)
+                                }
+                            } label: {
+                                Label(String(localized: "Copy Password"), systemImage: "key")
+                            }
+                            .disabled(!hasPassword(for: connection))
 
                             Button(role: .destructive) {
                                 model.sidebarSelection = .connection(connection.id)
@@ -303,4 +331,19 @@ private struct ConnectionRow: View {
 enum ImportMode {
     case merge
     case replace
+}
+
+private struct WindowAccessor: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSView {
+        let view = NSView()
+        DispatchQueue.main.async {
+            if let window = view.window {
+                window.setFrameAutosaveName("MacSSHMainWindow")
+                window.setFrameUsingName("MacSSHMainWindow")
+            }
+        }
+        return view
+    }
+
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }
