@@ -34,6 +34,8 @@ final class AppSettings {
         static let syncDropboxToken = "syncDropboxToken"
         static let syncEncryptData = "syncEncryptData"
         static let syncMasterPassword = "syncMasterPassword"
+        static let syncLastTime = "syncLastTime"
+        static let syncLastStatus = "syncLastStatus"
     }
 
     var fontSize: Double {
@@ -127,6 +129,14 @@ final class AppSettings {
         didSet { save() }
     }
 
+    var syncLastTime: Date? {
+        didSet { save() }
+    }
+
+    var syncLastStatus: String {
+        didSet { save() }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let savedSize = defaults.double(forKey: Keys.fontSize)
@@ -156,6 +166,8 @@ final class AppSettings {
         syncDropboxToken = defaults.string(forKey: Keys.syncDropboxToken) ?? ""
         syncEncryptData = defaults.object(forKey: Keys.syncEncryptData) as? Bool ?? false
         syncMasterPassword = defaults.string(forKey: Keys.syncMasterPassword) ?? ""
+        syncLastTime = defaults.object(forKey: Keys.syncLastTime) as? Date
+        syncLastStatus = defaults.string(forKey: Keys.syncLastStatus) ?? ""
     }
 
     var availableFonts: [String] {
@@ -208,5 +220,7 @@ final class AppSettings {
         defaults.set(syncDropboxToken, forKey: Keys.syncDropboxToken)
         defaults.set(syncEncryptData, forKey: Keys.syncEncryptData)
         defaults.set(syncMasterPassword, forKey: Keys.syncMasterPassword)
+        defaults.set(syncLastTime, forKey: Keys.syncLastTime)
+        defaults.set(syncLastStatus, forKey: Keys.syncLastStatus)
     }
 }

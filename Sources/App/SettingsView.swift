@@ -10,6 +10,13 @@ struct SettingsView: View {
     @State private var syncStatus: String = ""
     @State private var syncSuccess: Bool = true
     
+    private let syncDateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .medium
+        return formatter
+    }()
+    
     private enum Tab: String, CaseIterable, Identifiable {
         case general, appearance, terminal, sftp, data, sync, about
         var id: String { rawValue }
@@ -323,6 +330,25 @@ struct SettingsView: View {
                 Text(String(localized: "Dropbox"))
             }
 
+            Section {
+                LabeledContent(String(localized: "Last Sync Time")) {
+                    if let lastTime = settings.syncLastTime {
+                        Text(syncDateFormatter.string(from: lastTime))
+                    } else {
+                        Text(String(localized: "Never"))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                
+                if !settings.syncLastStatus.isEmpty {
+                    LabeledContent(String(localized: "Last Sync Status")) {
+                        Text(settings.syncLastStatus)
+                    }
+                }
+            } header: {
+                Text(String(localized: "Sync Status"))
+            }
+
             if !syncStatus.isEmpty {
                 Section {
                     Text(syncStatus)
@@ -330,7 +356,7 @@ struct SettingsView: View {
                         .font(.subheadline)
                         .textSelection(.enabled)
                 } header: {
-                    Text(String(localized: "Sync Status"))
+                    Text(String(localized: "Current Operation"))
                 }
             }
         }
@@ -351,6 +377,8 @@ struct SettingsView: View {
                 )
                 settings.syncGithubGistId = gistId
                 syncStatus = String(localized: "Successfully uploaded to Gist.")
+                settings.syncLastTime = Date()
+                settings.syncLastStatus = String(localized: "Success (Gist Upload)")
             } else {
                 let data = try await GistSyncService.download(
                     token: settings.syncGithubToken,
@@ -373,10 +401,14 @@ struct SettingsView: View {
                 
                 try model.importConnectionsData(finalData, mode: .merge)
                 syncStatus = String(localized: "Successfully downloaded and merged from Gist.")
+                settings.syncLastTime = Date()
+                settings.syncLastStatus = String(localized: "Success (Gist Download)")
             }
         } catch {
             syncSuccess = false
             syncStatus = String(localized: "Gist sync failed: ") + error.localizedDescription
+            settings.syncLastTime = Date()
+            settings.syncLastStatus = String(localized: "Failed")
         }
     }
 
@@ -392,6 +424,8 @@ struct SettingsView: View {
                     password: password
                 )
                 syncStatus = String(localized: "Successfully uploaded to Dropbox.")
+                settings.syncLastTime = Date()
+                settings.syncLastStatus = String(localized: "Success (Dropbox Upload)")
             } else {
                 let data = try await DropboxSyncService.download(token: settings.syncDropboxToken)
                 
@@ -411,10 +445,14 @@ struct SettingsView: View {
                 
                 try model.importConnectionsData(finalData, mode: .merge)
                 syncStatus = String(localized: "Successfully downloaded and merged from Dropbox.")
+                settings.syncLastTime = Date()
+                settings.syncLastStatus = String(localized: "Success (Dropbox Download)")
             }
         } catch {
             syncSuccess = false
             syncStatus = String(localized: "Dropbox sync failed: ") + error.localizedDescription
+            settings.syncLastTime = Date()
+            settings.syncLastStatus = String(localized: "Failed")
         }
     }
     
