@@ -1,3 +1,16 @@
+## [1.9.2] - 2026-07-17
+
+### Fixed
+- Fixed an issue where interactive raw-mode terminal prompts (e.g. Y/N confirmation dialogs) would ignore alphanumeric inputs and only respond to Enter. This was resolved by stripping spoofed Ghostty environment variables from the local shell to prevent tools from incorrectly negotiating advanced keyboard protocols.
+
+---
+
+### Chinese
+### 修复
+- 修复了本地终端在原始模式（raw mode）交互确认（如 Y/N 提示符）时忽略普通字母输入、仅回车有响应的问题。通过清除本地终端环境变量中伪装的 Ghostty 标识，避免交互工具错误启用高级键盘协议而导致无法解析按键。
+
+---
+
 ## [1.9.1] - 2026-07-16
 
 ### Changed

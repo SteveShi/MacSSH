@@ -31,6 +31,10 @@ struct GhosttyTerminalView: NSViewRepresentable {
         var config = GhosttySurfaceConfiguration()
         config.fontSize = Float(settings.fontSize)
 
+        var env = ProcessInfo.processInfo.environment
+        env["TERM"] = "xterm-256color"
+        config.environmentVariables = env
+
         if let tab = self.tab {
             let connection = tab.connection
 
@@ -86,12 +90,6 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 commandParts.append(Self.shellQuoted("\(connection.username)@\(connection.host)"))
                 config.command = commandParts.joined(separator: " ")
             }
-        } else {
-            var env = ProcessInfo.processInfo.environment
-            if env["TERM"] == nil || env["TERM"] == "dumb" {
-                env["TERM"] = "xterm-256color"
-            }
-            config.environmentVariables = env
         }
 
         config.workingDirectory = NSHomeDirectory()
