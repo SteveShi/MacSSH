@@ -1,3 +1,16 @@
+## [1.9.4] - 2026-07-22
+
+### Fixed
+- Fixed an issue where the Inspector panel (real-time monitor and SFTP) failed with `SSH auth failed (-16)` when the main terminal connected using default SSH keys without a saved Keychain password. `TerminalSessionViewModel` now automatically probes standard local OpenSSH key paths (`id_ed25519`, `id_ecdsa`, `id_rsa`, `id_dsa`) and falls back to public key authentication when password authentication fails or is omitted.
+
+---
+
+### Chinese
+### 修复
+- 修复了主终端已连接但 Inspector 面板（实时监控和 SFTP）报 `SSH auth failed (-16)` 的问题。当连接未保存密码时，后台现已支持自动检索本地标准 OpenSSH 密钥（`id_ed25519`、`id_ecdsa`、`id_rsa`、`id_dsa`），并在密码认证缺失或失败时自动退回使用公钥重试认证。
+
+---
+
 ## [1.9.3] - 2026-07-18
 
 ### Changed

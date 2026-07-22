@@ -117,6 +117,8 @@ final class TerminalSessionViewModel {
             } else if let defaultKey = connection.defaultKeyPath {
                 self.keyPath = defaultKey
             }
+        } else if self.password.isEmpty, let defaultKey = connection.defaultKeyPath {
+            self.keyPath = defaultKey
         }
     }
 
@@ -151,6 +153,24 @@ final class TerminalSessionViewModel {
                 case .hostKeyNotTrusted(let status):
                     self.hostKeyPrompt = HostKeyPrompt(host: self.connection.host, status: status)
                     self.trustHostKeyAndConnect()
+                case .authFailed:
+                    if case .password = auth, let defaultKey = self.connection.defaultKeyPath {
+                        let fallbackAuth = SSHAuth.publicKey(path: defaultKey, passphrase: nil)
+                        do {
+                            _ = try await self.session.connect(host: self.connection.host, port: self.connection.port, username: self.connection.username, auth: fallbackAuth)
+                            if Task.isCancelled { return }
+                            self.status = .connected
+                            self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
+                            self.startMonitoring()
+                            self.sftpViewModel.refresh()
+                            return
+                        } catch {
+                            // Fallback auth failed
+                        }
+                    }
+                    self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+                    self.status = .failed(error.localizedDescription)
+                    self.lastErrorMessage = error.localizedDescription
                 default:
                     self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
                     self.status = .failed(error.localizedDescription)
@@ -180,6 +200,26 @@ final class TerminalSessionViewModel {
                 self.handlePasswordPersistence(auth)
                 self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
                 self.startMonitoring()
+            } catch let error as SSHError {
+                if Task.isCancelled { return }
+                if case .authFailed = error, case .password = auth, let defaultKey = self.connection.defaultKeyPath {
+                    let fallbackAuth = SSHAuth.publicKey(path: defaultKey, passphrase: nil)
+                    do {
+                        _ = try await self.session.acceptHostKeyAndConnect(auth: fallbackAuth)
+                        if Task.isCancelled { return }
+                        self.hostKeyPrompt = nil
+                        self.status = .connected
+                        self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
+                        self.startMonitoring()
+                        self.sftpViewModel.refresh()
+                        return
+                    } catch {
+                        // Fallback auth failed
+                    }
+                }
+                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+                self.status = .failed(error.localizedDescription)
+                self.lastErrorMessage = error.localizedDescription
             } catch {
                 if Task.isCancelled { return }
                 self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
@@ -405,6 +445,15 @@ final class TerminalSessionViewModel {
         if usePublicKey, !keyPath.isEmpty {
             let passphrase = keyPassphrase.isEmpty ? nil : keyPassphrase
             return .publicKey(path: keyPath, passphrase: passphrase)
+        }
+        if !password.isEmpty {
+            return .password(password, remember: rememberPassword)
+        }
+        if !keyPath.isEmpty {
+            let passphrase = keyPassphrase.isEmpty ? nil : keyPassphrase
+            return .publicKey(path: keyPath, passphrase: passphrase)
+        } else if let defaultKey = connection.defaultKeyPath {
+            return .publicKey(path: defaultKey, passphrase: nil)
         }
         return .password(password, remember: rememberPassword)
     }

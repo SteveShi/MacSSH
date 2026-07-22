@@ -31,13 +31,17 @@ struct SSHConnection: Identifiable, Hashable, Codable {
 
     var defaultKeyPath: String? {
         let home = FileManager.default.homeDirectoryForCurrentUser
-        let defaultPath = home.appendingPathComponent(".ssh/id_ed25519").path
-        if FileManager.default.fileExists(atPath: defaultPath) {
-            return defaultPath
-        }
-        let rsaPath = home.appendingPathComponent(".ssh/id_rsa").path
-        if FileManager.default.fileExists(atPath: rsaPath) {
-            return rsaPath
+        let candidates = [
+            ".ssh/id_ed25519",
+            ".ssh/id_ecdsa",
+            ".ssh/id_rsa",
+            ".ssh/id_dsa"
+        ]
+        for candidate in candidates {
+            let path = home.appendingPathComponent(candidate).path
+            if FileManager.default.fileExists(atPath: path) {
+                return path
+            }
         }
         return nil
     }
