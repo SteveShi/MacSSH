@@ -1,3 +1,16 @@
+## [1.9.5] - 2026-07-22
+
+### Fixed
+- Upgraded `libssh2-swift` to version `1.3.7` with native `ssh-agent` integration and `.pub` file existence checking. Resolves Inspector SSH auth failure (`-16`) for sessions using SSH Agent or keys without explicit `.pub` companion files.
+
+---
+
+### Chinese
+### 修复
+- 将依赖项 `libssh2-swift` 升级至 `1.3.7`，合入了原生的 `ssh-agent` 认证以及 `.pub` 文件存在性校验。彻底解决了使用 SSH Agent 或无配套 `.pub` 文件的密钥时 Inspector 报 `SSH auth failed (-16)` 的问题。
+
+---
+
 ## [1.9.4] - 2026-07-22
 
 ### Fixed
