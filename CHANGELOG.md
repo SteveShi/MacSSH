@@ -1,3 +1,16 @@
+## [1.9.6] - 2026-07-22
+
+### Fixed
+- Fixed an issue where SSH connections to LAN hosts failed with `No route to host` when proxy environment variables were active. Added `NO_PROXY` environment configuration to automatically bypass proxy for local IP ranges (`192.168.0.0/16`, `10.0.0.0/8`, `172.16.0.0/12`) and removed redundant `--` arguments from automated expect scripts.
+
+---
+
+### Chinese
+### 修复
+- 修复了在系统开启代理时连接局域网主机报 `No route to host` 的问题。自动配置了 `NO_PROXY` 环境变量以直接绕过局域网 IP 段（`192.168.0.0/16`、`10.0.0.0/8`、`172.16.0.0/12`），并清理了内部 expect 自动化脚本中多余的 `--` 参数。
+
+---
+
 ## [1.9.5] - 2026-07-22
 
 ### Fixed

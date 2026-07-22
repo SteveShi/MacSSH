@@ -33,6 +33,17 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
         var env = ProcessInfo.processInfo.environment
         env["TERM"] = "xterm-256color"
+        let defaultNoProxy = "127.0.0.1,localhost,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,*.local"
+        if let existing = env["no_proxy"], !existing.isEmpty {
+            env["no_proxy"] = "\(existing),\(defaultNoProxy)"
+        } else {
+            env["no_proxy"] = defaultNoProxy
+        }
+        if let existingUpper = env["NO_PROXY"], !existingUpper.isEmpty {
+            env["NO_PROXY"] = "\(existingUpper),\(defaultNoProxy)"
+        } else {
+            env["NO_PROXY"] = defaultNoProxy
+        }
         config.environmentVariables = env
 
         if let tab = self.tab {
@@ -50,13 +61,15 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
                 let expectScript = """
                 #!/usr/bin/expect -f
+                set env(NO_PROXY) "127.0.0.1,localhost,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,*.local"
+                set env(no_proxy) "127.0.0.1,localhost,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,*.local"
                 set fp [open \(Self.tclQuoted(pwdPath)) r]
                 set pwd [read -nonewline $fp]
                 close $fp
                 file delete -force \(Self.tclQuoted(pwdPath))
                 file delete -force [info script]
                 set timeout 30
-                spawn /usr/bin/ssh -p \(connection.port) -o StrictHostKeyChecking=no -- \(Self.tclQuoted("\(connection.username)@\(connection.host)"))
+                spawn /usr/bin/ssh -p \(connection.port) -o StrictHostKeyChecking=no \(Self.tclQuoted("\(connection.username)@\(connection.host)"))
                 expect {
                     -nocase "*yes/no*" { send -- "yes\\r"; exp_continue }
                     -nocase "*assword:*" { send -- "$pwd\\r" }
