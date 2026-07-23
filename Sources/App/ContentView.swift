@@ -6,34 +6,12 @@ struct ContentView: View {
     @Bindable var model: AppModel
     @Bindable var settings: AppSettings
     @State private var editorConnection: SSHConnection?
-    @State private var pendingImportURL: URL?
-    @State private var importMode: ImportMode = .merge
-    @State private var showImportDialog: Bool = false
     @State private var showingDeleteAlert: Bool = false
 
     var body: some View {
         splitView
         .frame(minWidth: 800, minHeight: 550)
         .background(WindowAccessor())
-        .confirmationDialog(
-            String(localized: "Import Connections"),
-            isPresented: $showImportDialog,
-            titleVisibility: .visible
-        ) {
-            Button(String(localized: "Merge (Recommended)")) {
-                importMode = .merge
-                confirmImport()
-            }
-            Button(String(localized: "Replace All"), role: .destructive) {
-                importMode = .replace
-                confirmImport()
-            }
-            Button(String(localized: "Cancel"), role: .cancel) {
-                pendingImportURL = nil
-            }
-        } message: {
-            Text("Choose how to import connections. 'Merge' will add new connections from the file, while 'Replace All' will remove all existing data first.", comment: "Import mode selection message")
-        }
         .confirmationDialog(
             String(localized: "Delete Connection"),
             isPresented: $showingDeleteAlert,
@@ -47,54 +25,27 @@ struct ContentView: View {
             Text("Are you sure you want to delete the selected connection?", comment: "Delete connection confirmation message")
         }
         .onChange(of: model.sidebarSelection) { _, _ in
-            triggerInputSourceSwitchWithRetry()
+            triggerInputSourceSwitch()
         }
         .onChange(of: model.selectedTabID) { _, _ in
-            triggerInputSourceSwitchWithRetry()
+            triggerInputSourceSwitch()
         }
         .onChange(of: model.selectedLocalTabID) { _, _ in
-            triggerInputSourceSwitchWithRetry()
+            triggerInputSourceSwitch()
         }
         .onAppear {
-            triggerInputSourceSwitchWithRetry()
+            triggerInputSourceSwitch()
         }
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
-            triggerInputSourceSwitchWithRetry()
+            triggerInputSourceSwitch()
         }
     }
 
-    private func triggerInputSourceSwitchWithRetry() {
+    private func triggerInputSourceSwitch() {
         guard !settings.defaultInputSourceID.isEmpty else { return }
-        let id = settings.defaultInputSourceID
-        
-        // 1. 立即切换
-        InputSourceManager.selectInputSource(id: id)
-        
-        // 2. 0.2 秒后切换
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-            InputSourceManager.selectInputSource(id: id)
-        }
-        
-        // 3. 0.6 秒后切换
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            InputSourceManager.selectInputSource(id: id)
-        }
-        
-        // 4. 1.5 秒后切换
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            InputSourceManager.selectInputSource(id: id)
-        }
+        InputSourceManager.selectInputSource(id: settings.defaultInputSourceID)
     }
 
-    private func exportConnections() {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.json]
-        panel.nameFieldStringValue = "connections.json"
-        panel.title = String(localized: "Export Connections")
-        if panel.runModal() == .OK, let url = panel.url {
-            model.exportConnections(to: url)
-        }
-    }
 
     private func copyToPasteboard(_ text: String) {
         let pasteboard = NSPasteboard.general
@@ -228,22 +179,7 @@ struct ContentView: View {
 
     }
 
-    private func importConnections() {
-        let panel = NSOpenPanel()
-        panel.allowedContentTypes = [.json]
-        panel.allowsMultipleSelection = false
-        panel.title = String(localized: "Import Connections")
-        if panel.runModal() == .OK, let url = panel.url {
-            pendingImportURL = url
-            showImportDialog = true
-        }
-    }
 
-    private func confirmImport() {
-        guard let url = pendingImportURL else { return }
-        model.importConnections(from: url, mode: importMode)
-        pendingImportURL = nil
-    }
 }
 
 private struct EmptyStateView: View {

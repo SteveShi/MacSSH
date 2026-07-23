@@ -6,9 +6,6 @@ struct TerminalView: View {
     let settings: AppSettings
     @Bindable var appModel: AppModel
 
-    @State private var showReconnectError: Bool = false
-    @State private var reconnectErrorMessage: String = ""
-    @FocusState private var isTerminalFocused: Bool
 
     private var model: TerminalSessionViewModel {
         tab.terminalModel
@@ -30,31 +27,10 @@ struct TerminalView: View {
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                     .ignoresSafeArea(.container, edges: .bottom)
                 
-                switch tab.splitDirection {
-                case .right:
-                    HStack(spacing: 1) {
-                        mainTerminal
-                        splitView
-                    }
-                    .background(Color.gray.opacity(0.3))
-                case .left:
-                    HStack(spacing: 1) {
-                        splitView
-                        mainTerminal
-                    }
-                    .background(Color.gray.opacity(0.3))
-                case .down:
-                    VStack(spacing: 1) {
-                        mainTerminal
-                        splitView
-                    }
-                    .background(Color.gray.opacity(0.3))
-                case .up:
-                    VStack(spacing: 1) {
-                        splitView
-                        mainTerminal
-                    }
-                    .background(Color.gray.opacity(0.3))
+                SplitTerminalLayout(direction: tab.splitDirection) {
+                    mainTerminal
+                } split: {
+                    splitView
                 }
             } else {
                 mainTerminal
@@ -117,11 +93,6 @@ struct TerminalView: View {
             }
         } message: {
             Text(hostKeyPromptMessage)
-        }
-        .alert(String(localized: "Reconnect Failed"), isPresented: $showReconnectError) {
-            Button(String(localized: "OK"), role: .cancel) {}
-        } message: {
-            Text(reconnectErrorMessage)
         }
     }
 

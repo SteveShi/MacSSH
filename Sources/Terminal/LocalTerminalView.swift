@@ -45,31 +45,10 @@ struct LocalTerminalView: View {
                         if tab.isSplit, let splitSurface = tab.splitSurface {
                             let splitView = SurfaceViewHost(surface: splitSurface)
                             
-                            switch tab.splitDirection {
-                            case .right:
-                                HStack(spacing: 1) {
-                                    mainTerminal
-                                    splitView
-                                }
-                                .background(Color.gray.opacity(0.3))
-                            case .left:
-                                HStack(spacing: 1) {
-                                    splitView
-                                    mainTerminal
-                                }
-                                .background(Color.gray.opacity(0.3))
-                            case .down:
-                                VStack(spacing: 1) {
-                                    mainTerminal
-                                    splitView
-                                }
-                                .background(Color.gray.opacity(0.3))
-                            case .up:
-                                VStack(spacing: 1) {
-                                    splitView
-                                    mainTerminal
-                                }
-                                .background(Color.gray.opacity(0.3))
+                            SplitTerminalLayout(direction: tab.splitDirection) {
+                                mainTerminal
+                            } split: {
+                                splitView
                             }
                         } else {
                             mainTerminal

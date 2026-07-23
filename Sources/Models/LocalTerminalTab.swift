@@ -21,14 +21,14 @@ final class LocalTerminalTab: Identifiable {
         self.id = UUID()
         self.name = "Terminal \(number)"
         self.surfaceView = surfaceView
-        setupLocalMenuBuilder(for: surfaceView, tab: self)
+        setupMenuBuilder(for: surfaceView, localTab: self)
     }
 
     init(id: UUID, name: String, surfaceView: GhosttySurfaceView) {
         self.id = id
         self.name = name
         self.surfaceView = surfaceView
-        setupLocalMenuBuilder(for: surfaceView, tab: self)
+        setupMenuBuilder(for: surfaceView, localTab: self)
     }
 
     func split(direction: SessionTab.SplitDirection) {
@@ -39,7 +39,7 @@ final class LocalTerminalTab: Identifiable {
         config.workingDirectory = NSHomeDirectory()
         
         let surface = GhosttySurfaceView(config: config)
-        setupLocalMenuBuilder(for: surface, tab: self)
+        setupMenuBuilder(for: surface, localTab: self)
         self.splitSurface = surface
         self.splitDirection = direction
         self.isSplit = true

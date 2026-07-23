@@ -106,7 +106,7 @@ final class SFTPViewModel {
     func upload(from url: URL) {
         transferTask?.cancel()
         status = .transferring(url.lastPathComponent)
-        let target = currentPath.hasSuffix("/") ? currentPath + url.lastPathComponent : currentPath + "/" + url.lastPathComponent
+        let target = (currentPath as NSString).appendingPathComponent(url.lastPathComponent)
         transferTask = Task { [weak self] in
             guard let self else { return }
             do {
@@ -131,9 +131,7 @@ final class SFTPViewModel {
                 for url in urls {
                     if Task.isCancelled { return }
                     self.status = .transferring(url.lastPathComponent)
-                    let target = self.currentPath.hasSuffix("/")
-                        ? self.currentPath + url.lastPathComponent
-                        : self.currentPath + "/" + url.lastPathComponent
+                    let target = (self.currentPath as NSString).appendingPathComponent(url.lastPathComponent)
                     try await self.service.upload(localURL: url, remotePath: target)
                 }
                 if Task.isCancelled { return }

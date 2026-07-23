@@ -57,7 +57,7 @@ final class SessionTab: Identifiable {
         let helper = GhosttyTerminalView(tab: self, settings: settings)
         let config = helper.configuration
         let surface = GhosttySurfaceView(config: config)
-        setupMenuBuilder(for: surface, tab: self)
+        setupMenuBuilder(for: surface, sshTab: self)
         
         self.splitTerminalModel = model
         self.splitSurface = surface

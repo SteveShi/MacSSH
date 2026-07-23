@@ -31,10 +31,6 @@ final class TerminalSessionViewModel {
     var keyPassphrase: String = ""
     var hostKeyPrompt: HostKeyPrompt?
     var lastErrorMessage: String = ""
-    
-    // Rows/Cols are now managed by the Metal view, but we keep them for logic/API if needed
-    var cols: UInt16 = 80
-    var rows: UInt16 = 24
 
     var metrics: SystemMetrics = SystemMetrics()
     private let monitorTaskHolder = TaskHolder()

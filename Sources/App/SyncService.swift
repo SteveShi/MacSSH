@@ -58,7 +58,7 @@ struct GistFile: Codable {
     let content: String?
 }
 
-actor GistSyncService {
+enum GistSyncService {
     static func upload(token: String, gistId: String?, connections: [SSHConnection], password: String? = nil) async throws -> String {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
@@ -138,10 +138,9 @@ actor GistSyncService {
             throw NSError(domain: "MacSSH", code: statusCode, userInfo: [NSLocalizedDescriptionKey: "GitHub Gist API error (status \(statusCode))"])
         }
 
-        let structResponse = try JSONSerialization.jsonObject(with: resData, options: []) as? [String: Any]
-        guard let files = structResponse?["files"] as? [String: Any],
-              let connectionsFile = files["connections.json"] as? [String: Any],
-              let content = connectionsFile["content"] as? String,
+        let gistResponse = try JSONDecoder().decode(GistSyncResponse.self, from: resData)
+        guard let file = gistResponse.files["connections.json"],
+              let content = file.content,
               let contentData = content.data(using: .utf8) else {
             throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "connections.json file not found in Gist")])
         }
@@ -150,7 +149,7 @@ actor GistSyncService {
     }
 }
 
-actor DropboxSyncService {
+enum DropboxSyncService {
     static func upload(token: String, connections: [SSHConnection], password: String? = nil) async throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted

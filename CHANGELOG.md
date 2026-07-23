@@ -1,3 +1,26 @@
+## [1.9.7] - 2026-07-23
+
+### Refactored
+- Conducted codebase audit to eliminate over-engineering and redundant boilerplate:
+  - Consolidated duplicate context menu handlers into a single unified `TerminalMenuHandler`.
+  - Extracted shared `SplitTerminalLayout` view to deduplicate terminal split-screen layouts.
+  - Converted stateless `GistSyncService` and `DropboxSyncService` actors to enums.
+  - Replaced manual JSON serialization in Gist download with native `JSONDecoder`.
+  - Purged dead code, unused properties (`cols`/`rows`, `showReconnectError`, `localTab`), and redundant background retries.
+
+---
+
+### Chinese
+### 重构
+- 全面优化架构并清理冗余代码：
+  - 合并 SSH 与本地终端重合的右键菜单处理逻辑，统一收载于 `TerminalMenuHandler`。
+  - 抽离共享 `SplitTerminalLayout` 布局视图，消除分屏逻辑的重复。
+  - 将无状态的 `GistSyncService` 和 `DropboxSyncService` actor 调整为 enum。
+  - 将 Gist 下载中的 `JSONSerialization` 手动解析替换为原生的 `JSONDecoder`。
+  - 清理多余死代码、弃用属性（如 `cols`/`rows`、`showReconnectError`、`localTab`）及冗余的后台重试机制。
+
+---
+
 ## [1.9.6] - 2026-07-22
 
 ### Fixed
