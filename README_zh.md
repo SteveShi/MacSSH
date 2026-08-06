@@ -10,19 +10,20 @@
 
 ## 核心架构设计
 
-为了实现代码的高内聚、低耦合以及仓库的极度轻量化，`MacSSH` 采用了模块化架构：
+为了实现高内聚、低耦合以及工程层面的清晰解耦，`MacSSH` 通过 Tuist 划分了 3 个本地 Target 模块与 SPM 扩展：
 
 ```mermaid
 graph TD
-    App[MacSSH App SwiftUI] --> |UI Layer / SFTP Panels| Core
-    Core[App Logic & ViewModels] --> |Terminal Emulator View| Ghostty[libghostty-swift]
-    Core --> |SSH2 & SFTP Protocol| SSH[libssh2-swift Package]
-    SSH --> |Remote BinaryTarget| C_Libs["libssh2 & openssl XCFrameworks"]
+    App["MacSSH (App Target)"] --> Core["MacSSHCore (Framework Target)"]
+    App --> Terminal["MacSSHTerminal (Framework Target)"]
+    Terminal --> Core
+    Terminal --> Ghostty["libghostty-swift (SPM Package)"]
+    Core --> SSH["libssh2-swift (SPM Package)"]
 ```
 
-1. **MacSSH (主壳)**：100% 纯 Swift 编写的宿主 App，负责多标签管理、主机配置存储、Keychain 密码保存、已知主机指纹提示（Known Hosts）、SFTP 交互面板以及系统监控。
-2. **libghostty-swift (模块)**：独立的终端渲染引擎，将 Ghostty 强悍的 VT 解析和 Metal 硬件加速渲染能力引入 App。
-3. **libssh2-swift (模块)**：高内聚的网络与加密层，它包装了 C 原生静态库（`libssh2`/`openssl`），通过 GitHub Release 附件在编译时按需加载二进制 XCFramework，实现 Git 仓库体积小于 1MB。
+1. **`MacSSH` (主壳 App)**：纯 SwiftUI 宿主视图与应用生命周期，负责窗口/Tab 标签页管理及 Sparkle 自动更新。
+2. **`MacSSHCore` (核心业务模块)**：数据模型（`SSHConnection`、`SessionTab`）、Keychain 凭据加密与主机监控。
+3. **`MacSSHTerminal` (终端渲染模块)**：桥接 Ghostty 终端引擎（`libghostty-vt.dylib`）与 Metal 硬件加速渲染视图。
 
 ---
 

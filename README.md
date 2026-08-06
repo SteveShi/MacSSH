@@ -10,19 +10,20 @@ Built entirely with SwiftUI, it features GPU-accelerated terminal rendering driv
 
 ## Modular Architecture
 
-To ensure separation of concerns and maintain a repository size under 1MB, `MacSSH` decomposes its modules cleanly:
+To ensure separation of concerns and maintain a zero-bloat repository, `MacSSH` cleanly decouples its architecture using Tuist targets:
 
 ```mermaid
 graph TD
-    App[MacSSH App SwiftUI] --> |UI Layer / SFTP Panels| Core
-    Core[App Logic & ViewModels] --> |Terminal Emulator View| Ghostty[libghostty-swift]
-    Core --> |SSH2 & SFTP Protocol| SSH[libssh2-swift Package]
-    SSH --> |Remote BinaryTarget| C_Libs["libssh2 & openssl XCFrameworks"]
+    App["MacSSH (App Target)"] --> Core["MacSSHCore (Framework Target)"]
+    App --> Terminal["MacSSHTerminal (Framework Target)"]
+    Terminal --> Core
+    Terminal --> Ghostty["libghostty-swift (SPM Package)"]
+    Core --> SSH["libssh2-swift (SPM Package)"]
 ```
 
-- **Host Application (`MacSSH`)**: Governs SSH settings editor, tabs management, Keychain data flow, side-panel dashboard, and localized SwiftUI assets.
-- **Terminal System (`libghostty-swift`)**: Embeds high-performance virtual terminal state machines and Metal views.
-- **Connection Core (`libssh2-swift`)**: Bridges raw TCP socket structures to Swift `actor` mechanisms, resolving low-level C libraries (`libssh2` and `openssl`) via remote binary targets.
+- **`MacSSH` (App Shell)**: Governs SwiftUI views, windows, session navigation, Sparkle autoupdater, and app lifecycle.
+- **`MacSSHCore` (Framework)**: Encapsulates data models (`SSHConnection`, `SessionTab`), hosts status monitors, and SSH credential management.
+- **`MacSSHTerminal` (Framework)**: Bridges the Ghostty virtual terminal emulator (`libghostty-vt.dylib`) with Metal rendering views.
 
 ---
 
