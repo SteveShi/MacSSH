@@ -49,39 +49,20 @@ let project = Project(
             )
         ),
         .target(
-            name: "MacSSHTerminal",
-            destinations: .macOS,
-            product: .framework,
-            bundleId: "com.steveshi.macssh.terminal",
-            deploymentTargets: .macOS("15.0"),
-            sources: ["Targets/MacSSHTerminal/**"],
-            dependencies: [
-                .target(name: "MacSSHCore"),
-                .package(product: "libghostty-swift")
-            ],
-            settings: .settings(
-                base: [
-                    "HEADER_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/include",
-                    "LIBRARY_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/lib",
-                    "FRAMEWORK_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/lib",
-                    "OTHER_CFLAGS": "-I$(SRCROOT)/ThirdParty/include",
-                    "OTHER_LDFLAGS": "-lghostty-vt -lc++ -framework Carbon",
-                    "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks"
-                ]
-            )
-        ),
-        .target(
             name: "MacSSH",
             destinations: .macOS,
             product: .app,
             bundleId: "com.steveshi.macssh",
             deploymentTargets: .macOS("15.0"),
-            sources: ["Targets/MacSSHApp/**"],
+            sources: [
+                "Targets/MacSSHApp/**",
+                "Targets/MacSSHTerminal/**"
+            ],
             scripts: [embedGhosttyScript],
             dependencies: [
                 .target(name: "MacSSHCore"),
-                .target(name: "MacSSHTerminal"),
-                .package(product: "Sparkle")
+                .package(product: "Sparkle"),
+                .package(product: "libghostty-swift")
             ],
             settings: .settings(
                 base: [
