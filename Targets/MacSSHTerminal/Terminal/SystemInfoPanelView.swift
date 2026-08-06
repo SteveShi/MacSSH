@@ -1,4 +1,5 @@
 import SwiftUI
+import MacSSHCore
 import AppKit
 
 @MainActor
