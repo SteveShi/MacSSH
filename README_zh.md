@@ -36,22 +36,38 @@ graph TD
 
 ---
 
-## 如何构建与运行
+## 🛠️ 从源码构建
 
-由于项目使用 [XcodeGen](https://github.com/yonaskolb/XcodeGen) 自动维护 Xcode 项目文件，您需要按如下步骤生成工程：
+### 要求
 
-1. **安装 XcodeGen**：
+- macOS 15.0（Sequoia）或更高版本
+- Xcode 16.4 或更高版本
+
+### 步骤
+
+由于项目使用 [Tuist](https://tuist.io/) 声明式管理 Xcode 项目文件，您需要按如下步骤生成工程：
+
+1. **安装 Tuist**：
    ```bash
-   brew install xcodegen
+   mise install tuist
    ```
 
-2. **生成 Xcode 工程**：
-   在仓库根目录下运行：
+2. **克隆并生成项目文件**：
    ```bash
-   xcodegen
+   git clone https://github.com/SteveShi/MacSSH.git
+   cd MacSSH
+   tuist generate
    ```
 
-3. **打开并编译**：
-   - 打开自动生成的 `MacSSH.xcodeproj`。
-   - 首次编译时，Xcode 会自动解析依赖（包括 `libghostty-swift` 和 `libssh2-swift` 及其对应的 C 依赖），这可能需要 1~2 分钟。
-   - 选择 `MacSSH` scheme，按 `Command + R` 直接运行。
+3. 在 Xcode 中打开 `MacSSH.xcodeproj` 并构建。
+
+## 🔧 技术栈
+
+| 层级 | 技术 |
+|------|-----|
+| 终端引擎 | [Ghostty VT](https://ghostty.org/) (`libghostty-vt`) |
+| 界面框架 | SwiftUI (macOS 15+) |
+| SSH 传输 | 内置 `ssh` 命令 |
+| 凭据存储 | macOS 钥匙串（通过 [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)） |
+| 自动更新 | [Sparkle](https://sparkle-project.org/) |
+| 项目生成 | [Tuist](https://tuist.io/) |

@@ -17,8 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install XcodeGen
-        run: brew install xcodegen
+      - name: Install Tuist
+        run: |
+          brew install mise
+          mise install tuist@4.25.0
 
       - name: Check Dependencies Versions
         id: check-deps
@@ -131,8 +133,8 @@ jobs:
           rm changelog_temp.md
 
           # Regenerate Xcode Project and resolve packages
-          xcodegen
-          xcodebuild -resolvePackageDependencies -project MacSSH.xcodeproj
+          eval "$(mise activate bash)"
+          tuist generate --no-open
 
           # Build release bundle
           xcodebuild -scheme MacSSH -configuration Release -derivedDataPath BuildData build

@@ -36,22 +36,38 @@ graph TD
 
 ---
 
-## Getting Started
+## 🛠️ Build from Source
 
-The Xcode project file (`MacSSH.xcodeproj`) is generated dynamically using [XcodeGen](https://github.com/yonaskolb/XcodeGen).
+### Requirements
 
-1. **Install XcodeGen**:
+- macOS 15.0 (Sequoia) or later
+- Xcode 16.4 or later
+
+### Steps
+
+The Xcode project file (`MacSSH.xcodeproj`) is generated dynamically using [Tuist](https://tuist.io/).
+
+1. **Install Tuist**:
    ```bash
-   brew install xcodegen
+   mise install tuist
    ```
 
-2. **Generate Xcode Project**:
-   Run this command in the project directory root:
+2. **Clone and generate**:
    ```bash
-   xcodegen
+   git clone https://github.com/SteveShi/MacSSH.git
+   cd MacSSH
+   tuist generate
    ```
 
-3. **Build & Run**:
-   - Launch `MacSSH.xcodeproj`.
-   - On the first load, Xcode will fetch remote Swift packages (it might take a minute to download the XCFramework binaries).
-   - Target the `MacSSH` scheme and press `Cmd + R` to run the application.
+3. Open `MacSSH.xcodeproj` in Xcode and build.
+
+## 🔧 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Terminal Engine | [Ghostty VT](https://ghostty.org/) (`libghostty-vt`) |
+| UI Framework | SwiftUI (macOS 15+) |
+| SSH Transport | Built-in `ssh` command |
+| Credential Store | macOS Keychain via [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) |
+| Auto Update | [Sparkle](https://sparkle-project.org/) |
+| Project Generation | [Tuist](https://tuist.io/) |

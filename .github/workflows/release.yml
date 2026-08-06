@@ -87,12 +87,15 @@ jobs:
           echo "=== Disk space after cleanup ==="
           df -h
 
-      - name: Install Tooling
-        run: brew install xcodegen
+      - name: Install Tuist
+        run: |
+          brew install mise
+          mise install tuist@4.25.0
 
       - name: Generate Xcode Project
         run: |
-          xcodegen generate --spec project.yml
+          eval "$(mise activate bash)"
+          tuist generate --no-open
           
       - name: Resolve Swift Packages
         run: |
