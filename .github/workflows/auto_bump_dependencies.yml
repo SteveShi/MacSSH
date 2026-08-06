@@ -39,9 +39,9 @@ jobs:
           echo "Latest remote libssh2-swift: $LATEST_LIBSSH2_VER"
           echo "Latest remote libghostty-swift: $LATEST_GHOSTTY_VER"
 
-          # Parse current local versions from project.yml
-          CURRENT_LIBSSH2_VER=$(grep -A 2 "libssh2-swift:" project.yml | grep "from:" | sed 's/.*from: //')
-          CURRENT_GHOSTTY_VER=$(grep -A 2 "libghostty-swift:" project.yml | grep "from:" | sed 's/.*from: //')
+          # Parse current local versions from Project.swift
+          CURRENT_LIBSSH2_VER=$(grep 'libssh2-swift.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
+          CURRENT_GHOSTTY_VER=$(grep 'libghostty-swift.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
 
           echo "Current local libssh2-swift: $CURRENT_LIBSSH2_VER"
           echo "Current local libghostty-swift: $CURRENT_GHOSTTY_VER"
@@ -49,13 +49,13 @@ jobs:
           UPDATED=false
           if [[ "$LATEST_LIBSSH2_VER" != "$CURRENT_LIBSSH2_VER" ]]; then
             echo "libssh2-swift needs update: $CURRENT_LIBSSH2_VER -> $LATEST_LIBSSH2_VER"
-            sed -i '' "/libssh2-swift:/,/from:/s/from: $CURRENT_LIBSSH2_VER/from: $LATEST_LIBSSH2_VER/" project.yml
+            sed -i '' "s|libssh2-swift.git\", from: \"$CURRENT_LIBSSH2_VER\"|libssh2-swift.git\", from: \"$LATEST_LIBSSH2_VER\"|g" Project.swift
             UPDATED=true
           fi
 
           if [[ "$LATEST_GHOSTTY_VER" != "$CURRENT_GHOSTTY_VER" ]]; then
             echo "libghostty-swift needs update: $CURRENT_GHOSTTY_VER -> $LATEST_GHOSTTY_VER"
-            sed -i '' "/libghostty-swift:/,/from:/s/from: $CURRENT_GHOSTTY_VER/from: $LATEST_GHOSTTY_VER/" project.yml
+            sed -i '' "s|libghostty-swift.git\", from: \"$CURRENT_GHOSTTY_VER\"|libghostty-swift.git\", from: \"$LATEST_GHOSTTY_VER\"|g" Project.swift
             UPDATED=true
           fi
 
@@ -85,8 +85,8 @@ jobs:
           set -euo pipefail
 
           # Get current versions
-          CURRENT_APP_VER=$(grep "MARKETING_VERSION:" project.yml | head -n 1 | sed 's/.*MARKETING_VERSION: "\(.*\)"/\1/')
-          CURRENT_BUILD_VER=$(grep "CURRENT_PROJECT_VERSION:" project.yml | head -n 1 | sed 's/.*CURRENT_PROJECT_VERSION: "\(.*\)"/\1/')
+          CURRENT_APP_VER=$(grep '"MARKETING_VERSION"' Project.swift | head -n 1 | sed -E 's/.*"MARKETING_VERSION": "([^"]+)".*/\1/')
+          CURRENT_BUILD_VER=$(grep '"CURRENT_PROJECT_VERSION"' Project.swift | head -n 1 | sed -E 's/.*"CURRENT_PROJECT_VERSION": "([^"]+)".*/\1/')
 
           IFS='.' read -r -a APP_PARTS <<< "$CURRENT_APP_VER"
           NEXT_APP_PATCH=$((APP_PARTS[2] + 1))
@@ -97,8 +97,8 @@ jobs:
           echo "Bumping build version: $CURRENT_BUILD_VER -> $NEXT_BUILD_VER"
 
           # Apply version updates
-          sed -i '' "s/MARKETING_VERSION: \"$CURRENT_APP_VER\"/MARKETING_VERSION: \"$NEXT_APP_VER\"/g" project.yml
-          sed -i '' "s/CURRENT_PROJECT_VERSION: \"$CURRENT_BUILD_VER\"/CURRENT_PROJECT_VERSION: \"$NEXT_BUILD_VER\"/g" project.yml
+          sed -i '' "s/\"MARKETING_VERSION\": \"$CURRENT_APP_VER\"/\"MARKETING_VERSION\": \"$NEXT_APP_VER\"/g" Project.swift
+          sed -i '' "s/\"CURRENT_PROJECT_VERSION\": \"$CURRENT_BUILD_VER\"/\"CURRENT_PROJECT_VERSION\": \"$NEXT_BUILD_VER\"/g" Project.swift
 
           # Prepend CHANGELOG.md
           cat <<EOF | sed 's/^          //' > changelog_temp.md
@@ -210,7 +210,7 @@ jobs:
           # Configure Git and push (Do this BEFORE creating release)
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add project.yml CHANGELOG.md
+          git add Project.swift CHANGELOG.md
           git commit -m "Auto bump dependencies and version to ${NEXT_APP_VER} [skip ci]"
           git push origin main
 
