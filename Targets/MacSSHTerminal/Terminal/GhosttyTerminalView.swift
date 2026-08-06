@@ -1,4 +1,5 @@
 import SwiftUI
+import MacSSHCore
 import libghostty_swift
 import Foundation
 import libssh2_swift
