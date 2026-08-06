@@ -1,5 +1,4 @@
 import Foundation
-import MacSSHCore
 import Observation
 import libssh2_swift
 

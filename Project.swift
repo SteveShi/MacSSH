@@ -32,37 +32,17 @@ let project = Project(
     ),
     targets: [
         .target(
-            name: "MacSSHCore",
-            destinations: .macOS,
-            product: .framework,
-            bundleId: "com.steveshi.macssh.core",
-            deploymentTargets: .macOS("15.0"),
-            sources: ["Targets/MacSSHCore/**"],
-            dependencies: [
-                .package(product: "libssh2-swift")
-            ],
-            settings: .settings(
-                base: [
-                    "HEADER_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/include",
-                    "LIBRARY_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/lib"
-                ]
-            )
-        ),
-        .target(
             name: "MacSSH",
             destinations: .macOS,
             product: .app,
             bundleId: "com.steveshi.macssh",
             deploymentTargets: .macOS("15.0"),
-            sources: [
-                "Targets/MacSSHApp/**",
-                "Targets/MacSSHTerminal/**"
-            ],
+            sources: ["Targets/**"],
             scripts: [embedGhosttyScript],
             dependencies: [
-                .target(name: "MacSSHCore"),
                 .package(product: "Sparkle"),
-                .package(product: "libghostty-swift")
+                .package(product: "libghostty-swift"),
+                .package(product: "libssh2-swift")
             ],
             settings: .settings(
                 base: [

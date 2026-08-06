@@ -1,7 +1,6 @@
 import Foundation
 import Observation
 import SwiftUI
-import MacSSHCore
 import libghostty_swift
 
 @Observable
