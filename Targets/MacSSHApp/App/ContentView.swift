@@ -1,6 +1,5 @@
 import SwiftUI
 import MacSSHCore
-import MacSSHTerminal
 import AppKit
 import libssh2_swift
 

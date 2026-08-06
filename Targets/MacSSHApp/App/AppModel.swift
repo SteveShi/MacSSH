@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import Observation
 import MacSSHCore
-import MacSSHTerminal
 import libghostty_swift
 
 enum SidebarItem: Hashable, Identifiable {
