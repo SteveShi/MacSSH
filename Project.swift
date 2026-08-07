@@ -16,16 +16,16 @@ let project = Project(
     name: "MacSSH",
     packages: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.0.0"),
-        .package(url: "https://github.com/SteveShi/libghostty-swift.git", from: "1.0.13"),
-        .package(url: "https://github.com/SteveShi/libssh2-swift.git", from: "1.3.12")
+        .package(url: "https://github.com/SteveShi/libghostty-swift.git", from: "1.0.12"),
+        .package(url: "https://github.com/SteveShi/libssh2-swift.git", from: "1.3.10")
     ],
     settings: .settings(
         base: [
             "MACOSX_DEPLOYMENT_TARGET": "15.0",
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
-            "MARKETING_VERSION": "1.9.9",
-            "CURRENT_PROJECT_VERSION": "199",
+            "MARKETING_VERSION": "1.9.11",
+            "CURRENT_PROJECT_VERSION": "1911",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]
