@@ -1,3 +1,18 @@
+## [1.9.15] - 2026-08-09
+
+### Fixed
+- Fixed Nerd Font icons (e.g. Apple logo, powerline symbols) displaying incorrectly as pi (`π`) when using standard fonts like JetBrains Mono, by configuring automatic font fallback chains (`Symbols Nerd Font`, `FiraCode Nerd Font`, etc.).
+- Broadened font picker filtering to include all installed Nerd Fonts (such as `FiraCode Nerd Font`, `Hack Nerd Font`, `SFMono Nerd Font Mono`, `Symbols Nerd Font`).
+
+---
+
+### Chinese
+### 修复
+- 修复在使用 JetBrains Mono 等标准无图标字体时，提示符中的 Nerd Font 图案符号被系统错判显示为希腊字母 `π` 的问题（自动注入 `Symbols Nerd Font`、`FiraCode Nerd Font` 等回退字体链）。
+- 扩展设置中的字体选择列表，解除对 `isFixedPitch` 的过度限制，使 `FiraCode Nerd Font`、`Hack Nerd Font`、`Symbols Nerd Font` 等所有已安装的 Nerd Fonts 均可被正常选中。
+
+---
+
 ## [1.9.14] - 2026-08-09
 
 ### Fixed

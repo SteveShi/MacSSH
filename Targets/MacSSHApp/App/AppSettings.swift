@@ -172,9 +172,12 @@ final class AppSettings {
 
     var availableFonts: [String] {
         let families = NSFontManager.shared.availableFontFamilies
+        let keywords = ["mono", "nerd", "code", "console", "terminal", "courier", "menlo", "monaco", "jetbrains", "fira", "hack", "source", "cascadia", "inconsolata", "meslo", "symbols"]
         let monospaced = families.filter { family in
+            let lower = family.lowercased()
+            if keywords.contains(where: { lower.contains($0) }) { return true }
             guard let font = NSFont(name: family, size: 13) else { return false }
-            return font.isFixedPitch
+            return font.isFixedPitch || font.fontDescriptor.symbolicTraits.contains(.monoSpace)
         }
         // Prioritize fonts commonly bundled with Nerd Font / Powerline glyph support
         let preferred = [
@@ -196,8 +199,12 @@ final class AppSettings {
             "Inconsolata",
             "Inconsolata Nerd Font",
             "Inconsolata Nerd Font Mono",
+            "MesloLGS NF",
             "MesloLGS Nerd Font",
             "MesloLGS Nerd Font Mono",
+            "SFMono Nerd Font Mono",
+            "Symbols Nerd Font",
+            "Symbols Nerd Font Mono",
             "SF Mono",
             "Menlo",
             "Monaco"

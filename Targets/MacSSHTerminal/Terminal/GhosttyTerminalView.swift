@@ -137,11 +137,31 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
     // MARK: - Font Configuration
 
-    /// Applies font-family and font-size to a Ghostty surface using the config-file mechanism
+    /// Applies font-family (with fallback chain) and font-size to a Ghostty surface using the config-file mechanism
     /// (same approach as GhosttySurfaceView.applyTheme).
     static func applyFontConfig(to surface: GhosttySurfaceView, fontName: String, fontSize: Double? = nil) {
         guard !fontName.isEmpty else { return }
         var lines: [String] = ["font-family = \"\(fontName)\""]
+        
+        let fallbackFonts = [
+            "Symbols Nerd Font",
+            "Symbols Nerd Font Mono",
+            "JetBrainsMono Nerd Font",
+            "JetBrainsMono Nerd Font Mono",
+            "FiraCode Nerd Font",
+            "FiraCode Nerd Font Mono",
+            "Hack Nerd Font",
+            "Hack Nerd Font Mono",
+            "MesloLGS NF",
+            "MesloLGS Nerd Font",
+            "MesloLGS Nerd Font Mono",
+            "SFMono Nerd Font Mono",
+            "Apple Color Emoji"
+        ]
+        for fallback in fallbackFonts where fallback != fontName {
+            lines.append("font-family = \"\(fallback)\"")
+        }
+
         if let fontSize {
             lines.append("font-size = \(fontSize)")
         }
