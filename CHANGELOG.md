@@ -1,4 +1,4 @@
-## [1.9.13] - 2026-08-09
+## [1.9.14] - 2026-08-09
 
 ### Fixed
 - Fixed terminal font selection not taking effect, now supporting dynamic font updates and prioritizing Nerd Font compatible fonts (e.g. JetBrains Mono).
