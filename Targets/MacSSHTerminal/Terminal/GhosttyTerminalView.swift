@@ -132,7 +132,9 @@ struct GhosttyTerminalView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {
-        Self.applyFontConfig(to: nsView, fontName: settings.fontName, fontSize: settings.fontSize)
+        let fontName = settings.fontName
+        let fontSize = settings.fontSize
+        Self.applyFontConfig(to: nsView, fontName: fontName, fontSize: fontSize)
     }
 
     // MARK: - Font Configuration
@@ -166,12 +168,18 @@ struct GhosttyTerminalView: NSViewRepresentable {
             lines.append("font-size = \(fontSize)")
         }
         let configContents = lines.joined(separator: "\n")
+
+        // 1. Write to ~/.config/ghostty/config for default loading
+        writeGhosttyUserConfig(contents: configContents)
+
+        // 2. Apply to live surface via C API
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("macssh-font-\(UUID().uuidString).conf")
         do {
             try configContents.write(to: url, atomically: true, encoding: .utf8)
             defer { try? FileManager.default.removeItem(at: url) }
             if let nextConfig = ghostty_config_new() {
+                ghostty_config_load_default_files(nextConfig)
                 ghostty_config_load_file(nextConfig, url.path)
                 ghostty_config_finalize(nextConfig)
                 if let rawSurface = surface.rawSurface {
@@ -181,6 +189,19 @@ struct GhosttyTerminalView: NSViewRepresentable {
             }
         } catch {
             NSLog("[MacSSH] Failed to apply font config: \(error)")
+        }
+    }
+
+    /// Writes ghostty font configuration to ~/.config/ghostty/config
+    static func writeGhosttyUserConfig(contents: String) {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let ghosttyDir = home.appendingPathComponent(".config/ghostty")
+        let configFile = ghosttyDir.appendingPathComponent("config")
+        do {
+            try FileManager.default.createDirectory(at: ghosttyDir, withIntermediateDirectories: true)
+            try contents.write(to: configFile, atomically: true, encoding: .utf8)
+        } catch {
+            NSLog("[MacSSH] Failed to write ghostty user config: \(error)")
         }
     }
 

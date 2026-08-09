@@ -1,3 +1,16 @@
+## [1.9.16] - 2026-08-09
+
+### Fixed
+- Fixed live font switching in terminal view by adding missing `ghostty_config_load_default_files` call during runtime surface config update and persisting selected font config to `~/.config/ghostty/config`.
+
+---
+
+### Chinese
+### 修复
+- 彻底解决终端字体无法即时切换生效的问题：在运行时表面配置更新中补充调用 `ghostty_config_load_default_files`，并同步写出字体与回退链配置至 `~/.config/ghostty/config`，确保新旧标签页与设置更改均能立即无缝切换渲染字体。
+
+---
+
 ## [1.9.15] - 2026-08-09
 
 ### Fixed
