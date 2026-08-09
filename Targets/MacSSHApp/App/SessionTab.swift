@@ -2,6 +2,7 @@ import Foundation
 import SwiftUI
 import Observation
 import libghostty_swift
+import GhosttyKit
 
 enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
     case sftp
@@ -58,6 +59,7 @@ final class SessionTab: Identifiable {
         let helper = GhosttyTerminalView(tab: self, settings: settings)
         let config = helper.configuration
         let surface = GhosttySurfaceView(config: config)
+        GhosttyTerminalView.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
         setupMenuBuilder(for: surface, sshTab: self)
         
         self.splitTerminalModel = model

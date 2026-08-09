@@ -1,4 +1,9 @@
-## [1.9.13] - 2026-08-07
+## [1.9.13] - 2026-08-09
+
+### Fixed
+- Fixed terminal font selection not taking effect, now supporting dynamic font updates and prioritizing Nerd Font compatible fonts (e.g. JetBrains Mono).
+- Fixed terminal graphic/pattern characters displaying incorrectly as pi (π) symbols by enforcing UTF-8 locale environment variables (`LANG=en_US.UTF-8`, `LC_ALL=en_US.UTF-8`).
+- Restored missing app icon and Chinese (zh-Hans) localization by including resource files in Tuist project manifest and Info.plist metadata.
 
 ### Changed
 - Automatically bumped dependencies to libssh2-swift version 1.3.12 and libghostty-swift version 1.0.13.
@@ -6,6 +11,11 @@
 ---
 
 ### Chinese
+### 修复
+- 修复终端字体无法设置的问题，支持动态列举与实时更新，并优先展示 JetBrains Mono 等 Nerd Font 兼容字体。
+- 修复终端图案/画线字符错误显示为希腊字母 `π` 的问题（补全 UTF-8 环境变量 `LANG=en_US.UTF-8`）。
+- 修复 App 图标缺失与简体中文本地化丢失问题（在 Tuist 构建配置与 Info.plist 中补充资源文件与语言声明）。
+
 ### 变更
 - 自动更新依赖项 libssh2-swift 至版本 1.3.12，libghostty-swift 至版本 1.0.13。
 

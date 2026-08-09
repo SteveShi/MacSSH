@@ -38,6 +38,10 @@ let project = Project(
             bundleId: "com.steveshi.macssh",
             deploymentTargets: .macOS("15.0"),
             sources: ["Targets/**"],
+            resources: [
+                "Targets/MacSSHApp/App/Assets.xcassets",
+                "Targets/MacSSHApp/App/Localizable.xcstrings"
+            ],
             scripts: [embedGhosttyScript],
             dependencies: [
                 .package(product: "Sparkle"),

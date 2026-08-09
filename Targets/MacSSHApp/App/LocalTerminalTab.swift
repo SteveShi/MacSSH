@@ -2,6 +2,7 @@ import Foundation
 import Observation
 import SwiftUI
 import libghostty_swift
+import GhosttyKit
 
 @Observable
 @MainActor
@@ -22,6 +23,8 @@ final class LocalTerminalTab: Identifiable {
         self.id = UUID()
         self.name = "Terminal \(number)"
         self.surfaceView = surfaceView
+        let settings = AppSettings()
+        GhosttyTerminalView.applyFontConfig(to: surfaceView, fontName: settings.fontName, fontSize: settings.fontSize)
         setupMenuBuilder(for: surfaceView, localTab: self)
     }
 
@@ -29,6 +32,8 @@ final class LocalTerminalTab: Identifiable {
         self.id = id
         self.name = name
         self.surfaceView = surfaceView
+        let settings = AppSettings()
+        GhosttyTerminalView.applyFontConfig(to: surfaceView, fontName: settings.fontName, fontSize: settings.fontSize)
         setupMenuBuilder(for: surfaceView, localTab: self)
     }
 
@@ -40,6 +45,7 @@ final class LocalTerminalTab: Identifiable {
         config.workingDirectory = NSHomeDirectory()
         
         let surface = GhosttySurfaceView(config: config)
+        GhosttyTerminalView.applyFontConfig(to: surface, fontName: settings.fontName)
         setupMenuBuilder(for: surface, localTab: self)
         self.splitSurface = surface
         self.splitDirection = direction

@@ -487,18 +487,17 @@ struct SettingsView: View {
     
     private var aboutTab: some View {
         VStack(spacing: 20) {
-            Image(systemName: "desktopcomputer")
+            Image(nsImage: NSApplication.shared.applicationIconImage)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 64, height: 64)
-                .foregroundStyle(Color.accentColor)
             
             VStack(spacing: 4) {
                 Text(String(localized: "MacSSH"))
                     .font(.title).bold()
                 let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "–"
                 let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "–"
-                Text("Version \(version) (\(build))")
+                Text(String(localized: "Version \(version) (\(build))"))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

@@ -19,6 +19,12 @@ enum LocalShellEnvironment {
     static func make() -> [String: String] {
         var env = ProcessInfo.processInfo.environment
         env["TERM"] = fallbackTerm
+        if env["LANG"] == nil || env["LANG"]?.isEmpty == true {
+            env["LANG"] = "en_US.UTF-8"
+        }
+        if env["LC_ALL"] == nil || env["LC_ALL"]?.isEmpty == true {
+            env["LC_ALL"] = "en_US.UTF-8"
+        }
         return env
     }
 }

@@ -171,7 +171,41 @@ final class AppSettings {
     }
 
     var availableFonts: [String] {
-        ["SF Mono", "Menlo", "Monaco"]
+        let families = NSFontManager.shared.availableFontFamilies
+        let monospaced = families.filter { family in
+            guard let font = NSFont(name: family, size: 13) else { return false }
+            return font.isFixedPitch
+        }
+        // Prioritize fonts commonly bundled with Nerd Font / Powerline glyph support
+        let preferred = [
+            "JetBrains Mono",
+            "JetBrainsMono Nerd Font",
+            "JetBrainsMono Nerd Font Mono",
+            "Fira Code",
+            "FiraCode Nerd Font",
+            "FiraCode Nerd Font Mono",
+            "Hack",
+            "Hack Nerd Font",
+            "Hack Nerd Font Mono",
+            "Source Code Pro",
+            "SauceCodePro Nerd Font",
+            "SauceCodePro Nerd Font Mono",
+            "Cascadia Code",
+            "CaskaydiaCove Nerd Font",
+            "CaskaydiaCove Nerd Font Mono",
+            "Inconsolata",
+            "Inconsolata Nerd Font",
+            "Inconsolata Nerd Font Mono",
+            "MesloLGS Nerd Font",
+            "MesloLGS Nerd Font Mono",
+            "SF Mono",
+            "Menlo",
+            "Monaco"
+        ]
+        let top = preferred.filter { monospaced.contains($0) }
+        let rest = monospaced.filter { !preferred.contains($0) }.sorted()
+        let result = top + rest
+        return result.isEmpty ? ["SF Mono", "Menlo", "Monaco"] : result
     }
 
     var backgroundColor: Color {

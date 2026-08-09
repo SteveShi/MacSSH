@@ -1,5 +1,6 @@
 import SwiftUI
 import libghostty_swift
+import GhosttyKit
 import Foundation
 import libssh2_swift
 import ObjectiveC
@@ -32,6 +33,12 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
         var env = ProcessInfo.processInfo.environment
         env["TERM"] = "xterm-256color"
+        if env["LANG"] == nil || env["LANG"]?.isEmpty == true {
+            env["LANG"] = "en_US.UTF-8"
+        }
+        if env["LC_ALL"] == nil || env["LC_ALL"]?.isEmpty == true {
+            env["LC_ALL"] = "en_US.UTF-8"
+        }
         let defaultNoProxy = "127.0.0.1,localhost,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,*.local"
         if let existing = env["no_proxy"], !existing.isEmpty {
             env["no_proxy"] = "\(existing),\(defaultNoProxy)"
@@ -115,6 +122,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         if let cached = tab?.cachedSurface { return cached }
         let surface = GhosttySurfaceView(config: configuration)
         tab?.cachedSurface = surface
+        Self.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
         
         if let tab = self.tab {
             setupMenuBuilder(for: surface, sshTab: tab, localTab: nil)
@@ -123,7 +131,38 @@ struct GhosttyTerminalView: NSViewRepresentable {
         return surface
     }
 
-    func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {}
+    func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {
+        Self.applyFontConfig(to: nsView, fontName: settings.fontName, fontSize: settings.fontSize)
+    }
+
+    // MARK: - Font Configuration
+
+    /// Applies font-family and font-size to a Ghostty surface using the config-file mechanism
+    /// (same approach as GhosttySurfaceView.applyTheme).
+    static func applyFontConfig(to surface: GhosttySurfaceView, fontName: String, fontSize: Double? = nil) {
+        guard !fontName.isEmpty else { return }
+        var lines: [String] = ["font-family = \"\(fontName)\""]
+        if let fontSize {
+            lines.append("font-size = \(fontSize)")
+        }
+        let configContents = lines.joined(separator: "\n")
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("macssh-font-\(UUID().uuidString).conf")
+        do {
+            try configContents.write(to: url, atomically: true, encoding: .utf8)
+            defer { try? FileManager.default.removeItem(at: url) }
+            if let nextConfig = ghostty_config_new() {
+                ghostty_config_load_file(nextConfig, url.path)
+                ghostty_config_finalize(nextConfig)
+                if let rawSurface = surface.rawSurface {
+                    ghostty_surface_update_config(rawSurface, nextConfig)
+                }
+                ghostty_config_free(nextConfig)
+            }
+        } catch {
+            NSLog("[MacSSH] Failed to apply font config: \(error)")
+        }
+    }
 
     /// Removes stale auth helper files (expect scripts + plaintext password files)
     /// left in the temp dir by a previous session that exited before its expect
