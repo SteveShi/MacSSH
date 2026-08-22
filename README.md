@@ -4,7 +4,7 @@
 
 `MacSSH` is a modern, fast, and native **SSH & SFTP client** handcrafted for macOS.
 
-Built entirely with SwiftUI, it features GPU-accelerated terminal rendering driven by the Ghostty emulator engine (`libghostty-swift`) and robust SSH2 session handling via an isolated SPM package (`libssh2-swift`).
+Built entirely with SwiftUI, it features GPU-accelerated terminal rendering driven by the Ghostty emulator engine (`MactermKit`) and robust SSH2 session handling via an isolated SPM package (`SSH2Kit`).
 
 ---
 
@@ -17,13 +17,13 @@ graph TD
     App["MacSSH (App Target)"] --> Core["MacSSHCore (Framework Target)"]
     App --> Terminal["MacSSHTerminal (Framework Target)"]
     Terminal --> Core
-    Terminal --> Ghostty["libghostty-swift (SPM Package)"]
-    Core --> SSH["libssh2-swift (SPM Package)"]
+    Terminal --> Ghostty["MactermKit (SPM Package)"]
+    Core --> SSH["SSH2Kit (SPM Package)"]
 ```
 
 - **`MacSSH` (App Shell)**: Governs SwiftUI views, windows, session navigation, Sparkle autoupdater, and app lifecycle.
 - **`MacSSHCore` (Framework)**: Encapsulates data models (`SSHConnection`, `SessionTab`), hosts status monitors, and SSH credential management.
-- **`MacSSHTerminal` (Framework)**: Bridges the Ghostty virtual terminal emulator (`libghostty-swift` / `GhosttyKit.xcframework`) with Metal rendering views.
+- **`MacSSHTerminal` (Framework)**: Bridges the Ghostty virtual terminal emulator (`MactermKit` / `GhosttyKit.xcframework`) with Metal rendering views.
 
 ---
 
@@ -66,7 +66,8 @@ The Xcode project file (`MacSSH.xcodeproj`) is generated dynamically using [Tuis
 
 | Layer | Technology |
 |-------|-----------|
-| Terminal Engine | [Ghostty](https://ghostty.org/) (`libghostty-swift` / `GhosttyKit.xcframework`) |
+| Terminal Engine | [Ghostty](https://ghostty.org/) (`MactermKit` / `GhosttyKit.xcframework`) |
+| SSH & SFTP Engine | `SSH2Kit` (`libssh2` + `AWS-LC`) |
 | UI Framework | SwiftUI (macOS 15+) |
 | SSH Transport | Built-in `ssh` command |
 | Credential Store | macOS Keychain via [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) |

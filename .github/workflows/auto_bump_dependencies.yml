@@ -31,32 +31,32 @@ jobs:
           set -euo pipefail
 
           # Get latest remote versions
-          LATEST_LIBSSH2=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/SteveShi/libssh2-swift/releases/latest | jq -r .tag_name)
+          LATEST_LIBSSH2=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/SteveShi/SSH2Kit/releases/latest | jq -r .tag_name)
           LATEST_LIBSSH2_VER=${LATEST_LIBSSH2#v}
 
-          LATEST_GHOSTTY=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/SteveShi/libghostty-swift/releases/latest | jq -r .tag_name)
+          LATEST_GHOSTTY=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/SteveShi/MactermKit/releases/latest | jq -r .tag_name)
           LATEST_GHOSTTY_VER=${LATEST_GHOSTTY#v}
 
-          echo "Latest remote libssh2-swift: $LATEST_LIBSSH2_VER"
-          echo "Latest remote libghostty-swift: $LATEST_GHOSTTY_VER"
+          echo "Latest remote SSH2Kit: $LATEST_LIBSSH2_VER"
+          echo "Latest remote MactermKit: $LATEST_GHOSTTY_VER"
 
           # Parse current local versions from Project.swift
-          CURRENT_LIBSSH2_VER=$(grep 'libssh2-swift.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
-          CURRENT_GHOSTTY_VER=$(grep 'libghostty-swift.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
+          CURRENT_LIBSSH2_VER=$(grep 'SSH2Kit.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
+          CURRENT_GHOSTTY_VER=$(grep 'MactermKit.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
 
-          echo "Current local libssh2-swift: $CURRENT_LIBSSH2_VER"
-          echo "Current local libghostty-swift: $CURRENT_GHOSTTY_VER"
+          echo "Current local SSH2Kit: $CURRENT_LIBSSH2_VER"
+          echo "Current local MactermKit: $CURRENT_GHOSTTY_VER"
 
           UPDATED=false
           if [[ "$LATEST_LIBSSH2_VER" != "$CURRENT_LIBSSH2_VER" ]]; then
-            echo "libssh2-swift needs update: $CURRENT_LIBSSH2_VER -> $LATEST_LIBSSH2_VER"
-            sed -i '' "s|libssh2-swift.git\", from: \"$CURRENT_LIBSSH2_VER\"|libssh2-swift.git\", from: \"$LATEST_LIBSSH2_VER\"|g" Project.swift
+            echo "SSH2Kit needs update: $CURRENT_LIBSSH2_VER -> $LATEST_LIBSSH2_VER"
+            sed -i '' "s|SSH2Kit.git\", from: \"$CURRENT_LIBSSH2_VER\"|SSH2Kit.git\", from: \"$LATEST_LIBSSH2_VER\"|g" Project.swift
             UPDATED=true
           fi
 
           if [[ "$LATEST_GHOSTTY_VER" != "$CURRENT_GHOSTTY_VER" ]]; then
-            echo "libghostty-swift needs update: $CURRENT_GHOSTTY_VER -> $LATEST_GHOSTTY_VER"
-            sed -i '' "s|libghostty-swift.git\", from: \"$CURRENT_GHOSTTY_VER\"|libghostty-swift.git\", from: \"$LATEST_GHOSTTY_VER\"|g" Project.swift
+            echo "MactermKit needs update: $CURRENT_GHOSTTY_VER -> $LATEST_GHOSTTY_VER"
+            sed -i '' "s|MactermKit.git\", from: \"$CURRENT_GHOSTTY_VER\"|MactermKit.git\", from: \"$LATEST_GHOSTTY_VER\"|g" Project.swift
             UPDATED=true
           fi
 
@@ -106,13 +106,13 @@ jobs:
           ## [${NEXT_APP_VER}] - $(date +%Y-%m-%d)
 
           ### Changed
-          - Automatically bumped dependencies to libssh2-swift version ${LATEST_LIBSSH2_VER} and libghostty-swift version ${LATEST_GHOSTTY_VER}.
+          - Automatically bumped dependencies to SSH2Kit version ${LATEST_LIBSSH2_VER} and MactermKit version ${LATEST_GHOSTTY_VER}.
 
           ---
 
           ### Chinese
           ### 变更
-          - 自动更新依赖项 libssh2-swift 至版本 ${LATEST_LIBSSH2_VER}，libghostty-swift 至版本 ${LATEST_GHOSTTY_VER}。
+          - 自动更新依赖项 SSH2Kit 至版本 ${LATEST_LIBSSH2_VER}，MactermKit 至版本 ${LATEST_GHOSTTY_VER}。
 
           ---
           EOF

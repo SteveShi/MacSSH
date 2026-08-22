@@ -4,8 +4,8 @@ let project = Project(
     name: "MacSSH",
     packages: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.0.0"),
-        .package(url: "https://github.com/SteveShi/libghostty-swift.git", from: "1.0.13"),
-        .package(url: "https://github.com/SteveShi/libssh2-swift.git", from: "1.3.12")
+        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.14"),
+        .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.13")
     ],
     settings: .settings(
         base: [
@@ -32,8 +32,8 @@ let project = Project(
             ],
             dependencies: [
                 .package(product: "Sparkle"),
-                .package(product: "libghostty-swift"),
-                .package(product: "libssh2-swift")
+                .package(product: "MactermKit"),
+                .package(product: "SSH2Kit")
             ],
             settings: .settings(
                 base: [

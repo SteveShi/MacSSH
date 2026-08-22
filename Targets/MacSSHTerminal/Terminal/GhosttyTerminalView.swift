@@ -1,8 +1,8 @@
 import SwiftUI
-import libghostty_swift
+import MactermKit
 import GhosttyKit
 import Foundation
-import libssh2_swift
+import SSH2Kit
 import ObjectiveC
 
 // MARK: - Surface View Host (persistent surface reuse)

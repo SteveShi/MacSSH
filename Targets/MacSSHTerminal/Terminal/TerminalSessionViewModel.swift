@@ -1,6 +1,6 @@
 import Foundation
 import Observation
-import libssh2_swift
+import SSH2Kit
 
 @MainActor
 @Observable

@@ -1,6 +1,6 @@
 import AppKit
 import UserNotifications
-import libghostty_swift
+import MactermKit
 
 /// Central place that turns app events into macOS system notifications, gated by
 /// the user's `AppSettings`. All entry points are main-actor isolated.

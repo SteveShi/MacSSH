@@ -1,5 +1,5 @@
 import SwiftUI
-import libssh2_swift
+import SSH2Kit
 
 struct ConnectionEditorView: View {
     @Environment(\.dismiss) private var dismiss

@@ -1,7 +1,7 @@
 import Foundation
 import SwiftUI
 import Observation
-import libghostty_swift
+import MactermKit
 import GhosttyKit
 
 enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
