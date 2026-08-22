@@ -4,11 +4,11 @@ title: Adopt Ghostty core for terminal rendering
 category: decision
 status: active
 created: "2026-08-21T06:38:35"
-updated: "2026-08-21T06:38:35"
+updated: "2026-08-22T20:38:45"
 ---
 
 <!-- compiled_truth -->
-Replaced generic terminal views with libghostty-swift, achieving 120fps Metal-accelerated rendering and standards-compliant ANSI parsing.
+Adopted libghostty-swift wrapping GhosttyKit.xcframework for 120fps Metal-accelerated terminal rendering and ANSI parsing; eliminated legacy libghostty-vt.dylib binary and embedding script.
 
 
 ## Timeline
@@ -23,4 +23,10 @@ Replaced generic terminal views with libghostty-swift, achieving 120fps Metal-ac
   kind: decision
   summary: Adopted Ghostty core for terminal rendering.
   source: git log
+  affects: [ghostty-rendering-engine]
+
+- time: 2026-08-22T20:38:45
+  kind: decision
+  summary: Migrated fully to GhosttyKit.xcframework and removed legacy libghostty-vt.dylib
+  source: brain update-truth
   affects: [ghostty-rendering-engine]

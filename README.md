@@ -23,7 +23,7 @@ graph TD
 
 - **`MacSSH` (App Shell)**: Governs SwiftUI views, windows, session navigation, Sparkle autoupdater, and app lifecycle.
 - **`MacSSHCore` (Framework)**: Encapsulates data models (`SSHConnection`, `SessionTab`), hosts status monitors, and SSH credential management.
-- **`MacSSHTerminal` (Framework)**: Bridges the Ghostty virtual terminal emulator (`libghostty-vt.dylib`) with Metal rendering views.
+- **`MacSSHTerminal` (Framework)**: Bridges the Ghostty virtual terminal emulator (`libghostty-swift` / `GhosttyKit.xcframework`) with Metal rendering views.
 
 ---
 
@@ -66,7 +66,7 @@ The Xcode project file (`MacSSH.xcodeproj`) is generated dynamically using [Tuis
 
 | Layer | Technology |
 |-------|-----------|
-| Terminal Engine | [Ghostty VT](https://ghostty.org/) (`libghostty-vt`) |
+| Terminal Engine | [Ghostty](https://ghostty.org/) (`libghostty-swift` / `GhosttyKit.xcframework`) |
 | UI Framework | SwiftUI (macOS 15+) |
 | SSH Transport | Built-in `ssh` command |
 | Credential Store | macOS Keychain via [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) |

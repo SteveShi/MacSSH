@@ -23,7 +23,7 @@ graph TD
 
 1. **`MacSSH` (主壳 App)**：纯 SwiftUI 宿主视图与应用生命周期，负责窗口/Tab 标签页管理及 Sparkle 自动更新。
 2. **`MacSSHCore` (核心业务模块)**：数据模型（`SSHConnection`、`SessionTab`）、Keychain 凭据加密与主机监控。
-3. **`MacSSHTerminal` (终端渲染模块)**：桥接 Ghostty 终端引擎（`libghostty-vt.dylib`）与 Metal 硬件加速渲染视图。
+3. **`MacSSHTerminal` (终端渲染模块)**：桥接 Ghostty 终端引擎（`libghostty-swift` / `GhosttyKit.xcframework`）与 Metal 硬件加速渲染视图。
 
 ---
 
@@ -66,7 +66,7 @@ graph TD
 
 | 层级 | 技术 |
 |------|-----|
-| 终端引擎 | [Ghostty VT](https://ghostty.org/) (`libghostty-vt`) |
+| 终端引擎 | [Ghostty](https://ghostty.org/) (`libghostty-swift` / `GhosttyKit.xcframework`) |
 | 界面框架 | SwiftUI (macOS 15+) |
 | SSH 传输 | 内置 `ssh` 命令 |
 | 凭据存储 | macOS 钥匙串（通过 [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess)） |

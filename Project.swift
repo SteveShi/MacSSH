@@ -1,17 +1,5 @@
 import ProjectDescription
 
-let embedGhosttyScript = TargetScript.post(
-    script: """
-    set -euo pipefail
-    SRC="${SRCROOT}/ThirdParty/lib/libghostty-vt.dylib"
-    DST="${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}"
-    mkdir -p "$DST"
-    cp -f "$SRC" "$DST/"
-    codesign --force --sign - "$DST/libghostty-vt.dylib"
-    """,
-    name: "Embed libghostty-vt"
-)
-
 let project = Project(
     name: "MacSSH",
     packages: [
@@ -42,7 +30,6 @@ let project = Project(
                 "Targets/MacSSHApp/App/Assets.xcassets",
                 "Targets/MacSSHApp/App/Localizable.xcstrings"
             ],
-            scripts: [embedGhosttyScript],
             dependencies: [
                 .package(product: "Sparkle"),
                 .package(product: "libghostty-swift"),
@@ -56,11 +43,7 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": "$(CURRENT_PROJECT_VERSION)",
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "SWIFT_EMIT_LOC_STRINGS": "YES",
-                    "HEADER_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/include",
-                    "LIBRARY_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/lib",
-                    "FRAMEWORK_SEARCH_PATHS": "$(SRCROOT)/ThirdParty/lib",
-                    "OTHER_CFLAGS": "-I$(SRCROOT)/ThirdParty/include",
-                    "OTHER_LDFLAGS": "-lghostty-vt -lc++ -framework Carbon",
+                    "OTHER_LDFLAGS": "-lc++ -framework Carbon",
                     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks"
                 ]
             )

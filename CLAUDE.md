@@ -15,37 +15,38 @@ MacSSH is a native macOS SSH & SFTP client built entirely with SwiftUI. It featu
 
 ## Build System
 
-This project uses **XcodeGen** to generate the Xcode project from `project.yml`. Never edit `MacSSH.xcodeproj` directly.
+This project uses **Tuist** to generate the Xcode project from `Project.swift`. Never edit `MacSSH.xcodeproj` directly.
 
 ### Initial Setup
 
 ```bash
-# Install XcodeGen
-brew install xcodegen
+# Install Tuist via mise
+mise install tuist@4.25.0
+mise use -g tuist@4.25.0
 
 # Generate Xcode project
-xcodegen
+tuist generate --no-open
 
 # Open in Xcode
-open MacSSH.xcodeproj
+open MacSSH.xcworkspace
 ```
 
 ### Building
 
 ```bash
-# Generate project (always run after modifying project.yml)
-xcodegen
+# Generate project (always run after modifying Project.swift)
+tuist generate --no-open
 
 # Build via xcodebuild
-xcodebuild -scheme MacSSH -configuration Debug build
+xcodebuild -workspace MacSSH.xcworkspace -scheme MacSSH -configuration Debug build
 
 # Build release version
-xcodebuild -scheme MacSSH -configuration Release -destination 'generic/platform=macOS' build
+xcodebuild -workspace MacSSH.xcworkspace -scheme MacSSH -configuration Release -destination 'generic/platform=macOS' build
 ```
 
 ### Running
 
-Open `MacSSH.xcodeproj` in Xcode and press `Cmd+R`. On first launch, Xcode will fetch remote Swift packages (libghostty-swift, libssh2-swift, Sparkle) which may take a minute.
+Open `MacSSH.xcworkspace` in Xcode and press `Cmd+R`. Swift packages (libghostty-swift, libssh2-swift, Sparkle) are resolved automatically.
 
 ## Architecture
 
@@ -141,11 +142,9 @@ GitHub Actions workflows in `.github/workflows/`:
 
 ## Native Dependencies
 
-The `ThirdParty/` directory contains pre-built native libraries:
-- `libghostty-vt.dylib`: Ghostty's VT emulator core (Zig-based)
-- Build scripts in `scripts/` for rebuilding dependencies if needed
-
-The post-build script in `project.yml` embeds `libghostty-vt.dylib` into the app bundle and code-signs it.
+Native C / Rust / Zig dependencies are encapsulated into standalone Swift packages via static XCFrameworks:
+- **libghostty-swift**: Statically links `GhosttyKit.xcframework` (Zig-based terminal emulator core and Metal renderer)
+- **libssh2-swift**: Statically links `libssh2.xcframework`, `libcrypto.xcframework`, `libssl.xcframework`
 
 ## Localization
 
@@ -155,17 +154,16 @@ Supports English and Chinese (zh-Hans). Localized strings use SwiftUI's `String(
 
 Resolved via Swift Package Manager:
 - **Sparkle** (2.0.0+): Auto-update framework
-- **libghostty-swift** (1.0.5+): Terminal emulator with Metal rendering
-- **libssh2-swift** (1.3.2+): SSH2 protocol implementation
+- **libghostty-swift** (1.0.13+): Terminal emulator with Metal rendering (`GhosttyKit.xcframework`)
+- **libssh2-swift** (1.3.12+): SSH2 protocol and SFTP implementation
 
-These are fetched automatically by Xcode. To update: Product → Update Package Dependencies.
+These are fetched automatically by Xcode / Tuist.
 
 ## Important Constraints
 
 - **macOS 15.0+**: Minimum deployment target
 - **Apple Silicon only**: `ARCHS: "arm64"` (no Intel builds)
-- **Swift 6.2**: Uses strict concurrency checking
-- **Classic Linker**: Required for libghostty-vt compatibility (`LD_USE_CLASSIC_LINKER: "YES"`)
+- **Swift 6.0+**: Uses strict concurrency checking
 
 ## Working with Connections
 
