@@ -4,7 +4,7 @@ let project = Project(
     name: "MacSSH",
     packages: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.0.0"),
-        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.14"),
+        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.15"),
         .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.13")
     ],
     settings: .settings(

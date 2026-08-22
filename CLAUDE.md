@@ -143,7 +143,7 @@ GitHub Actions workflows in `.github/workflows/`:
 ## Native Dependencies
 
 Native C / Rust / Zig dependencies are encapsulated into standalone Swift packages via static XCFrameworks:
-- **MactermKit**: Statically links `GhosttyKit.xcframework` (Zig-based terminal emulator core and Metal renderer)
+- **MactermKit**: Statically links `MactermKitCore.xcframework` (Zig-based terminal emulator core and Metal renderer)
 - **SSH2Kit**: Statically links `libssh2.xcframework`, `libcrypto.xcframework`, `libssl.xcframework`
 
 ## Localization
@@ -154,7 +154,7 @@ Supports English and Chinese (zh-Hans). Localized strings use SwiftUI's `String(
 
 Resolved via Swift Package Manager:
 - **Sparkle** (2.0.0+): Auto-update framework
-- **MactermKit** (1.0.14+): Terminal emulator with Metal rendering (`GhosttyKit.xcframework`)
+- **MactermKit** (1.0.15+): Terminal emulator with Metal rendering (`MactermKitCore.xcframework`)
 - **SSH2Kit** (1.3.13+): SSH2 protocol and SFTP implementation
 
 These are fetched automatically by Xcode / Tuist.

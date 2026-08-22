@@ -2,7 +2,6 @@ import Foundation
 import SwiftUI
 import Observation
 import MactermKit
-import GhosttyKit
 
 enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
     case sftp

@@ -2,7 +2,6 @@ import Foundation
 import Observation
 import SwiftUI
 import MactermKit
-import GhosttyKit
 
 @Observable
 @MainActor

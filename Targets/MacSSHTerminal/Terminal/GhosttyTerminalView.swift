@@ -1,6 +1,6 @@
 import SwiftUI
 import MactermKit
-import GhosttyKit
+import MactermKitCore
 import Foundation
 import SSH2Kit
 import ObjectiveC
