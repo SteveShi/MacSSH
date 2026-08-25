@@ -48,16 +48,14 @@ struct MacSSHApp: App {
                 .disabled(model.selectedTab == nil)
 
                 Button(String(localized: "Close Tab")) {
-                    if model.sidebarSelection == .localTerminal {
-                        if let id = model.selectedLocalTabID {
-                            model.removeLocalTab(id)
-                        }
+                    if let id = model.selectedLocalTabID {
+                        model.removeLocalTab(id)
                     } else if let tabID = model.selectedTabID {
                         model.closeTab(tabID)
                     }
                 }
                 .keyboardShortcut("w", modifiers: .command)
-                .disabled(model.sidebarSelection == .localTerminal
+                .disabled(model.sidebarSelection?.isLocalTerminal == true
                           ? model.localTabs.count <= 1
                           : model.selectedTabID == nil)
             }
@@ -79,11 +77,11 @@ struct MacSSHApp: App {
                         tab.isRenaming = true
                     }
                 }
-                .disabled(model.sidebarSelection != .localTerminal || model.selectedLocalTabID == nil)
+                .disabled(model.sidebarSelection?.isLocalTerminal != true || model.selectedLocalTabID == nil)
 
                 Divider()
                 
-                if model.sidebarSelection == .localTerminal {
+                if model.sidebarSelection?.isLocalTerminal == true {
                     // Show Local Terminal tabs
                     let tabs = Array(model.localTabs.prefix(9))
                     ForEach(Array(tabs.enumerated()), id: \.element.id) { index, tab in

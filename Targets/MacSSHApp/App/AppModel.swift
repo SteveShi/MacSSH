@@ -4,14 +4,19 @@ import Observation
 import MactermKit
 
 enum SidebarItem: Hashable, Identifiable {
-    case localTerminal
+    case localTab(UUID)
     case connection(SSHConnection.ID)
     
     var id: String {
         switch self {
-        case .localTerminal: return "localTerminal"
+        case .localTab(let id): return "local-\(id.uuidString)"
         case .connection(let id): return id.uuidString
         }
+    }
+    
+    var isLocalTerminal: Bool {
+        if case .localTab = self { return true }
+        return false
     }
 }
 
@@ -19,7 +24,11 @@ enum SidebarItem: Hashable, Identifiable {
 @MainActor
 final class AppModel {
     var connections: [SSHConnection]
-    var sidebarSelection: SidebarItem?
+    var sidebarSelection: SidebarItem? {
+        didSet {
+            persistTabs()
+        }
+    }
     var searchText: String = ""
 
     var openTabs: [SessionTab] = []
@@ -29,8 +38,14 @@ final class AppModel {
     // Local terminal tab pool — lives at app scope so PTYs survive SwiftUI navigation
     var localTabs: [LocalTerminalTab] = []
     var selectedLocalTabID: UUID? {
-        didSet {
-            persistTabs()
+        get {
+            if case .localTab(let id) = sidebarSelection { return id }
+            return nil
+        }
+        set {
+            if let newValue {
+                sidebarSelection = .localTab(newValue)
+            }
         }
     }
     private var localTabCounter: Int = 0
@@ -62,7 +77,7 @@ final class AppModel {
         } else {
             connections = stored
         }
-        sidebarSelection = .localTerminal
+        sidebarSelection = nil
         restoreTabs()
     }
 
@@ -92,8 +107,10 @@ final class AppModel {
         openTabs.removeAll { $0.connection.id == id }
         if let first = connections.first {
             sidebarSelection = .connection(first.id)
+        } else if let firstLocal = localTabs.first {
+            sidebarSelection = .localTab(firstLocal.id)
         } else {
-            sidebarSelection = .localTerminal
+            sidebarSelection = nil
         }
         if !openTabs.contains(where: { $0.id == selectedTabID }) {
             selectedTabID = openTabs.first?.id
@@ -122,6 +139,8 @@ final class AppModel {
             selectedTabID = openTabs.last?.id
             if let lastTabConnectionID = openTabs.last?.connection.id {
                 sidebarSelection = .connection(lastTabConnectionID)
+            } else if let lastLocalTab = localTabs.last {
+                sidebarSelection = .localTab(lastLocalTab.id)
             }
         }
         persistTabs()
@@ -136,18 +155,80 @@ final class AppModel {
         let surface = GhosttySurfaceView(config: config)
         let tab = LocalTerminalTab(number: localTabCounter, surfaceView: surface)
         localTabs.append(tab)
-        selectedLocalTabID = tab.id
+        sidebarSelection = .localTab(tab.id)
         persistTabs()
     }
 
     /// Removes a local terminal tab by ID.
     func removeLocalTab(_ id: UUID) {
-        localTabs.removeAll { $0.id == id }
-        selectedLocalTabID = localTabs.last?.id
+        guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
+        let wasSelected = (selectedLocalTabID == id)
+        localTabs.remove(at: index)
+        if wasSelected {
+            if !localTabs.isEmpty {
+                let nextIndex = min(index, localTabs.count - 1)
+                sidebarSelection = .localTab(localTabs[nextIndex].id)
+            } else if let firstConn = connections.first {
+                sidebarSelection = .connection(firstConn.id)
+            } else {
+                sidebarSelection = nil
+            }
+        }
         persistTabs()
     }
 
+    /// Closes all local tabs except the specified one.
+    func closeOtherLocalTabs(_ keepID: UUID) {
+        guard localTabs.contains(where: { $0.id == keepID }) else { return }
+        localTabs.removeAll { $0.id != keepID }
+        sidebarSelection = .localTab(keepID)
+        persistTabs()
+    }
 
+    /// Closes all local tabs positioned below the specified one.
+    func closeLocalTabsBelow(_ id: UUID) {
+        guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
+        localTabs = Array(localTabs.prefix(index + 1))
+        if let currentSelected = selectedLocalTabID, !localTabs.contains(where: { $0.id == currentSelected }) {
+            sidebarSelection = .localTab(id)
+        }
+        persistTabs()
+    }
+
+    /// Moves the specified local tab up by one position.
+    func moveLocalTabUp(_ id: UUID) {
+        guard let index = localTabs.firstIndex(where: { $0.id == id }), index > 0 else { return }
+        localTabs.swapAt(index, index - 1)
+        persistTabs()
+    }
+
+    /// Moves the specified local tab down by one position.
+    func moveLocalTabDown(_ id: UUID) {
+        guard let index = localTabs.firstIndex(where: { $0.id == id }), index < localTabs.count - 1 else { return }
+        localTabs.swapAt(index, index + 1)
+        persistTabs()
+    }
+
+    /// Duplicates a local tab with a fresh surface.
+    @MainActor
+    func duplicateLocalTab(_ id: UUID, settings: AppSettings) {
+        guard let sourceTab = localTabs.first(where: { $0.id == id }) else { return }
+        localTabCounter += 1
+        var config = GhosttySurfaceConfiguration()
+        config.fontSize = Float(settings.fontSize)
+        config.environmentVariables = LocalShellEnvironment.make()
+        config.workingDirectory = NSHomeDirectory()
+
+        let surface = GhosttySurfaceView(config: config)
+        let newTab = LocalTerminalTab(id: UUID(), name: "\(sourceTab.name) (Copy)", surfaceView: surface)
+        if let index = localTabs.firstIndex(where: { $0.id == id }) {
+            localTabs.insert(newTab, at: index + 1)
+        } else {
+            localTabs.append(newTab)
+        }
+        sidebarSelection = .localTab(newTab.id)
+        persistTabs()
+    }
 
     @MainActor
     func requestReconnect(connectionID: SSHConnection.ID) {
@@ -157,15 +238,16 @@ final class AppModel {
     }
 
     func nextTab() {
-        if sidebarSelection == .localTerminal {
+        if case .localTab(let currentID) = sidebarSelection {
             guard !localTabs.isEmpty else { return }
-            guard let currentID = selectedLocalTabID,
-                  let index = localTabs.firstIndex(where: { $0.id == currentID }) else {
-                selectedLocalTabID = localTabs.first?.id
+            guard let index = localTabs.firstIndex(where: { $0.id == currentID }) else {
+                if let first = localTabs.first {
+                    sidebarSelection = .localTab(first.id)
+                }
                 return
             }
             let nextIndex = (index + 1) % localTabs.count
-            selectedLocalTabID = localTabs[nextIndex].id
+            sidebarSelection = .localTab(localTabs[nextIndex].id)
         } else {
             guard !openTabs.isEmpty else { return }
             guard let currentID = selectedTabID,
@@ -183,15 +265,16 @@ final class AppModel {
     }
 
     func previousTab() {
-        if sidebarSelection == .localTerminal {
+        if case .localTab(let currentID) = sidebarSelection {
             guard !localTabs.isEmpty else { return }
-            guard let currentID = selectedLocalTabID,
-                  let index = localTabs.firstIndex(where: { $0.id == currentID }) else {
-                selectedLocalTabID = localTabs.last?.id
+            guard let index = localTabs.firstIndex(where: { $0.id == currentID }) else {
+                if let first = localTabs.first {
+                    sidebarSelection = .localTab(first.id)
+                }
                 return
             }
             let nextIndex = (index - 1 + localTabs.count) % localTabs.count
-            selectedLocalTabID = localTabs[nextIndex].id
+            sidebarSelection = .localTab(localTabs[nextIndex].id)
         } else {
             guard !openTabs.isEmpty else { return }
             guard let currentID = selectedTabID,
@@ -209,9 +292,9 @@ final class AppModel {
     }
 
     func selectTab(at index: Int) {
-        if sidebarSelection == .localTerminal {
+        if case .localTab = sidebarSelection {
             guard index >= 0 && index < localTabs.count else { return }
-            selectedLocalTabID = localTabs[index].id
+            sidebarSelection = .localTab(localTabs[index].id)
         } else {
             guard index >= 0 && index < openTabs.count else { return }
             selectedTabID = openTabs[index].id
@@ -328,12 +411,16 @@ final class AppModel {
            let tab = openTabs.first(where: { $0.connection.id == selectedConnection.id }) {
             selectedTabID = tab.id
             sidebarSelection = .connection(uuid)
+        } else if let selectedLocalIDStr = defaults.string(forKey: TabKeys.selectedLocalTabID),
+                  let localUUID = UUID(uuidString: selectedLocalIDStr) {
+            selectedTabID = openTabs.first?.id
+            sidebarSelection = .localTab(localUUID)
         } else {
             selectedTabID = openTabs.first?.id
             if let firstID = openTabs.first?.connection.id {
                 sidebarSelection = .connection(firstID)
             } else {
-                sidebarSelection = .localTerminal
+                sidebarSelection = nil
             }
         }
     }
@@ -375,8 +462,8 @@ final class AppModel {
            let selectedUUID = UUID(uuidString: selectedIDString),
            localTabs.contains(where: { $0.id == selectedUUID }) {
             self.selectedLocalTabID = selectedUUID
-        } else {
-            self.selectedLocalTabID = localTabs.last?.id
+        } else if sidebarSelection == nil, let first = localTabs.first {
+            self.sidebarSelection = .localTab(first.id)
         }
     }
 

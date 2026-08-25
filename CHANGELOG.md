@@ -1,3 +1,30 @@
+## [1.9.17] - 2026-08-25
+
+### Added
+- Migrated local terminal tabs from the horizontal top bar to vertical list items in the "Local Shell" sidebar section.
+- Added collapsible sidebar sections for "Local Shell" and "Connections" with always-visible add buttons (`+`) and persistent collapse state.
+- Added full Terminal.app-style context menu for local tabs (Rename, Close, Close Other Tabs, Close Tabs Below, Move Up, Move Down, Duplicate Tab).
+- Added shortcut support: `Command+T` to create new local terminal tab (auto-expanding section), `Command+N` for new SSH connection, `Command+W` to close tab.
+
+### Changed
+- Removed horizontal tab bar container for a cleaner terminal workspace.
+- Enhanced state persistence across app restarts (tabs, active selection, section collapse state, and window geometry).
+
+---
+
+### Chinese
+### 新增
+- 将本地终端标签页从界面顶部的横向 Tab Bar 迁移至侧边栏「本地 Shell」中纵向排列。
+- 为侧边栏「本地 Shell」和「连接」分区添加一键折叠/展开功能，折叠状态下 `+` 按钮常驻可见，并支持持久化。
+- 为本地终端标签页引入完整的 Terminal.app 风格右键菜单（重命名、关闭、关闭其他标签页、关闭下方标签页、上移、下移、复制标签页）。
+- 快捷键优化：`Command+T` 新建本地终端（折叠时自动展开并聚焦）、`Command+N` 新建 SSH 连接配置、`Command+W` 关闭标签页。
+
+### 变更
+- 移除顶部横向标签栏，提供更纯净专注的终端视野。
+- 增强全维度状态持久化（标签页列表、选中项、侧边栏折叠状态与窗口大小位置）。
+
+---
+
 ## [1.9.16] - 2026-08-09
 
 ### Fixed
