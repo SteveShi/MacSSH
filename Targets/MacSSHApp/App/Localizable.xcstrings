@@ -3553,6 +3553,102 @@
           }
         }
       }
+    },
+    "Restore Local Terminal History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Local Terminal History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复本地终端历史记录"
+          }
+        }
+      }
+    },
+    "History Line Limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History Line Limit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "历史行数上限"
+          }
+        }
+      }
+    },
+    "Session History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话历史"
+          }
+        }
+      }
+    },
+    "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新打开本地终端标签页时，自动恢复上次的输出历史与回滚缓冲区。"
+          }
+        }
+      }
+    },
+    "Load Previous Terminal History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load Previous Terminal History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载上次终端历史记录"
+          }
+        }
+      }
+    },
+    "Clear Saved History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Saved History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清空已保存的历史记录"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

@@ -36,6 +36,8 @@ final class AppSettings {
         static let syncMasterPassword = "syncMasterPassword"
         static let syncLastTime = "syncLastTime"
         static let syncLastStatus = "syncLastStatus"
+        static let restoreLocalTerminalHistory = "restoreLocalTerminalHistory"
+        static let scrollbackHistoryLimit = "scrollbackHistoryLimit"
     }
 
     var fontSize: Double {
@@ -137,6 +139,14 @@ final class AppSettings {
         didSet { save() }
     }
 
+    var restoreLocalTerminalHistory: Bool {
+        didSet { save() }
+    }
+
+    var scrollbackHistoryLimit: Int {
+        didSet { save() }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let savedSize = defaults.double(forKey: Keys.fontSize)
@@ -155,6 +165,9 @@ final class AppSettings {
         autoReconnect = defaults.object(forKey: Keys.autoReconnect) as? Bool ?? false
         showHiddenFiles = defaults.object(forKey: Keys.showHiddenFiles) as? Bool ?? false
         overwriteExistingFiles = defaults.object(forKey: Keys.overwriteExistingFiles) as? Bool ?? true
+        restoreLocalTerminalHistory = defaults.object(forKey: Keys.restoreLocalTerminalHistory) as? Bool ?? true
+        let savedLimit = defaults.integer(forKey: Keys.scrollbackHistoryLimit)
+        scrollbackHistoryLimit = savedLimit == 0 ? 10000 : savedLimit
         notificationsEnabled = defaults.object(forKey: Keys.notificationsEnabled) as? Bool ?? true
         notifyConnectionEvents = defaults.object(forKey: Keys.notifyConnectionEvents) as? Bool ?? true
         notifySFTPEvents = defaults.object(forKey: Keys.notifySFTPEvents) as? Bool ?? true
@@ -263,5 +276,7 @@ final class AppSettings {
         defaults.set(syncMasterPassword, forKey: Keys.syncMasterPassword)
         defaults.set(syncLastTime, forKey: Keys.syncLastTime)
         defaults.set(syncLastStatus, forKey: Keys.syncLastStatus)
+        defaults.set(restoreLocalTerminalHistory, forKey: Keys.restoreLocalTerminalHistory)
+        defaults.set(scrollbackHistoryLimit, forKey: Keys.scrollbackHistoryLimit)
     }
 }

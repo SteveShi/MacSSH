@@ -145,6 +145,11 @@ struct SettingsView: View {
 
             Section {
                 Toggle(String(localized: "Enable Notifications"), isOn: $settings.notificationsEnabled)
+                    .onChange(of: settings.notificationsEnabled) { _, enabled in
+                        if enabled {
+                            NotificationService.shared.requestAuthorizationIfNeeded()
+                        }
+                    }
                 Group {
                     Toggle(String(localized: "SSH connection events"), isOn: $settings.notifyConnectionEvents)
                     Toggle(String(localized: "SFTP transfer events"), isOn: $settings.notifySFTPEvents)
@@ -193,6 +198,30 @@ struct SettingsView: View {
                 }
             } header: {
                 Text(String(localized: "Typography"))
+            }
+
+            Section {
+                Toggle(String(localized: "Load Previous Terminal History"), isOn: $settings.restoreLocalTerminalHistory)
+                if settings.restoreLocalTerminalHistory {
+                    Stepper(value: $settings.scrollbackHistoryLimit, in: 1000...50000, step: 1000) {
+                        HStack {
+                            Text(String(localized: "History Line Limit"))
+                            Spacer()
+                            Text("\(settings.scrollbackHistoryLimit)")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    Button(role: .destructive) {
+                        SessionHistoryStore.shared.clearAll()
+                    } label: {
+                        Text(String(localized: "Clear Saved History"))
+                    }
+                }
+            } header: {
+                Text(String(localized: "Session History"))
+            } footer: {
+                Text(String(localized: "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs."))
             }
         }
         .formStyle(.grouped)

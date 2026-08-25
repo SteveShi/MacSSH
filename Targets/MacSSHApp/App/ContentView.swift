@@ -55,11 +55,20 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSApplication.didBecomeActiveNotification)) { _ in
             triggerInputSourceSwitch()
         }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
+            triggerInputSourceSwitch()
+        }
+        .onChange(of: model.sidebarSelection) { _, _ in
+            triggerInputSourceSwitch()
+        }
+        .onChange(of: settings.defaultInputSourceID) { _, _ in
+            triggerInputSourceSwitch()
+        }
     }
 
     private func triggerInputSourceSwitch() {
         guard !settings.defaultInputSourceID.isEmpty else { return }
-        InputSourceManager.selectInputSource(id: settings.defaultInputSourceID)
+        InputSourceManager.applyDefaultInputSource(id: settings.defaultInputSourceID)
     }
 
     private func copyToPasteboard(_ text: String) {

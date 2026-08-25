@@ -75,4 +75,24 @@ enum InputSourceManager {
             logger.error("TISSelectInputSource failed with status: \(status) for id: \(id)")
         }
     }
+
+    /// Reliably selects the default input source across app activation, window focus,
+    /// and first-responder transitions with multi-stage verification to overcome
+    /// macOS Text Services Manager (TSM) asynchronous context synchronization.
+    static func applyDefaultInputSource(id: String) {
+        guard !id.isEmpty else { return }
+
+        // Phase 1: Immediate switch
+        selectInputSource(id: id)
+
+        // Phase 2: After RunLoop tick (when WindowServer finalizes Key Window & TSM context)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            selectInputSource(id: id)
+        }
+
+        // Phase 3: Defensive confirmation pass
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+            selectInputSource(id: id)
+        }
+    }
 }

@@ -24,10 +24,19 @@ struct MacSSHApp: App {
                             NotificationService.shared.notifyTerminal(event)
                         }
                     }
+                    GhosttyRuntime.shared.onSurfaceFocused = {
+                        MainActor.assumeIsolated {
+                            guard !settings.defaultInputSourceID.isEmpty else { return }
+                            InputSourceManager.applyDefaultInputSource(id: settings.defaultInputSourceID)
+                        }
+                    }
                     NotificationService.shared.requestAuthorizationIfNeeded()
                 }
                 .onOpenURL { url in
                     model.handleURL(url)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                    model.saveLocalSessionsHistory(settings: settings)
                 }
         }
         .commands {

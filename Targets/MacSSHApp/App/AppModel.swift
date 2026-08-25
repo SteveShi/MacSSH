@@ -162,6 +162,7 @@ final class AppModel {
     /// Removes a local terminal tab by ID.
     func removeLocalTab(_ id: UUID) {
         guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
+        SessionHistoryStore.shared.remove(tabID: id)
         let wasSelected = (selectedLocalTabID == id)
         localTabs.remove(at: index)
         if wasSelected {
@@ -180,6 +181,9 @@ final class AppModel {
     /// Closes all local tabs except the specified one.
     func closeOtherLocalTabs(_ keepID: UUID) {
         guard localTabs.contains(where: { $0.id == keepID }) else { return }
+        for tab in localTabs where tab.id != keepID {
+            SessionHistoryStore.shared.remove(tabID: tab.id)
+        }
         localTabs.removeAll { $0.id != keepID }
         sidebarSelection = .localTab(keepID)
         persistTabs()
@@ -188,6 +192,9 @@ final class AppModel {
     /// Closes all local tabs positioned below the specified one.
     func closeLocalTabsBelow(_ id: UUID) {
         guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
+        for tab in localTabs.suffix(from: index + 1) {
+            SessionHistoryStore.shared.remove(tabID: tab.id)
+        }
         localTabs = Array(localTabs.prefix(index + 1))
         if let currentSelected = selectedLocalTabID, !localTabs.contains(where: { $0.id == currentSelected }) {
             sidebarSelection = .localTab(id)
@@ -395,6 +402,75 @@ final class AppModel {
         defaults.set(localTabsData, forKey: TabKeys.localTabs)
         defaults.set(selectedLocalTabID?.uuidString, forKey: TabKeys.selectedLocalTabID)
         defaults.set(localTabCounter, forKey: TabKeys.localTabCounter)
+        
+        saveLocalSessionsHistory()
+    }
+
+    // MARK: - Local Terminal Session History
+
+    /// Saves the scrollback history for all active local terminal tabs.
+    @MainActor
+    func saveLocalSessionsHistory(settings: AppSettings = AppSettings()) {
+        guard settings.restoreLocalTerminalHistory else { return }
+        let store = SessionHistoryStore.shared
+        let activeIDs = Set(localTabs.map { $0.id })
+
+        for tab in localTabs {
+            if let text = tab.surfaceView.readFullText(maxLines: settings.scrollbackHistoryLimit) {
+                let metadata = SessionHistoryStore.Metadata(
+                    quittedAt: Date(),
+                    tabName: tab.name
+                )
+                store.save(tabID: tab.id, text: text, metadata: metadata)
+            }
+        }
+
+        store.prune(activeTabIDs: activeIDs)
+    }
+
+    /// Generates a restore command for a local terminal tab if history is present.
+    @MainActor
+    private static func prepareHistoryRestoreCommand(
+        tabID: UUID,
+        historyText: String,
+        quittedAt: Date,
+        restoredAt: Date = Date()
+    ) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd HH:mm"
+        let quitStr = dateFormatter.string(from: quittedAt)
+        let restoreStr = dateFormatter.string(from: restoredAt)
+
+        let dividerQuit = "─── >_* Quitted at \(quitStr) ───"
+        let dividerRestore = "─── >_* Restored at \(restoreStr) ───"
+
+        let combined = """
+        \(historyText)
+
+        \(dividerQuit)
+
+        \(dividerRestore)
+
+        """
+
+        let tmpPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).txt"
+        do {
+            try combined.write(toFile: tmpPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: tmpPath)
+        } catch {
+            NSLog("[MacSSH] Failed to write restore history file: \(error)")
+            return nil
+        }
+
+        let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+        let shellEscapedTmpPath = "'" + tmpPath.replacingOccurrences(of: "'", with: "'\\''") + "'"
+        let shellEscapedShell = "'" + shell.replacingOccurrences(of: "'", with: "'\\''") + "'"
+
+        // Command: dump history text to stdout then exec interactive login shell
+        let innerCmd = "cat \(shellEscapedTmpPath); rm -f \(shellEscapedTmpPath); exec \(shellEscapedShell) -l"
+        let shellEscapedInnerCmd = "'" + innerCmd.replacingOccurrences(of: "'", with: "'\\''") + "'"
+
+        return "\(shell) -c \(shellEscapedInnerCmd)"
     }
 
     @MainActor
@@ -452,6 +528,16 @@ final class AppModel {
             config.fontSize = Float(settings.fontSize)
             config.environmentVariables = env
             config.workingDirectory = NSHomeDirectory()
+            
+            if settings.restoreLocalTerminalHistory,
+               let (historyText, meta) = SessionHistoryStore.shared.load(tabID: uuid),
+               let restoreCmd = Self.prepareHistoryRestoreCommand(
+                   tabID: uuid,
+                   historyText: historyText,
+                   quittedAt: meta.quittedAt
+               ) {
+                config.command = restoreCmd
+            }
             
             let surface = GhosttySurfaceView(config: config)
             let restoredTab = LocalTerminalTab(id: uuid, name: name, surfaceView: surface)
