@@ -30,12 +30,23 @@ struct MacSSHApp: App {
                             InputSourceManager.applyDefaultInputSource(id: settings.defaultInputSourceID)
                         }
                     }
+                    GhosttyRuntime.shared.onSurfaceResigned = {
+                        MainActor.assumeIsolated {
+                            model.saveLocalSessionsHistory(settings: settings)
+                        }
+                    }
                     NotificationService.shared.requestAuthorizationIfNeeded()
                 }
                 .onOpenURL { url in
                     model.handleURL(url)
                 }
+                .onReceive(NotificationCenter.default.publisher(for: NSApplication.didResignActiveNotification)) { _ in
+                    model.saveLocalSessionsHistory(settings: settings)
+                }
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
+                    model.saveLocalSessionsHistory(settings: settings)
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in
                     model.saveLocalSessionsHistory(settings: settings)
                 }
         }

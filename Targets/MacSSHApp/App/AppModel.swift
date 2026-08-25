@@ -428,7 +428,11 @@ final class AppModel {
         store.prune(activeTabIDs: activeIDs)
     }
 
-    /// Generates a restore command for a local terminal tab if history is present.
+    private static func shellQuoted(_ string: String) -> String {
+        "'" + string.replacingOccurrences(of: "'", with: "'\\''") + "'"
+    }
+
+    /// Generates a restore bootstrap script for a local terminal tab if history is present.
     @MainActor
     private static func prepareHistoryRestoreCommand(
         tabID: UUID,
@@ -453,24 +457,58 @@ final class AppModel {
 
         """
 
-        let tmpPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).txt"
+        let tmpTxtPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).txt"
+        let tmpShPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).sh"
+
         do {
-            try combined.write(toFile: tmpPath, atomically: true, encoding: .utf8)
-            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: tmpPath)
+            try combined.write(toFile: tmpTxtPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: tmpTxtPath)
         } catch {
             NSLog("[MacSSH] Failed to write restore history file: \(error)")
             return nil
         }
 
-        let shell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-        let shellEscapedTmpPath = "'" + tmpPath.replacingOccurrences(of: "'", with: "'\\''") + "'"
-        let shellEscapedShell = "'" + shell.replacingOccurrences(of: "'", with: "'\\''") + "'"
+        let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+        let isZsh = userShell.contains("zsh")
+        let isBash = userShell.contains("bash")
 
-        // Command: dump history text to stdout then exec interactive login shell
-        let innerCmd = "cat \(shellEscapedTmpPath); rm -f \(shellEscapedTmpPath); exec \(shellEscapedShell) -l"
-        let shellEscapedInnerCmd = "'" + innerCmd.replacingOccurrences(of: "'", with: "'\\''") + "'"
+        var profileSources = ""
+        if isZsh {
+            profileSources = """
+            [ -f /etc/zprofile ] && source /etc/zprofile 2>/dev/null
+            [ -f ~/.zprofile ] && source ~/.zprofile 2>/dev/null
+            """
+        } else if isBash {
+            profileSources = """
+            [ -f /etc/profile ] && source /etc/profile 2>/dev/null
+            [ -f ~/.bash_profile ] && source ~/.bash_profile 2>/dev/null || [ -f ~/.profile ] && source ~/.profile 2>/dev/null
+            """
+        }
 
-        return "\(shell) -c \(shellEscapedInnerCmd)"
+        let escapedTxtPath = shellQuoted(tmpTxtPath)
+        let escapedShPath = shellQuoted(tmpShPath)
+        let escapedShell = shellQuoted(userShell)
+
+        let bootstrapScript = """
+        #!\(userShell)
+        \(profileSources)
+        if [ -f \(escapedTxtPath) ]; then
+            cat \(escapedTxtPath)
+            rm -f \(escapedTxtPath)
+        fi
+        rm -f \(escapedShPath)
+        exec \(escapedShell) -i
+        """
+
+        do {
+            try bootstrapScript.write(toFile: tmpShPath, atomically: true, encoding: .utf8)
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: tmpShPath)
+        } catch {
+            NSLog("[MacSSH] Failed to write restore bootstrap script: \(error)")
+            return nil
+        }
+
+        return tmpShPath
     }
 
     @MainActor
