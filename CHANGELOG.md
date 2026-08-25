@@ -1,4 +1,4 @@
-## [1.9.17] - 2026-08-26
+## [1.10.0] - 2026-08-26
 
 ### Added
 - Local terminal session history persistence: automatically saves and restores terminal output and scrollback buffer across app restarts with timestamp dividers (`Quitted at` / `Restored at`).
