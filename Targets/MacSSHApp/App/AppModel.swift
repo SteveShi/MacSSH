@@ -23,9 +23,12 @@ enum SidebarItem: Hashable, Identifiable {
 @Observable
 @MainActor
 final class AppModel {
+    private var isRestoring: Bool = true
+
     var connections: [SSHConnection]
     var sidebarSelection: SidebarItem? {
         didSet {
+            guard !isRestoring else { return }
             persistTabs()
         }
     }
@@ -69,7 +72,7 @@ final class AppModel {
         static let localTabCounter = "localTabCounter"
     }
 
-    init() {
+    init(settings: AppSettings = AppSettings()) {
         let stored = ConnectionsStore.load()
         if stored.isEmpty {
             let seed = SSHConnection(name: "Example", host: "example.com", port: 22, username: "root")
@@ -79,6 +82,15 @@ final class AppModel {
         }
         sidebarSelection = nil
         restoreTabs()
+        restoreLocalTabs(settings: settings)
+        if localTabs.isEmpty {
+            var config = GhosttySurfaceConfiguration()
+            config.fontSize = Float(settings.fontSize)
+            config.environmentVariables = LocalShellEnvironment.make()
+            config.workingDirectory = NSHomeDirectory()
+            addLocalTab(config: config)
+        }
+        isRestoring = false
     }
 
     var selectedConnection: SSHConnection? {
@@ -411,7 +423,9 @@ final class AppModel {
     /// Saves the scrollback history for all active local terminal tabs.
     @MainActor
     func saveLocalSessionsHistory(settings: AppSettings = AppSettings()) {
+        guard !isRestoring else { return }
         guard settings.restoreLocalTerminalHistory else { return }
+        guard !localTabs.isEmpty else { return }
         let store = SessionHistoryStore.shared
         let activeIDs = Set(localTabs.map { $0.id })
 
@@ -469,29 +483,12 @@ final class AppModel {
         }
 
         let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-        let isZsh = userShell.contains("zsh")
-        let isBash = userShell.contains("bash")
-
-        var profileSources = ""
-        if isZsh {
-            profileSources = """
-            [ -f /etc/zprofile ] && source /etc/zprofile 2>/dev/null
-            [ -f ~/.zprofile ] && source ~/.zprofile 2>/dev/null
-            """
-        } else if isBash {
-            profileSources = """
-            [ -f /etc/profile ] && source /etc/profile 2>/dev/null
-            [ -f ~/.bash_profile ] && source ~/.bash_profile 2>/dev/null || [ -f ~/.profile ] && source ~/.profile 2>/dev/null
-            """
-        }
-
         let escapedTxtPath = shellQuoted(tmpTxtPath)
         let escapedShPath = shellQuoted(tmpShPath)
         let escapedShell = shellQuoted(userShell)
 
         let bootstrapScript = """
         #!\(userShell)
-        \(profileSources)
         if [ -f \(escapedTxtPath) ]; then
             cat \(escapedTxtPath)
             rm -f \(escapedTxtPath)
@@ -502,12 +499,13 @@ final class AppModel {
 
         do {
             try bootstrapScript.write(toFile: tmpShPath, atomically: true, encoding: .utf8)
-            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: tmpShPath)
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: tmpShPath)
         } catch {
             NSLog("[MacSSH] Failed to write restore bootstrap script: \(error)")
             return nil
         }
 
+        NSLog("[MacSSH] History restore prepared successfully for tab \(tabID), script: \(tmpShPath)")
         return tmpShPath
     }
 

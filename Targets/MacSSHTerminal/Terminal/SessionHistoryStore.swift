@@ -94,13 +94,21 @@ public final class SessionHistoryStore {
 
     /// Cleans up orphaned history files not associated with any active tab ID.
     public func prune(activeTabIDs: Set<UUID>) {
+        guard !activeTabIDs.isEmpty else { return }
         guard let contents = try? fileManager.contentsOfDirectory(at: historyDir, includingPropertiesForKeys: nil) else {
             return
         }
 
         for fileURL in contents {
-            let filename = fileURL.deletingPathExtension().lastPathComponent
-            if let uuid = UUID(uuidString: filename), !activeTabIDs.contains(uuid) {
+            var rawName = fileURL.lastPathComponent
+            if rawName.hasSuffix(".meta.json") {
+                rawName = String(rawName.dropLast(".meta.json".count))
+            } else if rawName.hasSuffix(".txt") {
+                rawName = String(rawName.dropLast(".txt".count))
+            } else {
+                continue
+            }
+            if let uuid = UUID(uuidString: rawName), !activeTabIDs.contains(uuid) {
                 try? fileManager.removeItem(at: fileURL)
             }
         }
