@@ -4,13 +4,30 @@
 - Local terminal session history persistence: automatically saves and restores terminal output and scrollback buffer across app restarts with timestamp dividers (`Quitted at` / `Restored at`).
 - Configurable session history settings: toggle history restoration, customize scrollback line limit (1,000 ~ 50,000 lines), and clear history cache directly in Preferences.
 - Multi-stage input source synchronization and first-responder focus hooks to reliably lock default keyboard input source (e.g. ABC) without interference from other apps.
+
+### Fixed
+- Fixed foreground system notification suppression on macOS by implementing `UNUserNotificationCenterDelegate` presentation handler.
+
+---
+
+### Chinese
+### 新增
+- 本地终端输出历史持久化与恢复：应用重启后自动恢复上次本地终端的输出内容与回滚缓冲区，并带有退出与恢复时间分隔线（`Quitted at` / `Restored at`）。
+- 会话历史偏好设置：支持开关历史记录加载、自定义历史保留行数上限（1,000 ~ 50,000 行）以及一键清空历史记录。
+- 增强默认输入法锁定机制：引入多阶段延迟确认与第一响应者焦点联动，彻底解决从其他应用切回时输入法被重置的问题。
+
+### 修复
+- 修复 macOS 前台系统通知被静默抑制的问题（实现 `UNUserNotificationCenterDelegate` 代理）。
+
+---
+
+## [1.9.17] - 2026-08-25
+
+### Added
 - Migrated local terminal tabs from the horizontal top bar to vertical list items in the "Local Shell" sidebar section.
 - Added collapsible sidebar sections for "Local Shell" and "Connections" with always-visible add buttons (`+`) and persistent collapse state.
 - Added full Terminal.app-style context menu for local tabs (Rename, Close, Close Other Tabs, Close Tabs Below, Move Up, Move Down, Duplicate Tab).
 - Added shortcut support: `Command+T` to create new local terminal tab (auto-expanding section), `Command+N` for new SSH connection, `Command+W` to close tab.
-
-### Fixed
-- Fixed foreground system notification suppression on macOS by implementing `UNUserNotificationCenterDelegate` presentation handler.
 
 ### Changed
 - Removed horizontal tab bar container for a cleaner terminal workspace.
@@ -20,16 +37,10 @@
 
 ### Chinese
 ### 新增
-- 本地终端输出历史持久化与恢复：应用重启后自动恢复上次本地终端的输出内容与回滚缓冲区，并带有退出与恢复时间分隔线（`Quitted at` / `Restored at`）。
-- 会话历史偏好设置：支持开关历史记录加载、自定义历史保留行数上限（1,000 ~ 50,000 行）以及一键清空历史记录。
-- 增强默认输入法锁定机制：引入多阶段延迟确认与第一响应者焦点联动，彻底解决从其他应用切回时输入法被重置的问题。
 - 将本地终端标签页从界面顶部的横向 Tab Bar 迁移至侧边栏「本地 Shell」中纵向排列。
 - 为侧边栏「本地 Shell」和「连接」分区添加一键折叠/展开功能，折叠状态下 `+` 按钮常驻可见，并支持持久化。
 - 为本地终端标签页引入完整的 Terminal.app 风格右键菜单（重命名、关闭、关闭其他标签页、关闭下方标签页、上移、下移、复制标签页）。
 - 快捷键优化：`Command+T` 新建本地终端（折叠时自动展开并聚焦）、`Command+N` 新建 SSH 连接配置、`Command+W` 关闭标签页。
-
-### 修复
-- 修复 macOS 前台系统通知被静默抑制的问题（实现 `UNUserNotificationCenterDelegate` 代理）。
 
 ### 变更
 - 移除顶部横向标签栏，提供更纯净专注的终端视野。
