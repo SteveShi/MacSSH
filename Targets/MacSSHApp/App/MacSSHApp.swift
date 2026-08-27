@@ -52,10 +52,20 @@ struct MacSSHApp: App {
         }
         .commands {
             CommandGroup(after: .appInfo) {
+                Button(String(localized: "What's New in MacSSH")) {
+                    model.showingWhatsNew = true
+                }
+
                 Button(String(localized: "Check for Updates...")) {
                     updater.checkForUpdates()
                 }
                 .disabled(!updater.canCheckForUpdates)
+            }
+
+            CommandGroup(replacing: .help) {
+                Button(String(localized: "What's New in MacSSH")) {
+                    model.showingWhatsNew = true
+                }
             }
 
             CommandMenu(String(localized: "Session")) {

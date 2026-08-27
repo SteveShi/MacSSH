@@ -38,6 +38,16 @@ final class AppSettings {
         static let syncLastStatus = "syncLastStatus"
         static let restoreLocalTerminalHistory = "restoreLocalTerminalHistory"
         static let scrollbackHistoryLimit = "scrollbackHistoryLimit"
+        static let showLocalInspector = "showLocalInspector"
+        static let showRemoteInspector = "showRemoteInspector"
+    }
+
+    var showLocalInspector: Bool {
+        didSet { save() }
+    }
+
+    var showRemoteInspector: Bool {
+        didSet { save() }
     }
 
     var fontSize: Double {
@@ -181,6 +191,8 @@ final class AppSettings {
         syncMasterPassword = defaults.string(forKey: Keys.syncMasterPassword) ?? ""
         syncLastTime = defaults.object(forKey: Keys.syncLastTime) as? Date
         syncLastStatus = defaults.string(forKey: Keys.syncLastStatus) ?? ""
+        showLocalInspector = defaults.object(forKey: Keys.showLocalInspector) as? Bool ?? false
+        showRemoteInspector = defaults.object(forKey: Keys.showRemoteInspector) as? Bool ?? true
     }
 
     var availableFonts: [String] {
@@ -278,5 +290,7 @@ final class AppSettings {
         defaults.set(syncLastStatus, forKey: Keys.syncLastStatus)
         defaults.set(restoreLocalTerminalHistory, forKey: Keys.restoreLocalTerminalHistory)
         defaults.set(scrollbackHistoryLimit, forKey: Keys.scrollbackHistoryLimit)
+        defaults.set(showLocalInspector, forKey: Keys.showLocalInspector)
+        defaults.set(showRemoteInspector, forKey: Keys.showRemoteInspector)
     }
 }

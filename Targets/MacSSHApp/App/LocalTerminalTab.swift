@@ -12,7 +12,11 @@ final class LocalTerminalTab: Identifiable {
     let surfaceView: GhosttySurfaceView
     var isRenaming: Bool = false
     let connectedAt: Date = Date()
-    var showInspector: Bool = true
+    var showInspector: Bool = UserDefaults.standard.object(forKey: "showLocalInspector") as? Bool ?? false {
+        didSet {
+            UserDefaults.standard.set(showInspector, forKey: "showLocalInspector")
+        }
+    }
     var inspectorTab: InspectorTab = .snippets
 
     // Split terminal support

@@ -42,6 +42,7 @@ final class AppModel {
     var openTabs: [SessionTab] = []
     var selectedTabID: SessionTab.ID?
     var reconnectRequests: [SSHConnection.ID: UUID] = [:]
+    var showingWhatsNew: Bool = false
 
     // Local terminal tab pool — lives at app scope so PTYs survive SwiftUI navigation
     var localTabs: [LocalTerminalTab] = []

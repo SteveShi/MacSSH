@@ -4382,6 +4382,23 @@
           }
         }
       }
+    },
+    "What's New in MacSSH": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's New in MacSSH"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MacSSH 新功能介绍"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

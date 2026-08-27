@@ -28,8 +28,11 @@ final class SessionTab: Identifiable {
     let id: UUID
     var connection: SSHConnection
     let terminalModel: TerminalSessionViewModel
-    
-    var showInspector: Bool = true
+    var showInspector: Bool = UserDefaults.standard.object(forKey: "showRemoteInspector") as? Bool ?? true {
+        didSet {
+            UserDefaults.standard.set(showInspector, forKey: "showRemoteInspector")
+        }
+    }
     var inspectorTab: InspectorTab = .sftp
 
     /// Cached surface view — created on first access and live for the tab lifetime.

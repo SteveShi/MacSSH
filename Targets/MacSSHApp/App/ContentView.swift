@@ -17,7 +17,6 @@ struct ContentView: View {
     @Bindable var settings: AppSettings
     @State private var editorConnection: SSHConnection?
     @State private var showingDeleteAlert: Bool = false
-    @State private var showingWhatsNew: Bool = false
     @AppStorage("sidebarTab") private var sidebarTab: SidebarTab = .remote
     @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion: String = ""
 
@@ -25,7 +24,7 @@ struct ContentView: View {
         splitView
         .frame(minWidth: 850, minHeight: 560)
         .background(WindowAccessor())
-        .sheet(isPresented: $showingWhatsNew) {
+        .sheet(isPresented: $model.showingWhatsNew) {
             WhatsNewSheetView()
         }
         .confirmationDialog(
@@ -87,6 +86,10 @@ struct ContentView: View {
                 } else if let firstConn = model.connections.first {
                     model.sidebarSelection = .connection(firstConn.id)
                 }
+            }
+            if lastSeenWhatsNewVersion != "2.0.1" {
+                model.showingWhatsNew = true
+                lastSeenWhatsNewVersion = "2.0.1"
             }
             triggerInputSourceSwitch()
         }
