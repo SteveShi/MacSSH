@@ -5,7 +5,7 @@ let project = Project(
     packages: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.0.0"),
         .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.17"),
-        .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.13")
+        .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.14")
     ],
     settings: .settings(
         base: [
