@@ -439,10 +439,44 @@ struct ContentView: View {
 
     @ViewBuilder
     private func connectionContextMenu(for connection: SSHConnection) -> some View {
-        Button {
-            model.openConnection(connection)
-        } label: {
-            Label(String(localized: "Open in Tab"), systemImage: "terminal")
+        let existingTab = model.openTabs.first(where: { $0.connection.id == connection.id })
+        let isConnected = existingTab?.terminalModel.status == .connected
+
+        if !isConnected {
+            Button {
+                model.openConnection(connection)
+                if let tab = model.openTabs.first(where: { $0.connection.id == connection.id }) {
+                    model.selectedTabID = tab.id
+                    model.sidebarSelection = .connection(connection.id)
+                    tab.terminalModel.appModel = model
+                    tab.terminalModel.connect()
+                    model.requestReconnect(connectionID: connection.id)
+                }
+            } label: {
+                Label(String(localized: "Connect"), systemImage: "play.fill")
+            }
+        } else {
+            Button {
+                existingTab?.terminalModel.disconnect()
+                existingTab?.cachedSurface = nil
+                existingTab?.closeSplit()
+            } label: {
+                Label(String(localized: "Disconnect"), systemImage: "stop.fill")
+            }
+        }
+
+        if let tab = existingTab {
+            Button {
+                model.closeTab(tab.id)
+            } label: {
+                Label(String(localized: "Close Tab"), systemImage: "xmark")
+            }
+        } else {
+            Button {
+                model.openConnection(connection)
+            } label: {
+                Label(String(localized: "Open in Tab"), systemImage: "terminal")
+            }
         }
 
         Divider()
@@ -467,6 +501,8 @@ struct ContentView: View {
             Label(String(localized: "Copy Password"), systemImage: "key")
         }
         .disabled(!hasPassword(for: connection))
+
+        Divider()
 
         Button(role: .destructive) {
             model.sidebarSelection = .connection(connection.id)

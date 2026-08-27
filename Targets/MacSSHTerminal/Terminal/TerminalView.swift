@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import MactermKit
 
 struct TerminalView: View {
     let tab: SessionTab
@@ -16,21 +17,25 @@ struct TerminalView: View {
         @Bindable var tab = self.tab
 
         VStack(spacing: 0) {
-            let mainTerminal = GhosttyTerminalView(tab: tab, settings: settings)
-                .id("ghostty-\(tab.id)-\(appModel.reconnectRequests[tab.connection.id]?.uuidString ?? "")")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            
-            if tab.isSplit, let splitSurface = tab.splitSurface {
-                let splitView = SurfaceViewHost(surface: splitSurface)
+            if (model.status == .idle || model.status == .failed(model.lastErrorMessage ?? "")) && tab.cachedSurface == nil {
+                unconnectedPromptView
+            } else {
+                let mainTerminal = GhosttyTerminalView(tab: tab, settings: settings)
+                    .id("ghostty-\(tab.id)-\(appModel.reconnectRequests[tab.connection.id]?.uuidString ?? "")")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
                 
-                SplitTerminalLayout(direction: tab.splitDirection) {
+                if tab.isSplit, let splitSurface = tab.splitSurface {
+                    let splitView = SurfaceViewHost(surface: splitSurface)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    
+                    SplitTerminalLayout(direction: tab.splitDirection) {
+                        mainTerminal
+                    } split: {
+                        splitView
+                    }
+                } else {
                     mainTerminal
-                } split: {
-                    splitView
                 }
-            } else {
-                mainTerminal
             }
 
             // Bottom Status Bar placed inside VStack so it never overlaps terminal prompt
@@ -59,10 +64,6 @@ struct TerminalView: View {
                 }
             }
         }
-        .task {
-            model.appModel = appModel
-            model.connect()
-        }
         .confirmationDialog(
             hostKeyPromptTitle,
             isPresented: hostKeyPromptBinding,
@@ -79,34 +80,115 @@ struct TerminalView: View {
         }
     }
 
+    // MARK: - Unconnected Prompt View
+
+    @ViewBuilder
+    private var unconnectedPromptView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "desktopcomputer")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.secondary.opacity(0.7))
+
+            VStack(spacing: 6) {
+                Text(tab.connection.name)
+                    .font(.title2.bold())
+                    .foregroundStyle(.primary)
+
+                Text("\(tab.connection.username)@\(tab.connection.host):\(tab.connection.port)")
+                    .font(.system(size: 13, design: .monospaced))
+                    .foregroundStyle(.secondary)
+            }
+
+            if case .failed(let reason) = model.status {
+                HStack(spacing: 6) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .foregroundStyle(.red)
+                    Text(reason)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(Color.red.opacity(0.12))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+
+            Button {
+                startConnection()
+            } label: {
+                HStack(spacing: 8) {
+                    if model.status == .connecting {
+                        ProgressView()
+                            .controlSize(.small)
+                        Text(String(localized: "Connecting..."))
+                    } else {
+                        Image(systemName: "play.fill")
+                        Text(String(localized: "Connect"))
+                    }
+                }
+                .font(.system(size: 13, weight: .semibold))
+                .padding(.horizontal, 18)
+                .padding(.vertical, 7)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color(red: 0.2, green: 0.85, blue: 0.4))
+            .controlSize(.large)
+            .disabled(model.status == .connecting)
+            .keyboardShortcut(.return, modifiers: [])
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+    }
+
+    // MARK: - Actions
+
+    private func startConnection() {
+        model.appModel = appModel
+        model.connect()
+        appModel.requestReconnect(connectionID: tab.connection.id)
+    }
+
+    private func stopConnection() {
+        model.disconnect()
+        tab.cachedSurface = nil
+        tab.closeSplit()
+    }
+
+    // MARK: - Toolbar Buttons
+
     @ViewBuilder
     private var toolbarActionButtons: some View {
         @Bindable var tab = self.tab
         let isConnected = model.status == .connected
-        
+
         if !isConnected {
             Button {
-                appModel.requestReconnect(connectionID: tab.connection.id)
+                startConnection()
             } label: {
                 Label(String(localized: "Connect"), systemImage: "play.fill")
             }
             .help(String(localized: "Start Terminal Session"))
+            .disabled(model.status == .connecting)
         } else {
             Button {
-                appModel.requestReconnect(connectionID: tab.connection.id)
+                startConnection()
             } label: {
                 Label(String(localized: "Reconnect"), systemImage: "arrow.clockwise")
             }
             .help(String(localized: "Restart Terminal Session"))
-        }
 
-        Button {
-            appModel.closeTab(tab.id)
-        } label: {
-            Label(String(localized: "Disconnect"), systemImage: "stop.fill")
+            Button {
+                stopConnection()
+            } label: {
+                Label(String(localized: "Disconnect"), systemImage: "stop.fill")
+            }
+            .help(String(localized: "Disconnect Session"))
+            .foregroundStyle(.red)
         }
-        .help(String(localized: "Close Session Tab"))
-        .foregroundStyle(.red)
 
         Toggle(isOn: $tab.showInspector) {
             Label(String(localized: "SFTP"), systemImage: "sidebar.right")

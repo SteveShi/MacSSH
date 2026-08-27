@@ -792,7 +792,7 @@
       }
     },
     "Connecting...": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2877,11 +2877,18 @@
       }
     },
     "Restart Terminal Session": {
+      "extractionState": "manual",
       "localizations": {
-        "zh-Hans": {
+        "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Restart Terminal Session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新启动终端会话"
           }
         }
       }
@@ -3409,11 +3416,18 @@
       }
     },
     "Start Terminal Session": {
+      "extractionState": "manual",
       "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Terminal Session"
+          }
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "启动终端会话"
+            "value": "开始终端会话"
           }
         }
       }
@@ -4348,6 +4362,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "连接失败"
+          }
+        }
+      }
+    },
+    "Disconnect Session": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect Session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "断开会话连接"
           }
         }
       }

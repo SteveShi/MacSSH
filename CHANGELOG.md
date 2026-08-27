@@ -1,3 +1,28 @@
+## [2.0.1] - 2026-08-27
+
+### Added
+- **Manual SSH Connection Control**: SSH sessions now never auto-connect upon selection; explicit click on "Connect" button or toolbar is required.
+- **Sidebar Host Context Actions**: Added dedicated "Connect" and "Disconnect" options directly in the sidebar host right-click context menu.
+- **Dedicated Disconnect Handling**: Clicking Disconnect cleanly terminates the remote SSH session without closing the active tab or kicking the user back to the local shell.
+
+### Fixed
+- Fixed multi-SSH parallel state synchronization and accurately resolved false "disconnected" indicators when managing concurrent SSH tabs.
+- Fixed CPU metric calculation diff base and added non-Linux fallback to ensure real-time CPU percentages report accurately.
+
+---
+
+### Chinese
+### 新增
+- **SSH 手动显式连接控制**：打开或切换 SSH 主机时不自动触发连接，必须点击「连接」按钮或工具栏播放键才启动连接。
+- **侧边栏主机右键快捷操作**：侧边栏主机右键菜单新增「连接」与「断开」选项。
+- **独立断开连接处理**：点击断开连接仅终止当前 SSH 会话并保留在当前页面，绝不关闭标签页，绝不跳转到本地 Shell。
+
+### 修复
+- 彻底解决多 SSH 连接并行状态脱节问题，准确同步多标签页连接指示器。
+- 修复 CPU 监控指标差分基准偏差与非 Linux 环境 Fallback，确保实时 CPU 百分比真实准确反馈。
+
+---
+
 ## [2.0.0] - 2026-08-27
 
 ### Added
