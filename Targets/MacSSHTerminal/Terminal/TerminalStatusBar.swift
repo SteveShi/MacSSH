@@ -86,7 +86,10 @@ struct TerminalStatusBar: View {
     }
 
     private var cpuText: String {
-        String(format: "%.0f%%", metrics.cpuUsage)
+        if metrics.cpuUsage > 0 && metrics.cpuUsage < 1.0 {
+            return String(format: "%.1f%%", metrics.cpuUsage)
+        }
+        return String(format: "%.0f%%", metrics.cpuUsage)
     }
 
     private var memText: String {

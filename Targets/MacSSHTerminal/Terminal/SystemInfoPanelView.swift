@@ -104,10 +104,11 @@ struct SystemInfoPanelView: View {
 
                 // 4. CPU (CPU Usage)
                 let cpuPct = min(max(metrics.cpuUsage / 100.0, 0.0), 1.0)
+                let cpuFormatted = (metrics.cpuUsage > 0 && metrics.cpuUsage < 1.0) ? String(format: "%.1f%%", metrics.cpuUsage) : String(format: "%.0f%%", metrics.cpuUsage)
                 MetricProgressRow(
                     title: "CPU",
                     valueText: "",
-                    statusText: String(format: "%.0f%%", metrics.cpuUsage),
+                    statusText: cpuFormatted,
                     percent: cpuPct,
                     statusColor: Color(red: 0.2, green: 0.85, blue: 0.4)
                 )

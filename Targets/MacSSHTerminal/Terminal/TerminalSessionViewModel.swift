@@ -91,7 +91,8 @@ final class TerminalSessionViewModel {
     if [ -f /proc/stat ]; then
         echo "CPU_Stat: $(grep -m1 '^cpu ' /proc/stat)"
     else
-        echo "CPU_Stat: "
+        CPU_P=$(ps -A -o %cpu 2>/dev/null | awk '{s+=$1} END {print s}')
+        echo "CPU_Fallback: ${CPU_P:-0}"
     fi
     """
 
@@ -240,7 +241,7 @@ final class TerminalSessionViewModel {
     func startMonitoring() {
         monitorTaskHolder.cancel()
         monitorTaskHolder.task = Task { [weak self] in
-            var prevCpuTicks: (user: UInt64, system: UInt64, idle: UInt64, total: UInt64)? = nil
+            var prevCpuTicks: (idle: UInt64, total: UInt64)? = nil
             var prevNetBytes: (rx: UInt64, tx: UInt64)? = nil
             var lastPollTime = Date()
             
@@ -282,7 +283,7 @@ final class TerminalSessionViewModel {
         Task {
             do {
                 let output = try await session.executeCommand(monitorScript)
-                var prevCpuTicks: (user: UInt64, system: UInt64, idle: UInt64, total: UInt64)? = nil
+                var prevCpuTicks: (idle: UInt64, total: UInt64)? = nil
                 var prevNetBytes: (rx: UInt64, tx: UInt64)? = nil
                 parseMetrics(output, timeInterval: 3.0, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
             } catch {
@@ -294,7 +295,7 @@ final class TerminalSessionViewModel {
     private func parseMetrics(
         _ rawText: String,
         timeInterval: TimeInterval,
-        prevCpu: inout (user: UInt64, system: UInt64, idle: UInt64, total: UInt64)?,
+        prevCpu: inout (idle: UInt64, total: UInt64)?,
         prevNet: inout (rx: UInt64, tx: UInt64)?
     ) {
         var parsedValues: [String: String] = [:]
@@ -408,7 +409,7 @@ final class TerminalSessionViewModel {
         }
         
         // CPU Stat usage calculation
-        if let cpuStatStr = parsedValues["CPU_Stat"] {
+        if let cpuStatStr = parsedValues["CPU_Stat"], !cpuStatStr.isEmpty {
             let parts = cpuStatStr.split(separator: " ").dropFirst().compactMap { UInt64($0) }
             if parts.count >= 4 {
                 // Fields: user, nice, system, idle, iowait, irq, softirq, steal
@@ -425,16 +426,20 @@ final class TerminalSessionViewModel {
                 let idleTicks = idle &+ iowait
                 
                 if let prev = prevCpu {
-                    let diffTotal = totalTicks >= prev.total ? totalTicks - prev.total : 0
-                    let diffIdle = idleTicks >= prev.idle ? idleTicks - prev.idle : 0
-                    if diffTotal > 0, diffTotal >= diffIdle {
-                        newMetrics.cpuUsage = Double(diffTotal - diffIdle) / Double(diffTotal) * 100.0
+                    let diffTotal = totalTicks > prev.total ? (totalTicks - prev.total) : 0
+                    let diffIdle = idleTicks > prev.idle ? (idleTicks - prev.idle) : 0
+                    if diffTotal > 0 {
+                        let usedTicks = diffTotal >= diffIdle ? (diffTotal - diffIdle) : 0
+                        let usage = (Double(usedTicks) / Double(diffTotal)) * 100.0
+                        newMetrics.cpuUsage = min(max(usage, 0.0), 100.0)
                     } else {
                         newMetrics.cpuUsage = 0.0
                     }
                 }
-                prevCpu = (user, system, idle, totalTicks)
+                prevCpu = (idle: idleTicks, total: totalTicks)
             }
+        } else if let fallbackStr = parsedValues["CPU_Fallback"], let fallbackUsage = Double(fallbackStr) {
+            newMetrics.cpuUsage = min(max(fallbackUsage, 0.0), 100.0)
         }
         
         self.metrics = newMetrics
