@@ -1,3 +1,20 @@
+## [2.0.2] - 2026-08-28
+
+### Fixed
+- **Terminal Scrollback & Window Resize Stability**: Fixed an issue where terminal history would be wiped upon resizing the application window by reading full scrollback surface buffer (`GHOSTTY_POINT_SURFACE`), deduplicating resize events, and preserving login shell session environments.
+- **Inspector State Persistence**: Right-side inspector panel toggle state is now persistently remembered across app restarts and tab switches.
+- **Menu Bar What's New Entry**: Added "What's New in MacSSH" to both the main application menu and the Help menu for quick access to feature highlights.
+
+---
+
+### Chinese
+### 修复
+- **终端回滚与窗口缩放稳定性**：彻底修复调整软件窗口大小时历史记录被清除的问题，升级为全量滚动缓冲区读取（`GHOSTTY_POINT_SURFACE`）、尺寸去重节流以及原生 Login Shell 环境保留。
+- **右侧侧边栏状态持久化**：右侧检查器侧边栏展开/折叠状态现已支持跨标签页和跨应用重启的永久记忆。
+- **菜单栏新功能介绍入口**：在应用主菜单和“帮助”菜单中新增“MacSSH 新功能介绍”，支持随时查看版本核心亮点。
+
+---
+
 ## [2.0.1] - 2026-08-27
 
 ### Added

@@ -497,6 +497,8 @@ final class AppModel {
 
         for tab in localTabs {
             if let text = tab.surfaceView.readFullText(maxLines: settings.scrollbackHistoryLimit) {
+                let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !trimmed.isEmpty else { continue }
                 let metadata = SessionHistoryStore.Metadata(
                     quittedAt: Date(),
                     tabName: tab.name
@@ -560,7 +562,7 @@ final class AppModel {
             rm -f \(escapedTxtPath)
         fi
         rm -f \(escapedShPath)
-        exec \(escapedShell) -i
+        exec \(escapedShell) -l
         """
 
         do {
