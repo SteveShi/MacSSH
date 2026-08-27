@@ -6,6 +6,7 @@ import MactermKit
 enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
     case sftp
     case monitor
+    case snippets
     
     var id: String { self.rawValue }
     
@@ -15,6 +16,8 @@ enum InspectorTab: String, CaseIterable, Identifiable, Sendable {
             return String(localized: "SFTP")
         case .monitor:
             return String(localized: "Monitor")
+        case .snippets:
+            return String(localized: "Snippets")
         }
     }
 }

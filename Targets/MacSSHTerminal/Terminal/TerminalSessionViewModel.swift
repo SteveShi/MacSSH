@@ -31,6 +31,7 @@ final class TerminalSessionViewModel {
     var keyPassphrase: String = ""
     var hostKeyPrompt: HostKeyPrompt?
     var lastErrorMessage: String = ""
+    var connectedAt: Date? = nil
 
     var metrics: SystemMetrics = SystemMetrics()
     private let monitorTaskHolder = TaskHolder()
@@ -139,6 +140,7 @@ final class TerminalSessionViewModel {
                 _ = try await self.session.connect(host: self.connection.host, port: self.connection.port, username: self.connection.username, auth: auth)
                 if Task.isCancelled { return }
                 self.status = .connected
+                self.connectedAt = Date()
                 self.handlePasswordPersistence(auth)
                 self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
                 self.startMonitoring()
@@ -156,6 +158,7 @@ final class TerminalSessionViewModel {
                             _ = try await self.session.connect(host: self.connection.host, port: self.connection.port, username: self.connection.username, auth: fallbackAuth)
                             if Task.isCancelled { return }
                             self.status = .connected
+                            self.connectedAt = Date()
                             self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
                             self.startMonitoring()
                             self.sftpViewModel.refresh()

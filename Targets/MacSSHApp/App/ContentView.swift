@@ -3,18 +3,31 @@ import AppKit
 import SSH2Kit
 import MactermKit
 
+// MARK: - Sidebar Tab Enum
+
+private enum SidebarTab: String, CaseIterable {
+    case local
+    case remote
+}
+
+// MARK: - ContentView
+
 struct ContentView: View {
     @Bindable var model: AppModel
     @Bindable var settings: AppSettings
     @State private var editorConnection: SSHConnection?
     @State private var showingDeleteAlert: Bool = false
-    @AppStorage("isLocalShellCollapsed") private var isLocalShellCollapsed: Bool = false
-    @AppStorage("isConnectionsCollapsed") private var isConnectionsCollapsed: Bool = false
+    @State private var showingWhatsNew: Bool = false
+    @AppStorage("sidebarTab") private var sidebarTab: SidebarTab = .remote
+    @AppStorage("lastSeenWhatsNewVersion") private var lastSeenWhatsNewVersion: String = ""
 
     var body: some View {
         splitView
-        .frame(minWidth: 800, minHeight: 550)
+        .frame(minWidth: 850, minHeight: 560)
         .background(WindowAccessor())
+        .sheet(isPresented: $showingWhatsNew) {
+            WhatsNewSheetView()
+        }
         .confirmationDialog(
             String(localized: "Delete Connection"),
             isPresented: $showingDeleteAlert,
@@ -27,14 +40,39 @@ struct ContentView: View {
         } message: {
             Text("Are you sure you want to delete the selected connection?", comment: "Delete connection confirmation message")
         }
-        .onChange(of: model.sidebarSelection) { _, _ in
+        .onChange(of: model.sidebarSelection) { _, newValue in
             triggerInputSourceSwitch()
+            switch newValue {
+            case .localTab:
+                if sidebarTab != .local { sidebarTab = .local }
+            case .connection:
+                if sidebarTab != .remote { sidebarTab = .remote }
+            case nil:
+                break
+            }
         }
         .onChange(of: model.selectedTabID) { _, _ in
             triggerInputSourceSwitch()
         }
         .onChange(of: model.selectedLocalTabID) { _, _ in
             triggerInputSourceSwitch()
+        }
+        .onChange(of: sidebarTab) { _, newTab in
+            model.searchText = ""
+            switch newTab {
+            case .local:
+                if case .connection = model.sidebarSelection {
+                    if let first = model.localTabs.first {
+                        model.sidebarSelection = .localTab(first.id)
+                    }
+                }
+            case .remote:
+                if case .localTab = model.sidebarSelection {
+                    if let first = model.connections.first {
+                        model.sidebarSelection = .connection(first.id)
+                    }
+                }
+            }
         }
         .onAppear {
             if model.localTabs.isEmpty {
@@ -58,9 +96,6 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { _ in
             triggerInputSourceSwitch()
         }
-        .onChange(of: model.sidebarSelection) { _, _ in
-            triggerInputSourceSwitch()
-        }
         .onChange(of: settings.defaultInputSourceID) { _, _ in
             triggerInputSourceSwitch()
         }
@@ -82,11 +117,6 @@ struct ContentView: View {
     }
 
     private func addLocalTab() {
-        if isLocalShellCollapsed {
-            withAnimation(.easeInOut(duration: 0.2)) {
-                isLocalShellCollapsed = false
-            }
-        }
         var config = GhosttySurfaceConfiguration()
         config.fontSize = Float(settings.fontSize)
         config.environmentVariables = LocalShellEnvironment.make()
@@ -94,155 +124,58 @@ struct ContentView: View {
         model.addLocalTab(config: config)
     }
 
+    private func addConnection() {
+        sidebarTab = .remote
+        editorConnection = SSHConnection(name: "", host: "", port: 22, username: "")
+    }
+
+    // MARK: - Split View
+
     @ViewBuilder
     private var splitView: some View {
         NavigationSplitView {
-            List(selection: $model.sidebarSelection) {
-                Section {
-                    if !isLocalShellCollapsed {
-                        ForEach(model.localTabs) { tab in
-                            let isSelected = model.selectedLocalTabID == tab.id
-                            LocalTabRow(tab: tab, isSelected: isSelected, canClose: model.localTabs.count > 1) {
-                                model.removeLocalTab(tab.id)
-                            }
-                            .tag(SidebarItem.localTab(tab.id))
-                            .contextMenu {
-                                localTabContextMenu(for: tab)
-                            }
-                        }
-                    }
-                } header: {
-                    HStack(spacing: 4) {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isLocalShellCollapsed.toggle()
-                            }
-                        } label: {
-                            Image(systemName: isLocalShellCollapsed ? "chevron.right" : "chevron.down")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 16, height: 16)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-
-                        Text(String(localized: "Local Shell"))
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.secondary)
-
-                        Spacer()
-
-                        Button {
-                            addLocalTab()
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 18, height: 18)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .keyboardShortcut("t", modifiers: .command)
-                        .help(String(localized: "New Tab"))
-                    }
-                }
-
-                Section {
-                    if !isConnectionsCollapsed {
-                        ForEach(model.filteredConnections) { connection in
-                            let isConnected = model.openTabs.first(where: { $0.connection.id == connection.id })?.terminalModel.status == .connected
-                            let isActive = model.sidebarSelection == .connection(connection.id)
-                            ConnectionRow(connection: connection, isSelected: isActive, isConnected: isConnected) {
-                                model.openConnection(connection)
-                            }
-                            .tag(SidebarItem.connection(connection.id))
-                            .contextMenu {
-                                connectionContextMenu(for: connection)
-                            }
-                        }
-                    }
-                } header: {
-                    HStack(spacing: 4) {
-                        Button {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                isConnectionsCollapsed.toggle()
-                            }
-                        } label: {
-                            Image(systemName: isConnectionsCollapsed ? "chevron.right" : "chevron.down")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 16, height: 16)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-
-                        Text(String(localized: "Connections"))
-                            .font(.system(size: 11, weight: .bold))
-                            .foregroundStyle(.secondary)
-
-                        Spacer()
-
-                        Button {
-                            if isConnectionsCollapsed {
-                                withAnimation(.easeInOut(duration: 0.2)) {
-                                    isConnectionsCollapsed = false
-                                }
-                            }
-                            editorConnection = SSHConnection(name: "", host: "", port: 22, username: "")
-                        } label: {
-                            Image(systemName: "plus")
-                                .font(.system(size: 11, weight: .semibold))
-                                .foregroundStyle(.secondary)
-                                .frame(width: 18, height: 18)
-                                .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .keyboardShortcut("n", modifiers: .command)
-                        .help(String(localized: "Add Connection"))
-                    }
-                }
-            }
-            .searchable(text: $model.searchText, placement: .sidebar, prompt: Text(String(localized: "Search connections")))
-            .navigationTitle(String(localized: "MacSSH"))
-            .navigationSplitViewColumnWidth(min: 180, ideal: 240, max: 400)
+            sidebarContent
+                .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
         } detail: {
             Group {
                 if case .localTab = model.sidebarSelection {
                     LocalTerminalView(settings: settings, appModel: model)
                 } else if case .connection(let id) = model.sidebarSelection {
                     if let tab = model.openTabs.first(where: { $0.connection.id == id }) {
-                        // Connection is OPEN (has a session tab)
                         TerminalView(tab: tab, settings: settings, appModel: model)
                     } else if let conn = model.connections.first(where: { $0.id == id }) {
-                        // Connection is NOT open (placeholder view)
-                        ContentUnavailableView {
-                            Label(conn.name, systemImage: "terminal")
-                        } description: {
-                            Text(String(localized: "Connection is not open."))
-                        } actions: {
-                            Button(String(localized: "Open Connection")) {
-                                model.openConnection(conn)
-                            }
-                            .buttonStyle(.borderedProminent)
-                        }
-                        .toolbar {
-                            ToolbarItemGroup(placement: .primaryAction) {
-                                Button {
-                                    model.openConnection(conn)
-                                } label: {
-                                    Label(String(localized: "Connect"), systemImage: "play.fill")
-                                }
-                                .help(String(localized: "Open SSH Session"))
-                            }
-                        }
+                        unopenedConnectionView(for: conn)
                     } else {
                         EmptyStateView()
                     }
                 } else {
-                    EmptyStateView()
+                    if let firstTab = model.openTabs.first {
+                        TerminalView(tab: firstTab, settings: settings, appModel: model)
+                    } else if let firstLocal = model.localTabs.first {
+                        LocalTerminalView(settings: settings, appModel: model)
+                    } else {
+                        EmptyStateView()
+                    }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+            .toolbarBackground(.hidden, for: .windowToolbar)
+            .toolbar {
+                ToolbarItem(placement: .navigation) {
+                    TitlebarSessionTabBar(
+                        model: model,
+                        isLocalMode: sidebarTab == .local,
+                        onAdd: {
+                            if sidebarTab == .local {
+                                addLocalTab()
+                            } else {
+                                addConnection()
+                            }
+                        }
+                    )
+                }
+            }
         }
         .navigationSplitViewStyle(.balanced)
         .sheet(item: $editorConnection) { connection in
@@ -251,7 +184,209 @@ struct ContentView: View {
                 model.openConnection(updated)
             }
         }
+        .background {
+            Group {
+                Button("") { addLocalTab() }
+                    .keyboardShortcut("t", modifiers: .command)
+                Button("") { addConnection() }
+                    .keyboardShortcut("n", modifiers: .command)
+            }
+            .frame(width: 0, height: 0)
+            .opacity(0)
+            .allowsHitTesting(false)
+        }
     }
+
+    // MARK: - Sidebar Content (Berth Parity)
+
+    @ViewBuilder
+    private var sidebarContent: some View {
+        VStack(spacing: 0) {
+            // Sidebar Header: 2-Icon Switcher + Search + Add Button
+            sidebarHeader
+                .padding(.horizontal, 10)
+                .padding(.top, 8)
+                .padding(.bottom, 6)
+
+            // Hosts / Tabs List
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 2) {
+                    if sidebarTab == .local {
+                        localTabsRows
+                    } else {
+                        connectionsRows
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 2)
+            }
+        }
+    }
+
+    // MARK: - Sidebar Header (2-Icon Switcher + Search + Plus)
+
+    @ViewBuilder
+    private var sidebarHeader: some View {
+        VStack(spacing: 6) {
+            HStack(spacing: 6) {
+                // Pure Icon Switcher (Local / Remote)
+                LiquidGlassIconPicker(
+                    selection: $sidebarTab,
+                    items: [
+                        (.local, "terminal", String(localized: "Local Shell")),
+                        (.remote, "desktopcomputer", String(localized: "Remote SSH"))
+                    ]
+                )
+
+                // Search Bar for Remote
+                if sidebarTab == .remote {
+                    HStack(spacing: 5) {
+                        Image(systemName: "magnifyingglass")
+                            .font(.system(size: 11))
+                            .foregroundStyle(.secondary)
+
+                        TextField(String(localized: "Search hosts"), text: $model.searchText)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 12))
+
+                        if !model.searchText.isEmpty {
+                            Button {
+                                model.searchText = ""
+                            } label: {
+                                Image(systemName: "xmark.circle.fill")
+                                    .font(.system(size: 10.5))
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4.5)
+                    .background(
+                        Capsule()
+                            .fill(Color.primary.opacity(0.05))
+                    )
+                } else {
+                    Spacer()
+                }
+
+                // Plus (+) Button
+                Button {
+                    if sidebarTab == .local {
+                        addLocalTab()
+                    } else {
+                        addConnection()
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 11, weight: .semibold))
+                        .frame(width: 24, height: 24)
+                        .background(
+                            Circle()
+                                .fill(Color.primary.opacity(0.05))
+                        )
+                        .contentShape(Circle())
+                }
+                .buttonStyle(PressableIconStyle())
+                .foregroundStyle(.secondary)
+                .help(sidebarTab == .local ? String(localized: "New Tab") : String(localized: "Add Connection"))
+            }
+        }
+    }
+
+    // MARK: - Local Tabs Rows
+
+    @ViewBuilder
+    private var localTabsRows: some View {
+        if model.localTabs.isEmpty {
+            Text(String(localized: "No Terminals"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 24)
+        } else {
+            ForEach(model.localTabs) { tab in
+                let isSelected = model.selectedLocalTabID == tab.id
+                BerthLocalTabRow(
+                    tab: tab,
+                    isSelected: isSelected,
+                    canClose: model.localTabs.count > 1,
+                    onSelect: {
+                        model.selectedLocalTabID = tab.id
+                        model.sidebarSelection = .localTab(tab.id)
+                    },
+                    onClose: {
+                        model.removeLocalTab(tab.id)
+                    }
+                )
+                .contextMenu {
+                    localTabContextMenu(for: tab)
+                }
+            }
+        }
+    }
+
+    // MARK: - Connections Rows
+
+    @ViewBuilder
+    private var connectionsRows: some View {
+        if model.filteredConnections.isEmpty {
+            Text(model.searchText.isEmpty ? String(localized: "No Hosts") : String(localized: "没有匹配的主机"))
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 24)
+        } else {
+            ForEach(model.filteredConnections) { connection in
+                let isConnected = model.openTabs.first(where: { $0.connection.id == connection.id })?.terminalModel.status == .connected
+                let isSelected = model.sidebarSelection == .connection(connection.id)
+                BerthHostRow(
+                    connection: connection,
+                    isSelected: isSelected,
+                    isConnected: isConnected,
+                    onSelect: {
+                        model.sidebarSelection = .connection(connection.id)
+                        if !model.openTabs.contains(where: { $0.connection.id == connection.id }) {
+                            model.openConnection(connection)
+                        } else {
+                            model.selectedTabID = model.openTabs.first(where: { $0.connection.id == connection.id })?.id
+                        }
+                    }
+                )
+                .contextMenu {
+                    connectionContextMenu(for: connection)
+                }
+            }
+        }
+    }
+
+    // MARK: - Unopened Connection View
+
+    @ViewBuilder
+    private func unopenedConnectionView(for conn: SSHConnection) -> some View {
+        ContentUnavailableView {
+            Label(conn.name, systemImage: "terminal")
+        } description: {
+            Text(String(localized: "Connection is not open."))
+        } actions: {
+            Button(String(localized: "Open Connection")) {
+                model.openConnection(conn)
+            }
+            .buttonStyle(.borderedProminent)
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    model.openConnection(conn)
+                } label: {
+                    Label(String(localized: "Connect"), systemImage: "play.fill")
+                }
+                .help(String(localized: "Open SSH Session"))
+            }
+        }
+    }
+
+    // MARK: - Context Menus
 
     @ViewBuilder
     private func localTabContextMenu(for tab: LocalTerminalTab) -> some View {
@@ -340,147 +475,151 @@ struct ContentView: View {
             Label(String(localized: "Delete"), systemImage: "trash")
         }
     }
-
-
 }
 
-private struct EmptyStateView: View {
+// MARK: - Berth Parity Host Row
+
+private struct BerthHostRow: View {
+    let connection: SSHConnection
+    let isSelected: Bool
+    var isConnected: Bool = false
+    var onSelect: () -> Void
+    @State private var hovering = false
+
     var body: some View {
-        ContentUnavailableView {
-            Label {
-                Text(String(localized: "Start a New Connection", comment: "Empty state title"))
-                    .font(.title2)
-            } icon: {
-                Image(systemName: "terminal.fill")
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.blue)
-                    .font(.system(size: 48))
-            }
-        } description: {
-            Text(String(localized: "Select a server from the sidebar to begin your session, or add a new one to get started.", comment: "Empty state description"))
-                .font(.body)
+        HStack(spacing: 8) {
+            // Finder-style icon
+            Image(systemName: "desktopcomputer")
+                .font(.system(size: 13))
                 .foregroundStyle(.secondary)
-        } actions: {
-            Text(String(localized: "Shortcut: ⌘N New Connection", comment: "Empty state shortcut hint"))
-                .font(.caption)
-                .foregroundStyle(.tertiary)
+                .frame(width: 20)
+
+            // Status bar vertical indicator (with glow on connected)
+            RoundedRectangle(cornerRadius: 1.5)
+                .fill(isConnected ? Color.green : Color.gray.opacity(0.3))
+                .frame(width: 3, height: 26)
+                .shadow(color: isConnected ? Color.green.opacity(0.6) : .clear, radius: 3)
+
+            // 13pt title + 10pt monospaced subtitle
+            VStack(alignment: .leading, spacing: 1.5) {
+                Text(connection.name)
+                    .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+
+                Text("\(connection.username)@\(connection.host)")
+                    .font(.system(size: 10, design: .monospaced))
+                    .foregroundStyle(.tertiary)
+                    .lineLimit(1)
+                    .truncationMode(.middle)
+            }
+
+            Spacer(minLength: 4)
         }
+        .padding(.vertical, 5)
+        .padding(.horizontal, 8)
+        .background {
+            if isSelected {
+                RaisedCapsule()
+            } else if hovering {
+                Capsule().fill(Color.primary.opacity(0.05))
+            }
+        }
+        .foregroundStyle(isSelected ? .primary : .secondary)
+        .contentShape(Capsule())
+        .animation(.easeOut(duration: 0.12), value: hovering)
+        .onHover { hovering = $0 }
+        .onTapGesture { onSelect() }
     }
 }
 
-private struct LocalTabRow: View {
+// MARK: - Berth Parity Local Tab Row
+
+private struct BerthLocalTabRow: View {
     let tab: LocalTerminalTab
     let isSelected: Bool
     let canClose: Bool
-    var onClose: (() -> Void)? = nil
-    @State private var isHovered = false
+    var onSelect: () -> Void
+    var onClose: () -> Void
+    @State private var hovering = false
 
     var body: some View {
         HStack(spacing: 8) {
             Image(systemName: "terminal")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(isSelected ? AnyShapeStyle(Color.blue.gradient) : AnyShapeStyle(Color.gray))
-                .frame(width: 20, height: 20)
+                .font(.system(size: 13))
+                .foregroundStyle(.secondary)
+                .frame(width: 20)
+
+            RoundedRectangle(cornerRadius: 1.5)
+                .fill(Color.green.opacity(0.8))
+                .frame(width: 3, height: 26)
 
             Text(tab.name)
-                .font(.system(size: 13, weight: isSelected ? .semibold : .regular))
+                .font(.system(size: 13, weight: isSelected ? .semibold : .medium))
                 .lineLimit(1)
-                .truncationMode(.tail)
 
             Spacer()
 
-            if isHovered && canClose {
-                Button {
-                    onClose?()
-                } label: {
+            if hovering && canClose {
+                Button(action: onClose) {
                     Image(systemName: "xmark")
-                        .font(.system(size: 9, weight: .bold))
+                        .font(.system(size: 8, weight: .bold))
                         .foregroundStyle(.secondary)
                         .padding(4)
-                        .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .transition(.opacity)
             }
         }
-        .padding(.vertical, 3)
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                isHovered = hovering
+        .padding(.vertical, 5)
+        .padding(.horizontal, 8)
+        .background {
+            if isSelected {
+                RaisedCapsule()
+            } else if hovering {
+                Capsule().fill(Color.primary.opacity(0.05))
             }
         }
+        .foregroundStyle(isSelected ? .primary : .secondary)
+        .contentShape(Capsule())
+        .animation(.easeOut(duration: 0.12), value: hovering)
+        .onHover { hovering = $0 }
+        .onTapGesture { onSelect() }
     }
 }
 
-private struct ConnectionRow: View {
-    let connection: SSHConnection
-    let isSelected: Bool
-    var isConnected: Bool = false
-    @State private var isHovered = false
-    var onConnect: (() -> Void)? = nil
+// MARK: - Empty State
 
+private struct EmptyStateView: View {
     var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                Image(systemName: "desktopcomputer")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(isSelected ? AnyShapeStyle(Color.blue.gradient) : AnyShapeStyle(Color.gray))
-                
-                Circle()
-                    .fill(isConnected ? Color.green : Color.gray.opacity(0.5))
-                    .frame(width: 8, height: 8)
-                    .overlay(Circle().stroke(Color.black.opacity(0.2), lineWidth: 1))
-                    .offset(x: 10, y: 10)
-            }
-            .frame(width: 32, height: 32)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(connection.name)
-                    .font(.system(size: 13, weight: .semibold))
-                
-                Text("\(connection.username)@\(connection.host)")
-                    .font(.system(size: 11, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
-            
-            Spacer()
-            
-            if isHovered {
-                Button {
-                    onConnect?()
-                } label: {
-                    Image(systemName: "play.fill")
-                        .font(.system(size: 10, weight: .bold))
-                        .foregroundStyle(.white)
-                        .padding(6)
-                        .background(Color.blue.gradient)
-                        .clipShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .transition(.scale.combined(with: .opacity))
-            }
+        VStack(spacing: 12) {
+            Image(systemName: "server.rack")
+                .font(.system(size: 36))
+                .foregroundStyle(.tertiary)
+            Text(String(localized: "Start a New Connection", comment: "Empty state title"))
+                .font(.headline)
+                .foregroundStyle(.secondary)
+            Text(String(localized: "Shortcut: ⌘N New Connection", comment: "Empty state shortcut hint"))
+                .font(.caption)
+                .foregroundStyle(.tertiary)
         }
-        .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .onHover { hovering in
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                isHovered = hovering
-            }
-        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
-enum ImportMode {
-    case merge
-    case replace
-}
+// MARK: - Window Accessor
 
 private struct WindowAccessor: NSViewRepresentable {
     func makeNSView(context: Context) -> NSView {
         let view = NSView()
         DispatchQueue.main.async {
             if let window = view.window {
+                window.titlebarAppearsTransparent = true
+                window.titlebarSeparatorStyle = .none
+                window.styleMask.insert(.fullSizeContentView)
+                window.backgroundColor = NSColor(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0, alpha: 1.0)
+                window.titleVisibility = .hidden
+                window.toolbarStyle = .unified
+                window.isMovableByWindowBackground = true
                 window.setFrameAutosaveName("MacSSHMainWindow")
                 window.setFrameUsingName("MacSSHMainWindow")
             }

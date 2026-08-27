@@ -10,8 +10,10 @@ final class LocalTerminalTab: Identifiable {
     var name: String
     /// The actual NSView is owned here so it survives SwiftUI navigation.
     let surfaceView: GhosttySurfaceView
-    /// Drives the rename sheet hosted by the tab's own window.
     var isRenaming: Bool = false
+    let connectedAt: Date = Date()
+    var showInspector: Bool = true
+    var inspectorTab: InspectorTab = .snippets
 
     // Split terminal support
     var isSplit: Bool = false

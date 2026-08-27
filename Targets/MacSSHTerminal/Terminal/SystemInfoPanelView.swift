@@ -11,9 +11,9 @@ struct SystemInfoPanelView: View {
 
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
+            VStack(spacing: 14) {
                 if case .failed(let errorMsg) = status {
-                    VStack(alignment: .leading, spacing: 8) {
+                    VStack(alignment: .leading, spacing: 6) {
                         HStack {
                             Image(systemName: "exclamationmark.triangle.fill")
                                 .foregroundStyle(.red)
@@ -29,139 +29,147 @@ struct SystemInfoPanelView: View {
                     .padding(10)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Color.red.opacity(0.1))
-                    .cornerRadius(6)
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(Color.red.opacity(0.2), lineWidth: 1))
+                    .cornerRadius(8)
+                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.red.opacity(0.2), lineWidth: 1))
                 }
 
                 realTimeMonitorCard
                 serverSpecsCard
                 connectionHistoryCard
             }
-            .padding()
+            .padding(12)
         }
     }
 
+    // MARK: - Real-time Monitor Card (Matching Image 2 Style 1:1)
+
     private var realTimeMonitorCard: some View {
-        VStack(alignment: .leading, spacing: 12) {
+        VStack(alignment: .leading, spacing: 14) {
             HStack {
                 Label(String(localized: "Real-time Monitor"), systemImage: "chart.bar.fill")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 12.5, weight: .semibold))
                 Spacer()
                 HStack(spacing: 4) {
                     Circle()
-                        .fill(Color.green)
-                        .frame(width: 6, height: 6)
+                        .fill(Color(red: 0.2, green: 0.85, blue: 0.4))
+                        .frame(width: 5.5, height: 5.5)
                     Text(String(localized: "LIVE"))
                         .font(.system(size: 9, weight: .bold))
-                        .foregroundStyle(.green)
+                        .foregroundStyle(Color(red: 0.2, green: 0.85, blue: 0.4))
                 }
                 .padding(.horizontal, 6)
                 .padding(.vertical, 2)
-                .background(Color.green.opacity(0.15))
+                .background(Color(red: 0.2, green: 0.85, blue: 0.4).opacity(0.12))
                 .clipShape(Capsule())
             }
-            
+
             Divider()
-            
-            // 使用原生 Grid 保持两列完美的左右对齐
-            Grid(alignment: .leading, horizontalSpacing: 16, verticalSpacing: 12) {
-                // 第一行: Load, CPU
-                GridRow {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Load"))
-                            .font(.system(size: 10, weight: .medium))
+                .opacity(0.3)
+
+            VStack(spacing: 12) {
+                // 1. 内存 (Memory)
+                let memTotalMB = metrics.memoryTotalBytes / 1024 / 1024
+                let memUsedMB = metrics.memoryUsedBytes / 1024 / 1024
+                let memPct = metrics.memoryTotalBytes > 0 ? Double(metrics.memoryUsedBytes) / Double(metrics.memoryTotalBytes) : 0.0
+                MetricProgressRow(
+                    title: String(localized: "内存"),
+                    valueText: memTotalMB > 0 ? "\(memUsedMB) / \(memTotalMB) MB" : "—",
+                    statusText: String(format: "%.0f%%", memPct * 100),
+                    percent: memPct,
+                    statusColor: Color(red: 0.2, green: 0.85, blue: 0.4)
+                )
+
+                // 2. 磁盘 / (Disk)
+                let diskTotalGB = metrics.diskTotalBytes / 1024 / 1024 / 1024
+                let diskUsedGB = metrics.diskUsedBytes / 1024 / 1024 / 1024
+                let diskPct = metrics.diskTotalBytes > 0 ? Double(metrics.diskUsedBytes) / Double(metrics.diskTotalBytes) : 0.0
+                MetricProgressRow(
+                    title: String(localized: "磁盘 /"),
+                    valueText: diskTotalGB > 0 ? "\(diskUsedGB)G/\(diskTotalGB)G" : "—",
+                    statusText: String(format: "%.0f%%", diskPct * 100),
+                    percent: diskPct,
+                    statusColor: Color(red: 0.2, green: 0.85, blue: 0.4)
+                )
+
+                // 3. 负载 (Load)
+                let cores = max(1, metrics.cpuCores)
+                let loadPct = Double(metrics.load1Min) / Double(cores)
+                MetricProgressRow(
+                    title: String(localized: "负载"),
+                    valueText: String(format: "%.2f  %.2f  %.2f", metrics.load1Min, metrics.load5Min, metrics.load15Min),
+                    statusText: "\(cores) 核",
+                    percent: loadPct,
+                    statusColor: Color(red: 0.2, green: 0.85, blue: 0.4)
+                )
+
+                // 4. CPU (CPU Usage)
+                let cpuPct = min(max(metrics.cpuUsage / 100.0, 0.0), 1.0)
+                MetricProgressRow(
+                    title: "CPU",
+                    valueText: "",
+                    statusText: String(format: "%.0f%%", metrics.cpuUsage),
+                    percent: cpuPct,
+                    statusColor: Color(red: 0.2, green: 0.85, blue: 0.4)
+                )
+
+                // 5. Swap (if present)
+                if metrics.swapTotalBytes > 0 {
+                    let swapUsedMB = metrics.swapUsedBytes / 1024 / 1024
+                    let swapTotalMB = metrics.swapTotalBytes / 1024 / 1024
+                    let swapPct = Double(metrics.swapUsedBytes) / Double(metrics.swapTotalBytes)
+                    MetricProgressRow(
+                        title: "Swap",
+                        valueText: "\(swapUsedMB) / \(swapTotalMB) MB",
+                        statusText: String(format: "%.0f%%", swapPct * 100),
+                        percent: swapPct,
+                        statusColor: Color(red: 0.2, green: 0.85, blue: 0.4)
+                    )
+                }
+
+                // 6. Network & Processes footer row
+                HStack(alignment: .center) {
+                    HStack(spacing: 8) {
+                        Text(String(localized: "网络"))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.secondary)
-                        Text(String(format: String(localized: "%.2f / %.2f / %.2f"), metrics.load1Min, metrics.load5Min, metrics.load15Min))
-                            .font(.system(size: 12, weight: .semibold))
+                        Text("↓ \(formatBytes(UInt64(metrics.networkRxSpeedBytes)))/s")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(Color(red: 0.2, green: 0.85, blue: 0.4))
+                        Text("↑ \(formatBytes(UInt64(metrics.networkTxSpeedBytes)))/s")
+                            .font(.system(size: 11, design: .monospaced))
+                            .foregroundStyle(Color(red: 0.3, green: 0.65, blue: 1.0))
                     }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "CPU"))
-                            .font(.system(size: 10, weight: .medium))
+
+                    Spacer()
+
+                    HStack(spacing: 4) {
+                        Text(String(localized: "进程"))
+                            .font(.system(size: 11, weight: .medium))
                             .foregroundStyle(.secondary)
-                        HStack(spacing: 8) {
-                            ProgressView(value: min(max(metrics.cpuUsage / 100.0, 0.0), 1.0))
-                                .progressViewStyle(.linear)
-                                .tint(.blue)
-                                .frame(width: 80)
-                            Text(metrics.cpuUsage / 100.0, format: .percent.precision(.fractionLength(1)))
-                                .font(.system(size: 11, weight: .semibold))
-                        }
+                        Text("\(metrics.processCount)")
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .foregroundStyle(.primary)
                     }
                 }
-                
-                // 第二行: Memory, Network
-                GridRow {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Memory"))
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(.secondary)
-                        let memPercent = metrics.memoryTotalBytes > 0 ? Double(metrics.memoryUsedBytes) / Double(metrics.memoryTotalBytes) : 0.0
-                        HStack(spacing: 8) {
-                            ProgressView(value: min(max(memPercent, 0.0), 1.0))
-                                .progressViewStyle(.linear)
-                                .tint(.green)
-                                .frame(width: 80)
-                            Text(memPercent, format: .percent.precision(.fractionLength(0)))
-                                .font(.system(size: 11, weight: .semibold))
-                        }
-                        Text(String(format: String(localized: "%@ / %@"), formatBytes(metrics.memoryUsedBytes), formatBytes(metrics.memoryTotalBytes)))
-                            .font(.system(size: 9))
-                            .foregroundStyle(.secondary)
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Network"))
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(.secondary)
-                        HStack(spacing: 8) {
-                            Image(systemName: "arrow.down")
-                                .font(.system(size: 9, weight: .semibold))
-                                .foregroundStyle(.green)
-                            Text(String(format: String(localized: "%@/s"), formatBytes(UInt64(metrics.networkRxSpeedBytes))))
-                                .font(.system(size: 11, weight: .semibold))
-                        }
-                        HStack(spacing: 8) {
-                            Image(systemName: "arrow.up")
-                                .font(.system(size: 9, weight: .semibold))
-                                .foregroundStyle(.blue)
-                            Text(String(format: String(localized: "%@/s"), formatBytes(UInt64(metrics.networkTxSpeedBytes))))
-                                .font(.system(size: 11, weight: .semibold))
-                        }
-                    }
-                }
-                
-                // 第三行: Swap, Processes
-                GridRow {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Swap"))
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(.secondary)
-                        Text(String(format: String(localized: "%@ / %@"), formatBytes(metrics.swapUsedBytes), formatBytes(metrics.swapTotalBytes)))
-                            .font(.system(size: 11, weight: .semibold))
-                    }
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(String(localized: "Processes"))
-                            .font(.system(size: 10, weight: .medium))
-                            .foregroundStyle(.secondary)
-                        Text(metrics.processCount, format: .number)
-                            .font(.system(size: 12, weight: .semibold))
-                    }
-                }
+                .padding(.top, 2)
             }
         }
-        .padding()
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
-        .cornerRadius(12)
+        .padding(14)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(NSColor.separatorColor).opacity(0.5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
         )
     }
+
+    // MARK: - Server Specs Card
 
     private var serverSpecsCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Label(String(localized: "Server Specs"), systemImage: "info.circle.fill")
-                    .font(.system(size: 13, weight: .semibold))
+                    .font(.system(size: 12.5, weight: .semibold))
                 Spacer()
                 Button(action: onRefresh) {
                     Image(systemName: "arrow.clockwise")
@@ -170,9 +178,10 @@ struct SystemInfoPanelView: View {
                 .buttonStyle(.plain)
                 .help(String(localized: "Refresh Specs"))
             }
-            
+
             Divider()
-            
+                .opacity(0.3)
+
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                 GridRow {
                     Text(String(localized: "OS"))
@@ -202,42 +211,27 @@ struct SystemInfoPanelView: View {
                     Text(formatBytes(metrics.memoryTotalBytes))
                         .font(.system(size: 11, weight: .medium))
                 }
-                GridRow {
-                    Text(String(localized: "Disk"))
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.secondary)
-                    VStack(alignment: .leading, spacing: 4) {
-                        let diskPercent = metrics.diskTotalBytes > 0 ? Double(metrics.diskUsedBytes) / Double(metrics.diskTotalBytes) : 0.0
-                        HStack(spacing: 8) {
-                            ProgressView(value: min(max(diskPercent, 0.0), 1.0))
-                                .progressViewStyle(.linear)
-                                .tint(.blue)
-                            Text(diskPercent, format: .percent.precision(.fractionLength(0)))
-                                .font(.system(size: 11, weight: .semibold))
-                        }
-                        Text(String(format: String(localized: "%@ / %@"), formatBytes(metrics.diskUsedBytes), formatBytes(metrics.diskTotalBytes)))
-                            .font(.system(size: 9))
-                            .foregroundStyle(.secondary)
-                    }
-                }
             }
         }
-        .padding()
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
-        .cornerRadius(12)
+        .padding(14)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(NSColor.separatorColor).opacity(0.5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
         )
     }
+
+    // MARK: - Connection History Card
 
     private var connectionHistoryCard: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text(String(localized: "Connection History"))
-                .font(.system(size: 13, weight: .semibold))
-            
+                .font(.system(size: 12.5, weight: .semibold))
+
             Divider()
-            
+                .opacity(0.3)
+
             let entries = connection.history ?? []
             if entries.isEmpty {
                 Text(String(localized: "No connection history."))
@@ -250,32 +244,32 @@ struct SystemInfoPanelView: View {
                     ForEach(entries) { entry in
                         HStack {
                             Circle()
-                               .fill(entry.isSuccess ? Color.green : Color.red)
+                               .fill(entry.isSuccess ? Color(red: 0.2, green: 0.85, blue: 0.4) : Color.red)
                                .frame(width: 6, height: 6)
-                            
+
                             Text(entry.timestamp.formatted(date: .abbreviated, time: .shortened))
                                 .font(.system(size: 11))
-                            
+
                             Spacer()
-                            
+
                             Text(entry.isSuccess ? String(localized: "Success") : String(localized: "Failed"))
                                 .font(.system(size: 9, weight: .bold))
-                                .foregroundStyle(entry.isSuccess ? .green : .red)
+                                .foregroundStyle(entry.isSuccess ? Color(red: 0.2, green: 0.85, blue: 0.4) : Color.red)
                                 .padding(.horizontal, 6)
                                 .padding(.vertical, 2)
-                                .background(entry.isSuccess ? Color.green.opacity(0.15) : Color.red.opacity(0.15))
+                                .background(entry.isSuccess ? Color.green.opacity(0.12) : Color.red.opacity(0.12))
                                 .clipShape(Capsule())
                         }
                     }
                 }
             }
         }
-        .padding()
-        .background(Color(NSColor.controlBackgroundColor).opacity(0.8))
-        .cornerRadius(12)
+        .padding(14)
+        .background(Color(NSColor.controlBackgroundColor).opacity(0.6))
+        .clipShape(RoundedRectangle(cornerRadius: 10))
         .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(Color(NSColor.separatorColor).opacity(0.5), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(Color.primary.opacity(0.08), lineWidth: 0.8)
         )
     }
 
@@ -288,10 +282,53 @@ struct SystemInfoPanelView: View {
     }
 }
 
-/// Heavy `Foundation` formatters are expensive to construct (locale lookup,
-/// CFNumberFormatter cache, …). The system info card re-renders every 3s and
-/// calls these helpers ~10 times per render — re-creating the formatters each
-/// time was a measurable hotspot under Instruments.
+// MARK: - Metric Progress Row (Image 2 Parity)
+
+private struct MetricProgressRow: View {
+    let title: String
+    let valueText: String
+    let statusText: String
+    let percent: Double
+    var statusColor: Color = Color(red: 0.2, green: 0.85, blue: 0.4)
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(alignment: .firstTextBaseline) {
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(Color.primary)
+
+                Spacer(minLength: 8)
+
+                if !valueText.isEmpty {
+                    Text(valueText)
+                        .font(.system(size: 11.5, design: .monospaced))
+                        .foregroundStyle(Color.secondary)
+                }
+
+                Text(statusText)
+                    .font(.system(size: 11.5, weight: .semibold, design: .monospaced))
+                    .foregroundStyle(statusColor)
+            }
+
+            // Full-width linear capsule progress bar
+            GeometryReader { geo in
+                ZStack(alignment: .leading) {
+                    Capsule()
+                        .fill(Color.primary.opacity(0.08))
+                        .frame(height: 4)
+
+                    Capsule()
+                        .fill(statusColor)
+                        .frame(width: max(0, min(geo.size.width, geo.size.width * CGFloat(min(max(percent, 0.0), 1.0)))), height: 4)
+                        .animation(.spring(response: 0.35, dampingFraction: 0.8), value: percent)
+                }
+            }
+            .frame(height: 4)
+        }
+    }
+}
+
 @MainActor
 private enum SystemInfoFormatters {
     static let byteFormatter: ByteCountFormatter = {

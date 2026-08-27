@@ -2,278 +2,7 @@
   "sourceLanguage": "en",
   "strings": {
     "": {},
-    "Connected to %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connected to %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已连接到 %@"
-          }
-        }
-      }
-    },
-    "Enable Notifications": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable Notifications"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "启用通知"
-          }
-        }
-      }
-    },
-    "Exited with code %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exited with code %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "退出码 %@"
-          }
-        }
-      }
-    },
-    "Failed to connect to %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed to connect to %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无法连接到 %@"
-          }
-        }
-      }
-    },
-    "Multiple files": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Multiple files"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "多个文件"
-          }
-        }
-      }
-    },
-    "Notifications": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notifications"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "通知"
-          }
-        }
-      }
-    },
-    "Only when app is in the background": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Only when app is in the background"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "仅当应用在后台时"
-          }
-        }
-      }
-    },
-    "Process Exited": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Process Exited"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "进程已退出"
-          }
-        }
-      }
-    },
-    "Receive system notifications for connection, transfer, and terminal events.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Receive system notifications for connection, transfer, and terminal events."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "为连接、传输和终端事件接收系统通知。"
-          }
-        }
-      }
-    },
-    "SFTP transfer events": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SFTP transfer events"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SFTP 传输事件"
-          }
-        }
-      }
-    },
-    "SSH Connected": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SSH Connected"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已连接"
-          }
-        }
-      }
-    },
-    "SSH Connection Failed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SSH Connection Failed"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "连接失败"
-          }
-        }
-      }
-    },
-    "SSH connection events": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SSH connection events"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SSH 连接事件"
-          }
-        }
-      }
-    },
-    "Terminal app notifications & process exit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Terminal app notifications & process exit"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "终端应用通知与进程退出"
-          }
-        }
-      }
-    },
-    "Terminal Bell": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Terminal Bell"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "终端响铃"
-          }
-        }
-      }
-    },
-    "Transfer Complete": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transfer Complete"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "传输完成"
-          }
-        }
-      }
-    },
-    "Transfer Failed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transfer Failed"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "传输失败"
-          }
-        }
-      }
-    },
+    "·": {},
     "[disconnected]": {
       "extractionState": "stale",
       "localizations": {
@@ -326,6 +55,7 @@
       }
     },
     "%.2f / %.2f / %.2f": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -369,6 +99,7 @@
       }
     },
     "%@ / %@": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -418,6 +149,7 @@
       }
     },
     "%@/s": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -453,6 +185,8 @@
         }
       }
     },
+    "↑ %@/s": {},
+    "↓ %@/s": {},
     "A modern SSH client for macOS.": {
       "localizations": {
         "zh-Hans": {
@@ -473,6 +207,23 @@
         }
       }
     },
+    "Access Token": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access Token"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "访问令牌 (Token)"
+          }
+        }
+      }
+    },
+    "Add a new terminal tab to get started.": {},
     "Add Connection": {
       "localizations": {
         "en": {
@@ -569,12 +320,61 @@
         }
       }
     },
+    "Auto-execute on click (press Enter)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto-execute on click (press Enter)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击后自动回车执行"
+          }
+        }
+      }
+    },
+    "AutoFill": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AutoFill"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自动填充"
+          }
+        }
+      }
+    },
     "Automatically reconnect on failure": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "连接失败时自动重连"
+          }
+        }
+      }
+    },
+    "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新打开本地终端标签页时，自动恢复上次的输出历史与回滚缓冲区。"
           }
         }
       }
@@ -637,6 +437,72 @@
         }
       }
     },
+    "Category": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Category"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "分类"
+          }
+        }
+      }
+    },
+    "Change Tab Title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Tab Title"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修改标签标题"
+          }
+        }
+      }
+    },
+    "Change Tab Title...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Tab Title..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修改标签标题..."
+          }
+        }
+      }
+    },
+    "Change Terminal Title...": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Change Terminal Title..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "修改终端标题..."
+          }
+        }
+      }
+    },
     "Check for Updates...": {
       "localizations": {
         "en": {
@@ -680,6 +546,22 @@
         }
       }
     },
+    "Clear Saved History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Saved History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清空已保存的历史记录"
+          }
+        }
+      }
+    },
     "Click here to type": {
       "extractionState": "stale",
       "localizations": {
@@ -697,6 +579,22 @@
         }
       }
     },
+    "Close Other Tabs": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close Other Tabs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭其他标签页"
+          }
+        }
+      }
+    },
     "Close Session Tab": {
       "localizations": {
         "zh-Hans": {
@@ -707,6 +605,7 @@
         }
       }
     },
+    "Close Split": {},
     "Close Tab": {
       "localizations": {
         "en": {
@@ -719,6 +618,55 @@
           "stringUnit": {
             "state": "translated",
             "value": "关闭标签页"
+          }
+        }
+      }
+    },
+    "Close Tabs Below": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close Tabs Below"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭下方标签页"
+          }
+        }
+      }
+    },
+    "Cloud Sync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cloud Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "云端同步"
+          }
+        }
+      }
+    },
+    "Command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令"
           }
         }
       }
@@ -736,6 +684,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "配置身份验证"
+          }
+        }
+      }
+    },
+    "Configure cloud synchronization for all your connection configurations.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure cloud synchronization for all your connection configurations."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为您的所有连接配置设置云端同步。"
           }
         }
       }
@@ -810,6 +774,23 @@
         }
       }
     },
+    "Connected to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected to %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接至 %@"
+          }
+        }
+      }
+    },
     "Connecting...": {
       "extractionState": "stale",
       "localizations": {
@@ -822,7 +803,23 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "正在连接..."
+            "value": "连接中…"
+          }
+        }
+      }
+    },
+    "Connection Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接失败"
           }
         }
       }
@@ -864,6 +861,7 @@
       }
     },
     "Connections": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -873,8 +871,76 @@
         }
       }
     },
+    "connections.json file not found in Gist": {},
+    "Copy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制"
+          }
+        }
+      }
+    },
+    "Copy Command": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Command"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制命令"
+          }
+        }
+      }
+    },
+    "Copy IP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy IP"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制 IP"
+          }
+        }
+      }
+    },
+    "Copy Password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Password"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制密码"
+          }
+        }
+      }
+    },
     "CPU": {},
+    "CPU %@": {},
     "Create a new SSH connection profile": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -907,12 +973,44 @@
         }
       }
     },
+    "Current Operation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current Operation"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前操作"
+          }
+        }
+      }
+    },
     "Data": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "数据"
+          }
+        }
+      }
+    },
+    "Data is encrypted. Please provide your master password.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Data is encrypted. Please provide your master password."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "数据已加密。请提供您的同步主密码。"
           }
         }
       }
@@ -981,7 +1079,23 @@
         }
       }
     },
-    "Disk": {},
+    "Disk": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disk"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "磁盘"
+          }
+        }
+      }
+    },
     "Do Not Switch": {
       "localizations": {
         "en": {
@@ -1010,6 +1124,104 @@
           "stringUnit": {
             "state": "translated",
             "value": "下载"
+          }
+        }
+      }
+    },
+    "Download & Merge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download & Merge"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下载并合并"
+          }
+        }
+      }
+    },
+    "Dropbox": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropbox"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropbox"
+          }
+        }
+      }
+    },
+    "Dropbox sync failed: ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropbox sync failed: "
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dropbox 同步失败："
+          }
+        }
+      }
+    },
+    "Duplicate Tab": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate Tab"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "复制标签页"
+          }
+        }
+      }
+    },
+    "e.g. Check Docker Containers": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Check Docker Containers"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例如 查看 Docker 容器"
+          }
+        }
+      }
+    },
+    "e.g. Docker / System / Network": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "e.g. Docker / System / Network"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "例如 Docker / 系统 / 网络"
           }
         }
       }
@@ -1047,6 +1259,39 @@
         }
       }
     },
+    "Edit Snippet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit Snippet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "编辑代码片段"
+          }
+        }
+      }
+    },
+    "Enable Notifications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Notifications"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用通知"
+          }
+        }
+      }
+    },
     "Enable Terminal Text Glow": {
       "localizations": {
         "zh-Hans": {
@@ -1077,12 +1322,60 @@
         }
       }
     },
+    "Encrypt Sync Data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypt Sync Data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加密同步配置"
+          }
+        }
+      }
+    },
+    "Encryption failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加密失败。"
+          }
+        }
+      }
+    },
     "Engine": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "引擎"
+          }
+        }
+      }
+    },
+    "Enter new title for this tab:": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter new title for this tab:"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "输入此标签页的新标题："
           }
         }
       }
@@ -1117,6 +1410,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "建立连接"
+          }
+        }
+      }
+    },
+    "Exited with code %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exited with code %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "退出码 %@"
           }
         }
       }
@@ -1158,7 +1467,76 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "失败"
+            "value": "连接失败"
+          }
+        }
+      }
+    },
+    "Failed to connect to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to connect to %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接 %@ 失败"
+          }
+        }
+      }
+    },
+    "Failed to construct Dropbox-API-Arg": {},
+    "Failed to convert connections data to string": {},
+    "Failed to convert decrypted text to data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to convert decrypted text to data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转换解密文本为 Data 失败。"
+          }
+        }
+      }
+    },
+    "Failed to convert encrypted data to Data": {},
+    "Failed to decode connections": {},
+    "Fill Password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill Password"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "填充密码"
+          }
+        }
+      }
+    },
+    "Fill Username": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fill Username"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "填充用户名"
           }
         }
       }
@@ -1205,6 +1583,88 @@
           "stringUnit": {
             "state": "translated",
             "value": "一般信息"
+          }
+        }
+      }
+    },
+    "Gist ID (Optional)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gist ID (Optional)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gist ID (可选)"
+          }
+        }
+      }
+    },
+    "Gist ID is empty": {},
+    "Gist sync failed: ": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gist sync failed: "
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gist 同步失败："
+          }
+        }
+      }
+    },
+    "GitHub Gist": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Gist"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Gist"
+          }
+        }
+      }
+    },
+    "GitHub Gist Sync": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Gist Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "GitHub Gist 同步"
+          }
+        }
+      }
+    },
+    "History Line Limit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History Line Limit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "历史行数上限"
           }
         }
       }
@@ -1326,6 +1786,57 @@
         }
       }
     },
+    "Insert into Terminal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Insert into Terminal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "插入到终端"
+          }
+        }
+      }
+    },
+    "Invalid base64 payload": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid base64 payload"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无效的 Base64 负载。"
+          }
+        }
+      }
+    },
+    "Invalid Dropbox URL": {},
+    "Invalid Gist URL": {},
+    "Invalid utf8 decrypted data": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid utf8 decrypted data"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无效的 UTF-8 解密数据。"
+          }
+        }
+      }
+    },
     "Labels": {
       "extractionState": "stale",
       "localizations": {
@@ -1339,6 +1850,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "标签"
+          }
+        }
+      }
+    },
+    "Last Sync Status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Sync Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近同步状态"
+          }
+        }
+      }
+    },
+    "Last Sync Time": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last Sync Time"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "最近同步时间"
           }
         }
       }
@@ -1360,6 +1903,7 @@
       }
     },
     "Load": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1375,9 +1919,31 @@
         }
       }
     },
+    "Load Previous Terminal History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load Previous Terminal History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加载上次终端历史记录"
+          }
+        }
+      }
+    },
     "Local": {
       "extractionState": "stale",
       "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local"
+          }
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
@@ -1397,6 +1963,7 @@
       }
     },
     "Local Terminal": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1477,7 +2044,40 @@
         }
       }
     },
-    "Memory": {},
+    "Mem": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mem"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内存"
+          }
+        }
+      }
+    },
+    "Memory": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memory"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "内存"
+          }
+        }
+      }
+    },
     "Merge (Recommended)": {
       "localizations": {
         "zh-Hans": {
@@ -1504,8 +2104,63 @@
         }
       }
     },
-    "Name": {
+    "Move Down": {
       "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Down"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下移"
+          }
+        }
+      }
+    },
+    "Move Up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Move Up"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上移"
+          }
+        }
+      }
+    },
+    "Multiple files": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Multiple files"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "多个文件"
+          }
+        }
+      }
+    },
+    "Name": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
@@ -1535,7 +2190,40 @@
         }
       }
     },
-    "Network": {},
+    "Never": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无"
+          }
+        }
+      }
+    },
+    "New Connection": {},
+    "New Snippet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Snippet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "新建代码片段"
+          }
+        }
+      }
+    },
     "New Tab": {
       "localizations": {
         "zh-Hans": {
@@ -1546,6 +2234,7 @@
         }
       }
     },
+    "New Terminal Tab": {},
     "Next Tab": {
       "localizations": {
         "en": {
@@ -1578,12 +2267,110 @@
         }
       }
     },
+    "No Hosts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Hosts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有主机"
+          }
+        }
+      }
+    },
+    "No Snippets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Snippets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "暂无代码片段"
+          }
+        }
+      }
+    },
+    "No Terminal Open": {},
+    "No Terminals": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Terminals"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有终端"
+          }
+        }
+      }
+    },
+    "Not encrypted or invalid prefix": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not encrypted or invalid prefix"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非加密数据或前缀无效。"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        }
+      }
+    },
     "OK": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "确定"
+          }
+        }
+      }
+    },
+    "Only when app is in the background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only when app is in the background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仅当应用在后台时"
           }
         }
       }
@@ -1685,6 +2472,38 @@
         }
       }
     },
+    "Paste": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "粘贴"
+          }
+        }
+      }
+    },
+    "Personal Access Token": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Personal Access Token"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个人访问令牌 (Token)"
+          }
+        }
+      }
+    },
     "Port": {
       "localizations": {
         "zh-Hans": {
@@ -1705,6 +2524,40 @@
         }
       }
     },
+    "Press + to add a new connection": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press + to add a new connection"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击 + 添加新连接"
+          }
+        }
+      }
+    },
+    "Press + to open a new local terminal": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press + to open a new local terminal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "点击 + 打开新的本地终端"
+          }
+        }
+      }
+    },
     "Previous Tab": {
       "localizations": {
         "en": {
@@ -1721,7 +2574,24 @@
         }
       }
     },
+    "Process Exited": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Process Exited"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进程已退出"
+          }
+        }
+      }
+    },
     "Processes": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1733,6 +2603,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "进程数"
+          }
+        }
+      }
+    },
+    "Public": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Public"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "公网"
           }
         }
       }
@@ -1766,6 +2653,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "实时监控"
+          }
+        }
+      }
+    },
+    "Receive system notifications for connection, transfer, and terminal events.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receive system notifications for connection, transfer, and terminal events."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为连接、传输和终端事件接收系统通知。"
           }
         }
       }
@@ -1804,6 +2707,7 @@
       }
     },
     "Reconnect Failed": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1852,7 +2756,26 @@
         }
       }
     },
+    "Remote": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远程"
+          }
+        }
+      }
+    },
+    "Remote SSH": {},
     "Rename": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1884,7 +2807,24 @@
         }
       }
     },
+    "Rename Tab...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename Tab..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重命名标签页..."
+          }
+        }
+      }
+    },
     "Rename Terminal Tab": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1920,12 +2860,62 @@
         }
       }
     },
+    "Reset Terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset Terminal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重置终端"
+          }
+        }
+      }
+    },
     "Restart Terminal Session": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "Restart Terminal Session"
+          }
+        }
+      }
+    },
+    "Restore Local Terminal History": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Local Terminal History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复本地终端历史记录"
+          }
+        }
+      }
+    },
+    "Run in Terminal": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Run in Terminal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在终端中运行"
           }
         }
       }
@@ -1941,6 +2931,7 @@
       }
     },
     "Search connections": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1956,8 +2947,74 @@
         }
       }
     },
+    "Search hosts": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search hosts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索主机"
+          }
+        }
+      }
+    },
+    "Search snippets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search snippets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索代码片段"
+          }
+        }
+      }
+    },
+    "Search with Google": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search with Google"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用Google搜索"
+          }
+        }
+      }
+    },
+    "Security": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Security"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全"
+          }
+        }
+      }
+    },
     "Select a server from the sidebar to begin your session, or add a new one to get started.": {
       "comment": "Empty state description",
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2043,6 +3100,22 @@
         }
       }
     },
+    "Services": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Services"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "服务"
+          }
+        }
+      }
+    },
     "Session": {
       "localizations": {
         "en": {
@@ -2055,6 +3128,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "会话"
+          }
+        }
+      }
+    },
+    "Session History": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session History"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话历史"
           }
         }
       }
@@ -2082,6 +3171,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "SFTP"
+          }
+        }
+      }
+    },
+    "SFTP transfer events": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFTP transfer events"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SFTP 传输事件"
           }
         }
       }
@@ -2129,12 +3234,159 @@
         }
       }
     },
+    "Show Snippets Inspector": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show Snippets Inspector"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示代码片段检查器"
+          }
+        }
+      }
+    },
     "Show Subtle Grid": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "显示隐形网格"
+          }
+        }
+      }
+    },
+    "Snippets": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snippets"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代码片段"
+          }
+        }
+      }
+    },
+    "Split Down": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split Down"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向下分屏"
+          }
+        }
+      }
+    },
+    "Split Left": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split Left"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向左分屏"
+          }
+        }
+      }
+    },
+    "Split Right": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split Right"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向右分屏"
+          }
+        }
+      }
+    },
+    "Split Terminal": {},
+    "Split Up": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Split Up"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "向上分屏"
+          }
+        }
+      }
+    },
+    "SSH Connected": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH Connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已连接"
+          }
+        }
+      }
+    },
+    "SSH connection events": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH connection events"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH 连接事件"
+          }
+        }
+      }
+    },
+    "SSH Connection Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SSH Connection Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "连接失败"
           }
         }
       }
@@ -2182,7 +3434,198 @@
         }
       }
     },
-    "Swap": {},
+    "Success (Dropbox Download)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Success (Dropbox Download)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功 (Dropbox 下载)"
+          }
+        }
+      }
+    },
+    "Success (Dropbox Upload)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Success (Dropbox Upload)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功 (Dropbox 上传)"
+          }
+        }
+      }
+    },
+    "Success (Gist Download)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Success (Gist Download)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功 (Gist 下载)"
+          }
+        }
+      }
+    },
+    "Success (Gist Upload)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Success (Gist Upload)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功 (Gist 上传)"
+          }
+        }
+      }
+    },
+    "Successfully downloaded and merged from Dropbox.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successfully downloaded and merged from Dropbox."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功自 Dropbox 下载并合并。"
+          }
+        }
+      }
+    },
+    "Successfully downloaded and merged from Gist.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successfully downloaded and merged from Gist."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功自 Gist 下载并合并。"
+          }
+        }
+      }
+    },
+    "Successfully uploaded to Dropbox.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successfully uploaded to Dropbox."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功上传至 Dropbox。"
+          }
+        }
+      }
+    },
+    "Successfully uploaded to Gist.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Successfully uploaded to Gist."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "成功上传至 Gist。"
+          }
+        }
+      }
+    },
+    "Sync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步"
+          }
+        }
+      }
+    },
+    "Sync Master Password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync Master Password"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步主密码"
+          }
+        }
+      }
+    },
+    "Sync Status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sync Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步状态"
+          }
+        }
+      }
+    },
+    "Syncing...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "同步中..."
+          }
+        }
+      }
+    },
     "Tab": {
       "localizations": {
         "en": {
@@ -2200,6 +3643,7 @@
       }
     },
     "Tab name": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -2215,6 +3659,7 @@
         }
       }
     },
+    "Tab Name": {},
     "Terminal": {
       "localizations": {
         "zh-Hans": {
@@ -2225,12 +3670,60 @@
         }
       }
     },
+    "Terminal app notifications & process exit": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal app notifications & process exit"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终端应用通知与进程退出"
+          }
+        }
+      }
+    },
+    "Terminal Bell": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal Bell"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终端响铃"
+          }
+        }
+      }
+    },
     "Terminal Engine": {
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
             "value": "终端引擎"
+          }
+        }
+      }
+    },
+    "Terminal Read-only": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal Read-only"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终端只读"
           }
         }
       }
@@ -2253,11 +3746,18 @@
       }
     },
     "The authenticity of %@ can't be established. Do you want to trust this host key and continue?": {
+      "extractionState": "manual",
       "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The authenticity of %@ can't be established. Do you want to trust this host key and continue?"
+          }
+        },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ 的真实性无法确定。您是否要信任此主机密钥并继续？"
+            "value": "无法确认主机 %@ 的真实性。是否信任该主机公钥并继续连接？"
           }
         }
       }
@@ -2311,6 +3811,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "主题"
+          }
+        }
+      }
+    },
+    "Toggle Terminal Inspector": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toggle Terminal Inspector"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "切换终端检查器"
+          }
+        }
+      }
+    },
+    "Transfer Complete": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer Complete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传输完成"
+          }
+        }
+      }
+    },
+    "Transfer Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transfer Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传输失败"
           }
         }
       }
@@ -2412,6 +3960,38 @@
         }
       }
     },
+    "Upload to Dropbox": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload to Dropbox"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传到 Dropbox"
+          }
+        }
+      }
+    },
+    "Upload to Gist": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload to Gist"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传到 Gist"
+          }
+        }
+      }
+    },
     "Uptime": {
       "localizations": {
         "en": {
@@ -2477,23 +4057,24 @@
       }
     },
     "Version %@ (%@)": {
-      "extractionState": "stale",
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Version %1$@ (%2$@)"
+            "value": "Version %@ (%@)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "当前版本 %1$@ (建构 %2$@)"
+            "value": "版本 %@ (%@)"
           }
         }
       }
     },
     "Version 0.1.0 (1)": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -2521,656 +4102,241 @@
       }
     },
     "WARNING: The host key for %@ has changed. This could indicate a security issue. Only continue if you trust the new key.": {
-      "localizations": {
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "警告：%@主机密钥已更改。这可能表示存在安全问题。仅在您信任新密钥时继续。"
-          }
-        }
-      }
-    },
-    "Copy": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Copy"
+            "value": "WARNING: The host key for %@ has changed. This could indicate a security issue. Only continue if you trust the new key."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "复制"
+            "value": "警告：%@ 的主机公钥已发生改变！这可能表明存在安全风险。仅当您确信新公钥来源合法时才可继续。"
           }
         }
       }
     },
-    "Paste": {
+    "仅远程连接支持": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Paste"
+            "value": "Available for Remote SSH only"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "粘贴"
+            "value": "仅远程连接支持"
           }
         }
       }
     },
-    "Search with Google": {
+    "内存": {},
+    "内存 %@": {},
+    "已连接": {},
+    "已连接 %@": {},
+    "未连接": {},
+    "没有匹配的主机": {},
+    "没有匹配的代码片段": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Search with Google"
+            "value": "No matching snippets"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "使用Google搜索"
+            "value": "没有匹配的代码片段"
           }
         }
       }
     },
-    "Split Right": {
+    "磁盘 /": {},
+    "磁盘 %@": {},
+    "网络": {},
+    "负载": {},
+    "进程": {},
+    "连接中…": {},
+    "连接失败: %@": {},
+    "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Split Right"
+            "value": "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "向右分屏"
+            "value": "全新设计的终端体验，融入现代 Liquid Glass 设计语言与高效生产力工作流。"
           }
         }
       }
     },
-    "Split Left": {
+    "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Split Left"
+            "value": "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "向左分屏"
+            "value": "极简双层会话标签栏，与 Ghostty 终端暗黑背景及透明标题栏浑然一体。"
           }
         }
       }
     },
-    "Split Down": {
+    "Code Snippets Library": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Split Down"
+            "value": "Code Snippets Library"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "向下分屏"
+            "value": "代码片段库"
           }
         }
       }
     },
-    "Split Up": {
+    "Exited with code %lld": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Split Up"
+            "value": "Exited with code %lld"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "向上分屏"
+            "value": "已退出，退出码 %lld"
           }
         }
       }
     },
-    "Reset Terminal": {
+    "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reset Terminal"
+            "value": "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "重置终端"
+            "value": "全宽胶囊进度条呈现内存、磁盘与负载监控，本地 Shell 专属悬浮状态栏与实时计时。"
           }
         }
       }
     },
-    "Toggle Terminal Inspector": {
+    "Get Started": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toggle Terminal Inspector"
+            "value": "Get Started"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "切换终端检查器"
+            "value": "开始使用"
           }
         }
       }
     },
-    "Terminal Read-only": {
+    "Liquid Glass Titlebar & Tabs": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Terminal Read-only"
+            "value": "Liquid Glass Titlebar & Tabs"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "终端只读"
+            "value": "Liquid Glass 标题栏与标签"
           }
         }
       }
     },
-    "Change Tab Title...": {
+    "Modern Metrics & Local Status": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change Tab Title..."
+            "value": "Modern Metrics & Local Status"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "修改标签标题..."
+            "value": "现代监控与本地状态"
           }
         }
       }
     },
-    "Change Terminal Title...": {
+    "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Change Terminal Title..."
+            "value": "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "修改终端标题..."
+            "value": "在右侧检查器侧边栏中快捷管理与运行常用 Shell 脚本与运维命令，支持一键直达执行。"
           }
         }
       }
     },
-    "AutoFill": {
+    "What's New in MacSSH 2.0": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "AutoFill"
+            "value": "What's New in MacSSH 2.0"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "自动填充"
+            "value": "MacSSH 2.0 新功能"
           }
         }
       }
     },
-    "Fill Username": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fill Username"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "填充用户名"
-          }
-        }
-      }
-    },
-    "Fill Password": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fill Password"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "填充密码"
-          }
-        }
-      }
-    },
-    "Services": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Services"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "服务"
-          }
-        }
-      }
-    },
-    "Change Tab Title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Change Tab Title"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "修改标签标题"
-          }
-        }
-      }
-    },
-    "Enter new title for this tab:": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter new title for this tab:"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "输入此标签页的新标题："
-          }
-        }
-      }
-    },
-    "Copy IP": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy IP"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "复制 IP"
-          }
-        }
-      }
-    },
-    "Copy Password": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy Password"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "复制密码"
-          }
-        }
-      }
-    },
-    "Configure cloud synchronization for all your connection configurations.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Configure cloud synchronization for all your connection configurations."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "为您的所有连接配置设置云端同步。"
-          }
-        }
-      }
-    },
-    "Cloud Sync": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cloud Sync"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "云端同步"
-          }
-        }
-      }
-    },
-    "GitHub Gist Sync": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GitHub Gist Sync"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GitHub Gist 同步"
-          }
-        }
-      }
-    },
-    "Personal Access Token": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personal Access Token"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "个人访问令牌 (Token)"
-          }
-        }
-      }
-    },
-    "Gist ID (Optional)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gist ID (Optional)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gist ID (可选)"
-          }
-        }
-      }
-    },
-    "Upload to Gist": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upload to Gist"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上传到 Gist"
-          }
-        }
-      }
-    },
-    "Download & Merge": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Download & Merge"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "下载并合并"
-          }
-        }
-      }
-    },
-    "GitHub Gist": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GitHub Gist"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "GitHub Gist"
-          }
-        }
-      }
-    },
-    "Access Token": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Access Token"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "访问令牌 (Token)"
-          }
-        }
-      }
-    },
-    "Upload to Dropbox": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upload to Dropbox"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上传到 Dropbox"
-          }
-        }
-      }
-    },
-    "Dropbox": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dropbox"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dropbox"
-          }
-        }
-      }
-    },
-    "Sync Status": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sync Status"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "同步状态"
-          }
-        }
-      }
-    },
-    "Syncing...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Syncing..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "同步中..."
-          }
-        }
-      }
-    },
-    "Successfully uploaded to Gist.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Successfully uploaded to Gist."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功上传至 Gist。"
-          }
-        }
-      }
-    },
-    "Successfully downloaded and merged from Gist.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Successfully downloaded and merged from Gist."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功自 Gist 下载并合并。"
-          }
-        }
-      }
-    },
-    "Successfully uploaded to Dropbox.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Successfully uploaded to Dropbox."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功上传至 Dropbox。"
-          }
-        }
-      }
-    },
-    "Successfully downloaded and merged from Dropbox.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Successfully downloaded and merged from Dropbox."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功自 Dropbox 下载并合并。"
-          }
-        }
-      }
-    },
-    "Gist sync failed: ": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gist sync failed: "
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gist 同步失败："
-          }
-        }
-      }
-    },
-    "Dropbox sync failed: ": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dropbox sync failed: "
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dropbox 同步失败："
-          }
-        }
-      }
-    },
-    "Sync": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sync"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "同步"
-          }
-        }
-      }
-    },
-    "Connection Failed": {
+    "连接失败": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3182,470 +4348,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "连接失败"
-          }
-        }
-      }
-    },
-    "Encrypt Sync Data": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Encrypt Sync Data"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加密同步配置"
-          }
-        }
-      }
-    },
-    "Sync Master Password": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sync Master Password"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "同步主密码"
-          }
-        }
-      }
-    },
-    "Security": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Security"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "安全"
-          }
-        }
-      }
-    },
-    "Data is encrypted. Please provide your master password.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Data is encrypted. Please provide your master password."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "数据已加密。请提供您的同步主密码。"
-          }
-        }
-      }
-    },
-    "Failed to convert decrypted text to data": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed to convert decrypted text to data"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "转换解密文本为 Data 失败。"
-          }
-        }
-      }
-    },
-    "Encryption failed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Encryption failed"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加密失败。"
-          }
-        }
-      }
-    },
-    "Not encrypted or invalid prefix": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not encrypted or invalid prefix"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "非加密数据或前缀无效。"
-          }
-        }
-      }
-    },
-    "Invalid base64 payload": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Invalid base64 payload"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无效的 Base64 负载。"
-          }
-        }
-      }
-    },
-    "Invalid utf8 decrypted data": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Invalid utf8 decrypted data"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无效的 UTF-8 解密数据。"
-          }
-        }
-      }
-    },
-    "Last Sync Time": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Last Sync Time"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最近同步时间"
-          }
-        }
-      }
-    },
-    "Last Sync Status": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Last Sync Status"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "最近同步状态"
-          }
-        }
-      }
-    },
-    "Never": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Never"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "无"
-          }
-        }
-      }
-    },
-    "Current Operation": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Current Operation"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "当前操作"
-          }
-        }
-      }
-    },
-    "Success (Gist Upload)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Success (Gist Upload)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功 (Gist 上传)"
-          }
-        }
-      }
-    },
-    "Success (Gist Download)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Success (Gist Download)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功 (Gist 下载)"
-          }
-        }
-      }
-    },
-    "Success (Dropbox Upload)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Success (Dropbox Upload)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功 (Dropbox 上传)"
-          }
-        }
-      }
-    },
-    "Success (Dropbox Download)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Success (Dropbox Download)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "成功 (Dropbox 下载)"
-          }
-        }
-      }
-    },
-    "Rename Tab...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rename Tab..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重命名标签页..."
-          }
-        }
-      }
-    },
-    "Close Other Tabs": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close Other Tabs"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "关闭其他标签页"
-          }
-        }
-      }
-    },
-    "Close Tabs Below": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close Tabs Below"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "关闭下方标签页"
-          }
-        }
-      }
-    },
-    "Move Up": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move Up"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上移"
-          }
-        }
-      }
-    },
-    "Move Down": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move Down"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "下移"
-          }
-        }
-      }
-    },
-    "Duplicate Tab": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Duplicate Tab"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "复制标签页"
-          }
-        }
-      }
-    },
-    "Restore Local Terminal History": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restore Local Terminal History"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "恢复本地终端历史记录"
-          }
-        }
-      }
-    },
-    "History Line Limit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "History Line Limit"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "历史行数上限"
-          }
-        }
-      }
-    },
-    "Session History": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Session History"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "会话历史"
-          }
-        }
-      }
-    },
-    "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "重新打开本地终端标签页时，自动恢复上次的输出历史与回滚缓冲区。"
-          }
-        }
-      }
-    },
-    "Load Previous Terminal History": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load Previous Terminal History"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "加载上次终端历史记录"
-          }
-        }
-      }
-    },
-    "Clear Saved History": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear Saved History"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "清空已保存的历史记录"
           }
         }
       }

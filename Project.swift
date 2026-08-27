@@ -9,11 +9,11 @@ let project = Project(
     ],
     settings: .settings(
         base: [
-            "MACOSX_DEPLOYMENT_TARGET": "15.0",
+            "MACOSX_DEPLOYMENT_TARGET": "26.0",
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
-            "MARKETING_VERSION": "1.10.0",
-            "CURRENT_PROJECT_VERSION": "11000",
+            "MARKETING_VERSION": "2.0.0",
+            "CURRENT_PROJECT_VERSION": "20000",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]
@@ -24,7 +24,7 @@ let project = Project(
             destinations: .macOS,
             product: .app,
             bundleId: "com.steveshi.macssh",
-            deploymentTargets: .macOS("15.0"),
+            deploymentTargets: .macOS("26.0"),
             sources: ["Targets/**"],
             resources: [
                 "Targets/MacSSHApp/App/Assets.xcassets",
@@ -43,7 +43,7 @@ let project = Project(
                     "CURRENT_PROJECT_VERSION": "$(CURRENT_PROJECT_VERSION)",
                     "ASSETCATALOG_COMPILER_APPICON_NAME": "AppIcon",
                     "SWIFT_EMIT_LOC_STRINGS": "YES",
-                    "OTHER_LDFLAGS": "-lc++ -framework Carbon",
+                    "OTHER_LDFLAGS": "-lc++ -framework Carbon -Xlinker -w",
                     "LD_RUNPATH_SEARCH_PATHS": "$(inherited) @executable_path/../Frameworks"
                 ]
             )

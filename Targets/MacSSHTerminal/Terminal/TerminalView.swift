@@ -6,7 +6,6 @@ struct TerminalView: View {
     let settings: AppSettings
     @Bindable var appModel: AppModel
 
-
     private var model: TerminalSessionViewModel {
         tab.terminalModel
     }
@@ -20,12 +19,10 @@ struct TerminalView: View {
             let mainTerminal = GhosttyTerminalView(tab: tab, settings: settings)
                 .id("ghostty-\(tab.id)-\(appModel.reconnectRequests[tab.connection.id]?.uuidString ?? "")")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .ignoresSafeArea(.container, edges: .bottom)
             
             if tab.isSplit, let splitSurface = tab.splitSurface {
                 let splitView = SurfaceViewHost(surface: splitSurface)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .ignoresSafeArea(.container, edges: .bottom)
                 
                 SplitTerminalLayout(direction: tab.splitDirection) {
                     mainTerminal
@@ -35,45 +32,31 @@ struct TerminalView: View {
             } else {
                 mainTerminal
             }
+
+            // Bottom Status Bar placed inside VStack so it never overlaps terminal prompt
+            TerminalStatusBar(
+                connection: tab.connection,
+                status: model.status,
+                metrics: model.metrics,
+                connectedAt: model.connectedAt
+            )
         }
-        .navigationTitle(tab.connection.name)
+        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+        .navigationTitle("")
         .inspector(isPresented: $tab.showInspector) {
-            InspectorContentView(tab: tab)
+            InspectorContentView(tab: tab, appModel: appModel)
         }
         .inspectorColumnWidth(min: 280, ideal: 340, max: 600)
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                let isConnected = model.status == .connected
-                
-                if !isConnected {
-                    Button {
-                        appModel.requestReconnect(connectionID: tab.connection.id)
-                    } label: {
-                        Label(String(localized: "Connect"), systemImage: "play.fill")
-                    }
-                    .help(String(localized: "Start Terminal Session"))
-                } else {
-                    Button {
-                        appModel.requestReconnect(connectionID: tab.connection.id)
-                    } label: {
-                        Label(String(localized: "Reconnect"), systemImage: "arrow.clockwise")
-                    }
-                    .help(String(localized: "Restart Terminal Session"))
+            if #available(macOS 26.0, *) {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    toolbarActionButtons
                 }
-
-                Button {
-                    appModel.closeTab(tab.id)
-                } label: {
-                    Label(String(localized: "Disconnect"), systemImage: "stop.fill")
+                .sharedBackgroundVisibility(.hidden)
+            } else {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    toolbarActionButtons
                 }
-                .help(String(localized: "Close Session Tab"))
-                .foregroundStyle(.red)
-
-                Toggle(isOn: $tab.showInspector) {
-                    Label(String(localized: "SFTP"), systemImage: "sidebar.right")
-                }
-                .toggleStyle(.button)
-                .help(String(localized: "Show SFTP Inspector"))
             }
         }
         .task {
@@ -94,6 +77,42 @@ struct TerminalView: View {
         } message: {
             Text(hostKeyPromptMessage)
         }
+    }
+
+    @ViewBuilder
+    private var toolbarActionButtons: some View {
+        @Bindable var tab = self.tab
+        let isConnected = model.status == .connected
+        
+        if !isConnected {
+            Button {
+                appModel.requestReconnect(connectionID: tab.connection.id)
+            } label: {
+                Label(String(localized: "Connect"), systemImage: "play.fill")
+            }
+            .help(String(localized: "Start Terminal Session"))
+        } else {
+            Button {
+                appModel.requestReconnect(connectionID: tab.connection.id)
+            } label: {
+                Label(String(localized: "Reconnect"), systemImage: "arrow.clockwise")
+            }
+            .help(String(localized: "Restart Terminal Session"))
+        }
+
+        Button {
+            appModel.closeTab(tab.id)
+        } label: {
+            Label(String(localized: "Disconnect"), systemImage: "stop.fill")
+        }
+        .help(String(localized: "Close Session Tab"))
+        .foregroundStyle(.red)
+
+        Toggle(isOn: $tab.showInspector) {
+            Label(String(localized: "SFTP"), systemImage: "sidebar.right")
+        }
+        .toggleStyle(.button)
+        .help(String(localized: "Show SFTP Inspector"))
     }
 
     private var hostKeyPromptTitle: String {
@@ -124,5 +143,4 @@ struct TerminalView: View {
             }
         )
     }
-
 }

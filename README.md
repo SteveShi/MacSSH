@@ -1,6 +1,6 @@
 # MacSSH
 
-[中文版](README_zh.md)
+[English](README.md) | [简体中文](README.zh-CN.md)
 
 `MacSSH` is a modern, fast, and native **SSH & SFTP client** handcrafted for macOS.
 
@@ -22,7 +22,7 @@ graph TD
 ```
 
 - **`MacSSH` (App Shell)**: Governs SwiftUI views, windows, session navigation, Sparkle autoupdater, and app lifecycle.
-- **`MacSSHCore` (Framework)**: Encapsulates data models (`SSHConnection`, `SessionTab`), hosts status monitors, and SSH credential management.
+- **`MacSSHCore` (Framework)**: Encapsulates data models (`SSHConnection`, `SessionTab`, `Snippet`), hosts status monitors, and SSH credential management.
 - **`MacSSHTerminal` (Framework)**: Bridges the Ghostty virtual terminal emulator (`MactermKit` / `MactermKitCore.xcframework`) with Metal rendering views.
 
 ---
@@ -30,46 +30,37 @@ graph TD
 ## Core Features
 
 - ⚡ **Metal-Accelerated VT**: Powered by Ghostty's core, offering lag-free interactive shell rendering.
-- 📦 **Ultra Lightweight**: No bulky static binary `.a` files committed to Git. Resolved strictly on-demand during build phases.
-- 🛡️ **Swift 6 Concurrency**: Conforms 100% to rigid concurrency rules, eliminating data-races during multiplexed SSH channel tasks.
-- 📊 **Host System Monitor**: Displays host health metrics (CPU utilization, physical memory usage, disk storage, and average loads) right in the sidebar.
+- 🪄 **Liquid Glass Design**: Clean 2-layer session tabs, unified Slate dark background (`#24272e`), and transparent titlebar integration.
+- 💻 **Code Snippets Library**: Built-in shell snippets panel inside the right Inspector sidebar with single-click execution into active SSH & local shells.
+- 📊 **Real-time Host System Monitor**: Full-width capsule progress indicators for CPU, memory, disk, and load averages.
 - 📁 **Built-in SFTP Panels**: Visual directory inspector enabling instant recursive uploads, downloads, and navigation.
+- 🛡️ **Swift 6 Concurrency**: Conforms 100% to rigid concurrency rules, eliminating data-races during multiplexed SSH channel tasks.
 
 ---
 
 ## 🛠️ Build from Source
 
-### Requirements
+### Prerequisites
 
-- macOS 15.0 (Sequoia) or later
-- Xcode 16.4 or later
+1. **Xcode 16+** installed with macOS SDK.
+2. **Tuist**: Ensure Tuist is installed (`mise install tuist` or `curl -fsSL https://get.tuist.io | bash`).
 
-### Steps
+### Generating & Building Project
 
-The Xcode project file (`MacSSH.xcodeproj`) is generated dynamically using [Tuist](https://tuist.io/).
+```bash
+# 1. Clone repository
+git clone https://github.com/SteveShi/MacSSH.git
+cd MacSSH
 
-1. **Install Tuist**:
-   ```bash
-   mise install tuist
-   ```
+# 2. Generate workspace via Tuist
+tuist generate
 
-2. **Clone and generate**:
-   ```bash
-   git clone https://github.com/SteveShi/MacSSH.git
-   cd MacSSH
-   tuist generate
-   ```
+# 3. Open and build in Xcode
+xcodebuild build -workspace MacSSH.xcworkspace -scheme MacSSH -destination 'platform=macOS'
+```
 
-3. Open `MacSSH.xcodeproj` in Xcode and build.
+---
 
-## 🔧 Tech Stack
+## License
 
-| Layer | Technology |
-|-------|-----------|
-| Terminal Engine | [Ghostty](https://ghostty.org/) (`MactermKit` / `MactermKitCore.xcframework`) |
-| SSH & SFTP Engine | `SSH2Kit` (`libssh2` + `AWS-LC`) |
-| UI Framework | SwiftUI (macOS 15+) |
-| SSH Transport | Built-in `ssh` command |
-| Credential Store | macOS Keychain via [KeychainAccess](https://github.com/kishikawakatsumi/KeychainAccess) |
-| Auto Update | [Sparkle](https://sparkle-project.org/) |
-| Project Generation | [Tuist](https://tuist.io/) |
+`MacSSH` is released under the [MIT License](LICENSE).

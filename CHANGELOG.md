@@ -1,3 +1,32 @@
+## [2.0.0] - 2026-08-27
+
+### Added
+- **Code Snippets Library**: Built-in shell snippets panel inside the right Inspector sidebar, supporting one-click execution into active SSH and local terminal sessions, custom categories, and command search.
+- **Liquid Glass Design System**: Native macOS modern visual hierarchy with 2-layer session tabs, unified Slate background (`#24272e`), and transparent titlebar integration.
+- **Modern System Metrics & Inspector**: Redesigned server resource cards with full-width capsule progress indicators (Memory, Disk, Load, CPU) and 3-mode Inspector tabs (`[SFTP | Monitor | Snippets]`).
+- **Local Shell Inspector & Floating Status**: Local terminals now support the right Inspector sidebar with snippets library, live uptime status bar, and horizontal/vertical split terminal multiplexing.
+- **What's New Sheet**: Native SwiftUI `WhatsNewSheetView` onboarding experience for major release introductions.
+
+### Fixed
+- Fixed third-layer toolbar frame wrapper on macOS 26+ and removed background color seam discrepancies across titlebar and status bar.
+- Eliminated upstream libssh2 link-time object file version mismatch warnings.
+
+---
+
+### Chinese
+### 新增
+- **全功能代码片段库（Code Snippets）**：右侧检查器侧边栏内置代码片段管理，支持一键注入并执行到当前 SSH 或本地终端、分类管理与快捷搜索。
+- **全新 Liquid Glass 设计语言**：极简双层会话标签栏，全屏统一 Slate 灰青色调（`#24272e`），透明标题栏与终端无缝融合。
+- **现代化系统监控与检查器**：全宽胶囊进度条呈现内存、磁盘与负载监控，右侧 Inspector 提供 `[SFTP | 监控 | 代码片段]` 3 项纯图标切换。
+- **本地终端检查器与悬浮状态栏**：本地 Shell 全面支持右侧代码片段侧边栏、实时会话计时状态栏与多方向一键分屏。
+- **大版本新功能提示窗**：内置原生 SwiftUI `WhatsNewSheetView`，直观呈现 2.0.0 核心更新。
+
+### 修复
+- 彻底移除 macOS 26+ 顶部工具栏多余的系统外壳，消除标题栏与底部状态栏区域的色差。
+- 治理并消除上游 libssh2 静态库与目标 SDK 版本不匹配的链接器告警。
+
+---
+
 ## [1.10.0] - 2026-08-26
 
 ### Added

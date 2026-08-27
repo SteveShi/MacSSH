@@ -20,6 +20,11 @@ enum SidebarItem: Hashable, Identifiable {
     }
 }
 
+enum ImportMode: Sendable {
+    case merge
+    case replace
+}
+
 @Observable
 @MainActor
 final class AppModel {
@@ -53,6 +58,10 @@ final class AppModel {
     }
     private var localTabCounter: Int = 0
 
+    // Snippets
+    var snippets: [Snippet] = []
+    var selectedSnippetID: UUID?
+
     var filteredConnections: [SSHConnection] {
         if searchText.isEmpty {
             return connections
@@ -61,6 +70,61 @@ final class AppModel {
             $0.name.localizedCaseInsensitiveContains(searchText) ||
             $0.host.localizedCaseInsensitiveContains(searchText) ||
             $0.username.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    var filteredLocalTabs: [LocalTerminalTab] {
+        if searchText.isEmpty { return localTabs }
+        return localTabs.filter {
+            $0.name.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    var filteredSnippets: [Snippet] {
+        if searchText.isEmpty { return snippets }
+        return snippets.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.command.localizedCaseInsensitiveContains(searchText) ||
+            $0.category.localizedCaseInsensitiveContains(searchText)
+        }
+    }
+
+    func upsertSnippet(_ snippet: Snippet) {
+        if let index = snippets.firstIndex(where: { $0.id == snippet.id }) {
+            snippets[index] = snippet
+        } else {
+            snippets.append(snippet)
+        }
+        SnippetStore.save(snippets)
+    }
+
+    func removeSnippet(_ id: UUID) {
+        snippets.removeAll { $0.id == id }
+        SnippetStore.save(snippets)
+    }
+
+    func sendSnippetToActiveTerminal(_ snippet: Snippet, autoExecute: Bool? = nil) {
+        let shouldExecute = autoExecute ?? snippet.autoExecute
+        let text = shouldExecute ? "\(snippet.command)\n" : snippet.command
+
+        // 1. 如果选中了本地终端
+        if case .localTab(let id) = sidebarSelection,
+           let tab = localTabs.first(where: { $0.id == id }) {
+            tab.surfaceView.writeText(text)
+            return
+        }
+
+        // 2. 如果选中了远程 SSH Tab
+        if let selectedTabID, let tab = openTabs.first(where: { $0.id == selectedTabID }) {
+            tab.cachedSurface?.writeText(text)
+            return
+        }
+
+        // 3. Fallback
+        if let firstTab = openTabs.first {
+            firstTab.cachedSurface?.writeText(text)
+        } else if let firstLocal = localTabs.first {
+            firstLocal.surfaceView.writeText(text)
         }
     }
 
@@ -81,6 +145,7 @@ final class AppModel {
             connections = stored
         }
         sidebarSelection = nil
+        snippets = SnippetStore.load()
         restoreTabs()
         restoreLocalTabs(settings: settings)
         if localTabs.isEmpty {
