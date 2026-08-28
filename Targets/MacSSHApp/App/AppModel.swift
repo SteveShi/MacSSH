@@ -521,10 +521,12 @@ final class AppModel {
         for tab in localTabs {
             if let text = tab.surfaceView.readFullText(maxLines: settings.scrollbackHistoryLimit) {
                 let cleaned = Self.sanitizeHistoryText(text)
-                guard !cleaned.isEmpty else {
-                    store.remove(tabID: tab.id)
+                let lines = cleaned.components(separatedBy: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+                // Avoid overwriting a populated history with a 1-line freshly initialized prompt
+                if lines.count <= 1, let existing = store.load(tabID: tab.id), !existing.text.isEmpty {
                     continue
                 }
+                guard !cleaned.isEmpty else { continue }
                 let metadata = SessionHistoryStore.Metadata(
                     quittedAt: Date(),
                     tabName: tab.name
@@ -546,9 +548,9 @@ final class AppModel {
                 cleaned.append(line)
                 continue
             }
-            // Strip out synthesized quit/restore dividers
-            if (trimmed.hasPrefix("───") || trimmed.hasPrefix("——")) &&
-               (trimmed.contains("Quitted at") || trimmed.contains("Restored at")) {
+            // Strip out synthesized quit/restore dividers (including ANSI color sequences)
+            if (trimmed.contains("Quitted at") || trimmed.contains("Restored at")) &&
+               (trimmed.contains("───") || trimmed.contains("——")) {
                 continue
             }
             // Strip out historical login banners to prevent stacking
@@ -574,16 +576,35 @@ final class AppModel {
     @MainActor
     private static func prepareHistoryRestoreCommand(
         tabID: UUID,
-        historyText: String
+        historyText: String,
+        quittedAt: Date,
+        restoredAt: Date = Date()
     ) -> String? {
         let cleaned = sanitizeHistoryText(historyText)
         guard !cleaned.isEmpty else { return nil }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MM/dd HH:mm"
+        let quitStr = dateFormatter.string(from: quittedAt)
+        let restoreStr = dateFormatter.string(from: restoredAt)
+
+        let dividerQuit = "\u{1B}[90m─── >_* Quitted at \(quitStr) ───\u{1B}[0m"
+        let dividerRestore = "\u{1B}[90m─── >_* Restored at \(restoreStr) ───\u{1B}[0m"
+
+        let combined = """
+        \(cleaned)
+
+        \(dividerQuit)
+
+        \(dividerRestore)
+
+        """
 
         let tmpTxtPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).txt"
         let tmpShPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).sh"
 
         do {
-            try cleaned.write(toFile: tmpTxtPath, atomically: true, encoding: .utf8)
+            try combined.write(toFile: tmpTxtPath, atomically: true, encoding: .utf8)
             try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: tmpTxtPath)
         } catch {
             NSLog("[MacSSH] Failed to write restore history file: \(error)")
@@ -669,10 +690,11 @@ final class AppModel {
             config.workingDirectory = NSHomeDirectory()
             
             if settings.restoreLocalTerminalHistory,
-               let (historyText, _) = SessionHistoryStore.shared.load(tabID: uuid),
+               let (historyText, meta) = SessionHistoryStore.shared.load(tabID: uuid),
                let restoreCmd = Self.prepareHistoryRestoreCommand(
                    tabID: uuid,
-                   historyText: historyText
+                   historyText: historyText,
+                   quittedAt: meta.quittedAt
                ) {
                 config.command = restoreCmd
             }
