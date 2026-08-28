@@ -144,18 +144,18 @@ struct ContentView: View {
                 if case .localTab = model.sidebarSelection {
                     LocalTerminalView(settings: settings, appModel: model)
                 } else if case .connection(let id) = model.sidebarSelection {
-                    if let tab = model.openTabs.first(where: { $0.connection.id == id }) {
+                    if let conn = model.connections.first(where: { $0.id == id }) {
+                        let tab = model.tabForConnection(conn)
                         TerminalView(tab: tab, settings: settings, appModel: model)
-                    } else if let conn = model.connections.first(where: { $0.id == id }) {
-                        unopenedConnectionView(for: conn)
                     } else {
                         EmptyStateView()
                     }
                 } else {
-                    if let firstTab = model.openTabs.first {
-                        TerminalView(tab: firstTab, settings: settings, appModel: model)
-                    } else if let firstLocal = model.localTabs.first {
+                    if let firstLocal = model.localTabs.first {
                         LocalTerminalView(settings: settings, appModel: model)
+                    } else if let firstConn = model.connections.first {
+                        let tab = model.tabForConnection(firstConn)
+                        TerminalView(tab: tab, settings: settings, appModel: model)
                     } else {
                         EmptyStateView()
                     }
@@ -349,10 +349,8 @@ struct ContentView: View {
                     isConnected: isConnected,
                     onSelect: {
                         model.sidebarSelection = .connection(connection.id)
-                        if !model.openTabs.contains(where: { $0.connection.id == connection.id }) {
-                            model.openConnection(connection)
-                        } else {
-                            model.selectedTabID = model.openTabs.first(where: { $0.connection.id == connection.id })?.id
+                        if let openTab = model.openTabs.first(where: { $0.connection.id == connection.id }) {
+                            model.selectedTabID = openTab.id
                         }
                     }
                 )

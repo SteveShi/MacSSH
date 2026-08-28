@@ -118,7 +118,7 @@ struct TitlebarSessionTabBar: View {
                     }
                 } else {
                     ForEach(model.openTabs) { tab in
-                        let isSelected = model.selectedTabID == tab.id
+                        let isSelected = (model.selectedTabID == tab.id) && (model.sidebarSelection == .connection(tab.connection.id))
                         let isConnected = tab.terminalModel.status == .connected
                         tabChip(
                             id: tab.id,

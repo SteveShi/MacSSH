@@ -196,6 +196,21 @@ final class AppModel {
         persist()
     }
 
+    private var transientTabs: [SSHConnection.ID: SessionTab] = [:]
+
+    @MainActor
+    func tabForConnection(_ connection: SSHConnection) -> SessionTab {
+        if let open = openTabs.first(where: { $0.connection.id == connection.id }) {
+            return open
+        }
+        if let existing = transientTabs[connection.id] {
+            return existing
+        }
+        let tab = SessionTab(connection: connection)
+        transientTabs[connection.id] = tab
+        return tab
+    }
+
     @MainActor
     func openConnection(_ connection: SSHConnection) {
         if let existing = openTabs.first(where: { $0.connection.id == connection.id }) {
@@ -204,14 +219,22 @@ final class AppModel {
             persistTabs()
             return
         }
-        let tab = SessionTab(connection: connection)
-        openTabs.append(tab)
+        let tab = tabForConnection(connection)
+        if !openTabs.contains(where: { $0.id == tab.id }) {
+            openTabs.append(tab)
+        }
         selectedTabID = tab.id
         sidebarSelection = .connection(connection.id)
         persistTabs()
     }
 
     func closeTab(_ tabID: SessionTab.ID) {
+        if let tab = openTabs.first(where: { $0.id == tabID }) {
+            tab.terminalModel.disconnect()
+            tab.cachedSurface = nil
+            tab.closeSplit()
+            transientTabs.removeValue(forKey: tab.connection.id)
+        }
         openTabs.removeAll { $0.id == tabID }
         if selectedTabID == tabID {
             selectedTabID = openTabs.last?.id
@@ -580,24 +603,19 @@ final class AppModel {
     @MainActor
     private func restoreTabs() {
         let defaults = UserDefaults.standard
-        let ids = defaults.stringArray(forKey: TabKeys.openTabConnections) ?? []
-        let connectionsByID = Dictionary(uniqueKeysWithValues: connections.map { ($0.id.uuidString, $0) })
-        let tabs = ids.compactMap { connectionsByID[$0] }.map { SessionTab(connection: $0) }
-        openTabs = tabs
+        openTabs = []
+        selectedTabID = nil
 
+        let connectionsByID = Dictionary(uniqueKeysWithValues: connections.map { ($0.id.uuidString, $0) })
         if let selectedID = defaults.string(forKey: TabKeys.selectedTabConnection),
            let uuid = UUID(uuidString: selectedID),
-           let selectedConnection = connectionsByID[selectedID],
-           let tab = openTabs.first(where: { $0.connection.id == selectedConnection.id }) {
-            selectedTabID = tab.id
+           connectionsByID[selectedID] != nil {
             sidebarSelection = .connection(uuid)
         } else if let selectedLocalIDStr = defaults.string(forKey: TabKeys.selectedLocalTabID),
                   let localUUID = UUID(uuidString: selectedLocalIDStr) {
-            selectedTabID = openTabs.first?.id
             sidebarSelection = .localTab(localUUID)
         } else {
-            selectedTabID = openTabs.first?.id
-            if let firstID = openTabs.first?.connection.id {
+            if let firstID = connections.first?.id {
                 sidebarSelection = .connection(firstID)
             } else {
                 sidebarSelection = nil

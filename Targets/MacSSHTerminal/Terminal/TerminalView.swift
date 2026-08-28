@@ -148,6 +148,10 @@ struct TerminalView: View {
 
     private func startConnection() {
         model.appModel = appModel
+        if !appModel.openTabs.contains(where: { $0.id == tab.id }) {
+            appModel.openTabs.append(tab)
+            appModel.selectedTabID = tab.id
+        }
         model.connect()
         appModel.requestReconnect(connectionID: tab.connection.id)
     }
