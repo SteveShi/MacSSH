@@ -154,15 +154,18 @@ jobs:
           # Zip executable app bundle
           APP_DIR=$(dirname "$APP_PATH")
           APP_NAME=$(basename "$APP_PATH")
+          ZIP_NAME="MacSSH-${NEXT_APP_VER}-arm64.zip"
+          DMG_NAME="MacSSH-${NEXT_APP_VER}-arm64.dmg"
+
           cd "$APP_DIR"
-          zip -qy -r "$GITHUB_WORKSPACE/MacSSH.zip" "$APP_NAME"
+          zip -qy -r "$GITHUB_WORKSPACE/$ZIP_NAME" "$APP_NAME"
           cd -
 
           # Create DMG
           rm -rf dmg_root
           mkdir -p dmg_root
           cp -R "$APP_PATH" dmg_root/
-          hdiutil create -volname "MacSSH" -srcfolder dmg_root -ov -format UDZO "MacSSH-AppleSilicon.dmg"
+          hdiutil create -volname "MacSSH" -srcfolder dmg_root -ov -format UDZO "$DMG_NAME"
           rm -rf dmg_root
 
           # Generate Sparkle Appcast
@@ -178,7 +181,7 @@ jobs:
           fi
 
           mkdir -p deploy
-          cp MacSSH.zip deploy/
+          cp "$ZIP_NAME" deploy/
           cp release_notes_en.md "deploy/release_notes_en.md"
           cp release_notes_zh.md "deploy/release_notes_zh.md"
           cp release_notes_en.md "deploy/release_notes.md"
@@ -219,8 +222,8 @@ jobs:
 
           # Create Release and upload assets
           gh release create "v${NEXT_APP_VER}" \
-            MacSSH.zip \
-            MacSSH-AppleSilicon.dmg \
+            "$ZIP_NAME" \
+            "$DMG_NAME" \
             appcast.xml \
             release_notes_en.md \
             release_notes_zh.md \
@@ -228,7 +231,7 @@ jobs:
             --notes-file release_notes.md
 
           # Update Homebrew tap Cask
-          SHA256=$(shasum -a 256 "MacSSH-AppleSilicon.dmg" | awk '{print $1}')
+          SHA256=$(shasum -a 256 "$DMG_NAME" | awk '{print $1}')
           
           git clone https://x-access-token:${HOMEBREW_TAP_TOKEN}@github.com/SteveShi/homebrew-tap.git tap-repo
           cd tap-repo
