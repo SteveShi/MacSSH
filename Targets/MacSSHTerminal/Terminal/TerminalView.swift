@@ -188,10 +188,9 @@ struct TerminalView: View {
             Button {
                 stopConnection()
             } label: {
-                Label(String(localized: "Disconnect"), systemImage: "stop.fill")
+                Label(String(localized: "Disconnect"), systemImage: "stop.circle")
             }
             .help(String(localized: "Disconnect Session"))
-            .foregroundStyle(.red)
         }
 
         Toggle(isOn: $tab.showInspector) {

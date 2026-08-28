@@ -67,6 +67,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
                 let expectScript = """
                 #!/usr/bin/expect -f
+                log_user 0
                 set env(NO_PROXY) "127.0.0.1,localhost,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,*.local"
                 set env(no_proxy) "127.0.0.1,localhost,192.168.0.0/16,10.0.0.0/8,172.16.0.0/12,*.local"
                 set fp [open \(Self.tclQuoted(pwdPath)) r]
@@ -83,6 +84,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
                     eof { exit }
                 }
                 set timeout -1
+                log_user 1
                 interact
                 """
                 try? expectScript.write(toFile: scriptPath, atomically: true, encoding: .utf8)
@@ -118,9 +120,13 @@ struct GhosttyTerminalView: NSViewRepresentable {
     func makeNSView(context: Context) -> GhosttySurfaceView {
         // If the tab already has a cached surface, return it directly.
         // This is the hot path: SwiftUI called makeNSView again due to
-        // re-entry into this view hierarchy, but the PTY is still alive.
-        if let cached = tab?.cachedSurface { return cached }
-        let surface = GhosttySurfaceView(config: configuration)
+        // a state change elsewhere, but the surface is already alive.
+        if let cached = tab?.cachedSurface {
+            return cached
+        }
+
+        let config = configuration
+        let surface = GhosttySurfaceView(config: config)
         tab?.cachedSurface = surface
         Self.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
         
@@ -143,7 +149,12 @@ struct GhosttyTerminalView: NSViewRepresentable {
     /// (same approach as GhosttySurfaceView.applyTheme).
     static func applyFontConfig(to surface: GhosttySurfaceView, fontName: String, fontSize: Double? = nil) {
         guard !fontName.isEmpty else { return }
-        var lines: [String] = ["font-family = \"\(fontName)\""]
+        var lines: [String] = [
+            "font-family = \"\(fontName)\"",
+            "window-padding-x = 10",
+            "window-padding-y = 8",
+            "window-padding-balance = true"
+        ]
         
         let fallbackFonts = [
             "Symbols Nerd Font",
