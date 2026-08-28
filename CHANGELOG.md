@@ -1,13 +1,19 @@
-## [2.0.3] - 2026-08-28
+## [2.0.3] - 2026-08-29
+
+### Fixed
+- **Active-Only Titlebar Session Tabs**: The top titlebar tab bar now only displays actively connected SSH host sessions instead of listing all saved hosts from the sidebar, preventing horizontal overflow and keeping multi-tab navigation clean and uncluttered.
 
 ### Changed
-- Automatically bumped dependencies to SSH2Kit version 1.3.15 and MactermKit version 1.0.17.
+- Updated dependencies to **MactermKit 1.0.18** (with full scrollback surface buffer reading and resize event deduplication) and **SSH2Kit 1.3.15**.
 
 ---
 
 ### Chinese
+### 修复
+- **顶部会话标签栏仅显示已连接主机**：顶部标签栏现在仅展示真正已连接或正在连接的远程会话，侧边栏切换浏览未连接主机时不再污染顶部标签栏，彻底杜绝横向标签拥挤溢出。
+
 ### 变更
-- 自动更新依赖项 SSH2Kit 至版本 1.3.15，MactermKit 至版本 1.0.17。
+- 升级核心依赖组件至 **MactermKit 1.0.18**（全量滚动缓冲区读取与窗口缩放去重）与 **SSH2Kit 1.3.15**。
 
 ---
 ## [2.0.2] - 2026-08-28

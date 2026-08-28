@@ -87,9 +87,9 @@ struct ContentView: View {
                     model.sidebarSelection = .connection(firstConn.id)
                 }
             }
-            if lastSeenWhatsNewVersion != "2.0.2" {
+            if lastSeenWhatsNewVersion != "2.0.3" {
                 model.showingWhatsNew = true
-                lastSeenWhatsNewVersion = "2.0.2"
+                lastSeenWhatsNewVersion = "2.0.3"
             }
             triggerInputSourceSwitch()
         }
@@ -361,31 +361,7 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Unopened Connection View
 
-    @ViewBuilder
-    private func unopenedConnectionView(for conn: SSHConnection) -> some View {
-        ContentUnavailableView {
-            Label(conn.name, systemImage: "terminal")
-        } description: {
-            Text(String(localized: "Connection is not open."))
-        } actions: {
-            Button(String(localized: "Open Connection")) {
-                model.openConnection(conn)
-            }
-            .buttonStyle(.borderedProminent)
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                Button {
-                    model.openConnection(conn)
-                } label: {
-                    Label(String(localized: "Connect"), systemImage: "play.fill")
-                }
-                .help(String(localized: "Open SSH Session"))
-            }
-        }
-    }
 
     // MARK: - Context Menus
 
