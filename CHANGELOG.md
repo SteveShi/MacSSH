@@ -1,6 +1,7 @@
 ## [2.0.3] - 2026-08-29
 
 ### Fixed
+- **Local Shell History & Clean Startup**: Fixed an issue where reopening local terminal tabs would cause duplicate login banners (`Last login`) and stacked divider artifacts (`Quitted at` / `Restored at`), ensuring clean, native shell startup and seamless history restoration.
 - **Clipboard Non-Text & Image Paste Crash**: Fixed a fatal `SIGSEGV` crash when pasting images or non-text data from the clipboard by safeguarding against NULL pointer dereferences in the native clipboard bridge.
 - **Active-Only Titlebar Session Tabs**: The top titlebar tab bar now only displays actively connected SSH host sessions instead of listing all saved hosts from the sidebar, preventing horizontal overflow and keeping multi-tab navigation clean and uncluttered.
 - **Unified Modern Unconnected Prompt**: Completely eliminated legacy prompt views and standardized all host preview states on the modern Liquid Glass host view.
@@ -12,6 +13,7 @@
 
 ### Chinese
 ### 修复
+- **本地 Shell 启动与历史恢复纯净化**：彻底修复本地终端恢复时产生双重登录信息（`Last login`）以及堆叠分割线（`Quitted at` / `Restored at`）的显示异常，实现纯净的原生 Shell 启动与无污染的历史恢复。
 - **剪贴板图片与非文本粘贴崩溃**：彻底修复剪切板内容为图片或非纯文本时在终端内粘贴导致程序崩溃（SIGSEGV）的底层空指针解引用问题。
 - **顶部会话标签栏仅显示已连接主机**：顶部标签栏现在仅展示真正已连接或正在连接的远程会话，侧边栏切换浏览未连接主机时不再污染顶部标签栏，彻底杜绝横向标签拥挤溢出。
 - **统一现代未连接卡片**：彻底移除旧版简陋提示界面，统一呈现全套现代 Liquid Glass 主机就绪卡片。
