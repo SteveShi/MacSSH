@@ -30,43 +30,88 @@ jobs:
         run: |
           set -euo pipefail
 
-          # Get latest remote versions
-          LATEST_LIBSSH2=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/SteveShi/SSH2Kit/releases/latest | jq -r .tag_name)
-          LATEST_LIBSSH2_VER=${LATEST_LIBSSH2#v}
+          python3 - << 'EOF'
+          import urllib.request, json, re, os, sys
 
-          LATEST_GHOSTTY=$(curl -s -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/SteveShi/MactermKit/releases/latest | jq -r .tag_name)
-          LATEST_GHOSTTY_VER=${LATEST_GHOSTTY#v}
+          token = os.environ.get("GITHUB_TOKEN", "")
+          headers = {"User-Agent": "MacSSH-CI"}
+          if token:
+              headers["Authorization"] = f"Bearer {token}"
 
-          echo "Latest remote SSH2Kit: $LATEST_LIBSSH2_VER"
-          echo "Latest remote MactermKit: $LATEST_GHOSTTY_VER"
+          def get_latest_semver_tag(repo):
+              url = f"https://api.github.com/repos/{repo}/tags?per_page=100"
+              req = urllib.request.Request(url, headers=headers)
+              try:
+                  with urllib.request.urlopen(req) as resp:
+                      tags = json.loads(resp.read().decode())
+                  versions = []
+                  for t in tags:
+                      raw = t.get("name", "").lstrip("v")
+                      parts = raw.split(".")
+                      if len(parts) == 3 and all(p.isdigit() for p in parts):
+                          versions.append((tuple(map(int, parts)), raw))
+                  if versions:
+                      versions.sort(key=lambda x: x[0], reverse=True)
+                      return versions[0][1], versions[0][0]
+              except Exception as e:
+                  print(f"Error fetching tags for {repo}: {e}", file=sys.stderr)
+              return None, None
 
-          # Parse current local versions from Project.swift
-          CURRENT_LIBSSH2_VER=$(grep 'SSH2Kit.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
-          CURRENT_GHOSTTY_VER=$(grep 'MactermKit.git' Project.swift | sed -E 's/.*from: "([^"]+)".*/\1/')
+          def parse_local_version(content, package_name):
+              m = re.search(rf"{package_name}\.git\",\s*from:\s*\"([^\"]+)\"", content)
+              if m:
+                  ver_str = m.group(1)
+                  parts = tuple(int(p) for p in ver_str.split(".") if p.isdigit())
+                  return ver_str, parts
+              return None, None
 
-          echo "Current local SSH2Kit: $CURRENT_LIBSSH2_VER"
-          echo "Current local MactermKit: $CURRENT_GHOSTTY_VER"
+          with open("Project.swift", "r", encoding="utf-8") as f:
+              project_content = f.read()
 
-          UPDATED=false
-          if [[ "$LATEST_LIBSSH2_VER" != "$CURRENT_LIBSSH2_VER" ]]; then
-            echo "SSH2Kit needs update: $CURRENT_LIBSSH2_VER -> $LATEST_LIBSSH2_VER"
-            sed -i '' "s|SSH2Kit.git\", from: \"$CURRENT_LIBSSH2_VER\"|SSH2Kit.git\", from: \"$LATEST_LIBSSH2_VER\"|g" Project.swift
-            UPDATED=true
-          fi
+          local_ssh2, local_ssh2_tuple = parse_local_version(project_content, "SSH2Kit")
+          local_macterm, local_macterm_tuple = parse_local_version(project_content, "MactermKit")
 
-          if [[ "$LATEST_GHOSTTY_VER" != "$CURRENT_GHOSTTY_VER" ]]; then
-            echo "MactermKit needs update: $CURRENT_GHOSTTY_VER -> $LATEST_GHOSTTY_VER"
-            sed -i '' "s|MactermKit.git\", from: \"$CURRENT_GHOSTTY_VER\"|MactermKit.git\", from: \"$LATEST_GHOSTTY_VER\"|g" Project.swift
-            UPDATED=true
-          fi
+          remote_ssh2, remote_ssh2_tuple = get_latest_semver_tag("SteveShi/SSH2Kit")
+          remote_macterm, remote_macterm_tuple = get_latest_semver_tag("SteveShi/MactermKit")
 
-          if [[ "$UPDATED" == "true" ]]; then
-            echo "updates_available=true" >> "$GITHUB_OUTPUT"
-            echo "latest_libssh2=$LATEST_LIBSSH2_VER" >> "$GITHUB_OUTPUT"
-            echo "latest_ghostty=$LATEST_GHOSTTY_VER" >> "$GITHUB_OUTPUT"
-          else
-            echo "updates_available=false" >> "$GITHUB_OUTPUT"
-          fi
+          print(f"SSH2Kit: local={local_ssh2} ({local_ssh2_tuple}), remote={remote_ssh2} ({remote_ssh2_tuple})")
+          print(f"MactermKit: local={local_macterm} ({local_macterm_tuple}), remote={remote_macterm} ({remote_macterm_tuple})")
+
+          ssh2_needs_update = remote_ssh2_tuple > local_ssh2_tuple if (remote_ssh2_tuple and local_ssh2_tuple) else False
+          macterm_needs_update = remote_macterm_tuple > local_macterm_tuple if (remote_macterm_tuple and local_macterm_tuple) else False
+
+          updated = False
+          new_content = project_content
+
+          if ssh2_needs_update:
+              print(f"Upgrading SSH2Kit: {local_ssh2} -> {remote_ssh2}")
+              new_content = re.sub(
+                  rf'(SSH2Kit\.git\",\s*from:\s*\")[^\"]+(\")',
+                  rf'\g<1>{remote_ssh2}\2',
+                  new_content
+              )
+              updated = True
+
+          if macterm_needs_update:
+              print(f"Upgrading MactermKit: {local_macterm} -> {remote_macterm}")
+              new_content = re.sub(
+                  rf'(MactermKit\.git\",\s*from:\s*\")[^\"]+(\")',
+                  rf'\g<1>{remote_macterm}\2',
+                  new_content
+              )
+              updated = True
+
+          if updated:
+              with open("Project.swift", "w", encoding="utf-8") as f:
+                  f.write(new_content)
+
+          gh_output = os.environ.get("GITHUB_OUTPUT")
+          if gh_output:
+              with open(gh_output, "a", encoding="utf-8") as f:
+                  f.write(f"updates_available={'true' if updated else 'false'}\n")
+                  f.write(f"latest_libssh2={remote_ssh2 or local_ssh2}\n")
+                  f.write(f"latest_ghostty={remote_macterm or local_macterm}\n")
+          EOF
 
       - name: Set up Xcode
         if: steps.check-deps.outputs.updates_available == 'true'
@@ -92,7 +137,7 @@ jobs:
           IFS='.' read -r -a APP_PARTS <<< "$CURRENT_APP_VER"
           NEXT_APP_PATCH=$((APP_PARTS[2] + 1))
           NEXT_APP_VER="${APP_PARTS[0]}.${APP_PARTS[1]}.${NEXT_APP_PATCH}"
-          NEXT_BUILD_VER=$((CURRENT_BUILD_VER + 1))
+          NEXT_BUILD_VER=$((APP_PARTS[0] * 10000 + APP_PARTS[1] * 100 + NEXT_APP_PATCH))
 
           echo "Bumping app version: $CURRENT_APP_VER -> $NEXT_APP_VER"
           echo "Bumping build version: $CURRENT_BUILD_VER -> $NEXT_BUILD_VER"
