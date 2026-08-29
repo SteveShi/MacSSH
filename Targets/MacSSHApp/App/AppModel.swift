@@ -138,6 +138,7 @@ final class AppModel {
     }
 
     init(settings: AppSettings = AppSettings()) {
+        isRestoring = true
         let stored = ConnectionsStore.load()
         if stored.isEmpty {
             let seed = SSHConnection(name: "Example", host: "example.com", port: 22, username: "root")
@@ -534,8 +535,6 @@ final class AppModel {
                 store.save(tabID: tab.id, text: cleaned, metadata: metadata)
             }
         }
-
-        store.prune(activeTabIDs: activeIDs)
     }
 
     /// Strips transient system banners and legacy divider artifacts from history text.
