@@ -13,7 +13,7 @@ let project = Project(
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
             "MARKETING_VERSION": "2.0.7",
-            "CURRENT_PROJECT_VERSION": "20701",
+            "CURRENT_PROJECT_VERSION": "20702",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]
