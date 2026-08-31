@@ -87,9 +87,9 @@ struct ContentView: View {
                     model.sidebarSelection = .connection(firstConn.id)
                 }
             }
-            if lastSeenWhatsNewVersion != "2.0.6" {
+            if lastSeenWhatsNewVersion != "2.0.7" {
                 model.showingWhatsNew = true
-                lastSeenWhatsNewVersion = "2.0.6"
+                lastSeenWhatsNewVersion = "2.0.7"
             }
             triggerInputSourceSwitch()
         }

@@ -1,3 +1,22 @@
+## [2.0.7] - 2026-09-01
+
+### Fixed
+- **Complete Terminal Scrollback Capture**: Upgraded to **MactermKit 1.0.20** using `GHOSTTY_POINT_ACTIVE` coordinate targeting, ensuring the full terminal scrollback buffer and active grid are completely captured without viewport height truncation.
+
+### Changed
+- Updated dependencies to **MactermKit 1.0.20**.
+
+---
+
+### Chinese
+### 修复
+- **终端回滚历史完整读取与防截断**：升级核心引擎至 **MactermKit 1.0.20**，切换至 `GHOSTTY_POINT_ACTIVE` 全域坐标锚定，彻底解决历史记录读取仅获取当前视口高度被截断的问题，完整捕获并持久化全部回滚缓冲区与活跃网格内容。
+
+### 变更
+- 升级核心依赖组件至 **MactermKit 1.0.20**。
+
+---
+
 ## [2.0.6] - 2026-08-29
 
 ### Fixed
