@@ -523,71 +523,20 @@ final class AppModel {
             if let text = tab.surfaceView.readFullText(maxLines: settings.scrollbackHistoryLimit) {
                 let cleaned = Self.sanitizeHistoryText(text)
                 let lines = cleaned.components(separatedBy: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
-                // Avoid overwriting a populated history with a 1-line freshly initialized prompt
-                if lines.count <= 1, let existing = store.load(tabID: tab.id), !existing.text.isEmpty {
-                    continue
-                }
-                guard !cleaned.isEmpty else { continue }
                 
-                let finalText: String
-                if let existing = store.load(tabID: tab.id), !existing.text.isEmpty {
-                    finalText = Self.mergeHistory(existing: existing.text, incoming: cleaned)
-                } else {
-                    finalText = cleaned
+                // If the terminal has been cleared (only 1 prompt line or empty), clear persisted history
+                guard lines.count > 1 else {
+                    store.remove(tabID: tab.id)
+                    continue
                 }
                 
                 let metadata = SessionHistoryStore.Metadata(
                     quittedAt: Date(),
                     tabName: tab.name
                 )
-                store.save(tabID: tab.id, text: finalText, metadata: metadata)
+                store.save(tabID: tab.id, text: cleaned, metadata: metadata)
             }
         }
-    }
-
-    /// Merges newly read viewport/surface text with previously persisted full history.
-    static func mergeHistory(existing: String, incoming: String) -> String {
-        let existingClean = sanitizeHistoryText(existing)
-        let incomingClean = sanitizeHistoryText(incoming)
-        
-        guard !existingClean.isEmpty else { return incomingClean }
-        guard !incomingClean.isEmpty else { return existingClean }
-        
-        let existingLines = existingClean.components(separatedBy: "\n")
-        let incomingLines = incomingClean.components(separatedBy: "\n")
-        
-        // If incoming is already longer or equal, check if it directly supersedes
-        if incomingLines.count >= existingLines.count {
-            return incomingClean
-        }
-        
-        // Find overlap between the head of incomingLines and the tail of existingLines
-        var overlapIndex = -1
-        let maxCheck = min(incomingLines.count, 50)
-        
-        for matchLen in stride(from: maxCheck, through: 2, by: -1) {
-            let incomingPrefix = Array(incomingLines.prefix(matchLen))
-            if existingLines.count >= matchLen {
-                let existingSuffix = Array(existingLines.suffix(matchLen))
-                if incomingPrefix == existingSuffix {
-                    overlapIndex = matchLen
-                    break
-                }
-            }
-        }
-        
-        if overlapIndex > 0 {
-            let newLines = incomingLines.dropFirst(overlapIndex)
-            let combined = existingLines + newLines
-            return combined.joined(separator: "\n")
-        }
-        
-        // If no overlap found but incoming is much shorter, protect existing long history
-        if existingLines.count > incomingLines.count {
-            return existingClean
-        }
-        
-        return incomingClean
     }
 
     /// Strips transient system banners and legacy divider artifacts from history text.
