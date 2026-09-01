@@ -14,18 +14,22 @@
 
 ### Fixed
 - **Complete Terminal Scrollback Capture**: Upgraded to **MactermKit 1.0.20** using `GHOSTTY_POINT_ACTIVE` coordinate targeting, ensuring the full terminal scrollback buffer and active grid are completely captured without viewport height truncation.
+- **Inspector Panel Resize Flood**: Fixed a critical issue where opening/closing the SFTP Inspector panel caused dozens of SIGWINCH signals to the remote shell during animation, flooding the terminal with duplicate prompt lines. Upgraded to **MactermKit 1.0.21** which debounces rapid resize events.
+- **Terminal History Clear**: Fixed `clear` command not resetting saved session history; the terminal now correctly purges persisted history when the scrollback buffer is empty.
 
 ### Changed
-- Updated dependencies to **MactermKit 1.0.20**.
+- Updated dependencies to **MactermKit 1.0.21**.
 
 ---
 
 ### Chinese
 ### 修复
 - **终端回滚历史完整读取与防截断**：升级核心引擎至 **MactermKit 1.0.20**，切换至 `GHOSTTY_POINT_ACTIVE` 全域坐标锚定，彻底解决历史记录读取仅获取当前视口高度被截断的问题，完整捕获并持久化全部回滚缓冲区与活跃网格内容。
+- **侧面板 Resize 风暴修复**：修复打开/关闭 SFTP Inspector 侧面板时，面板动画过程中向远端 Shell 连续发送大量 SIGWINCH 信号，导致终端被重复提示符行淹没的严重问题。升级至 **MactermKit 1.0.21**，对快速连续的窗口尺寸变更进行防抖合并。
+- **终端历史 `clear` 修复**：修复执行 `clear` 命令后已保存的会话历史未被正确清除的问题，现在当回滚缓冲区为空时正确清理持久化历史。
 
 ### 变更
-- 升级核心依赖组件至 **MactermKit 1.0.20**。
+- 升级核心依赖组件至 **MactermKit 1.0.21**。
 
 ---
 
