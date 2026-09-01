@@ -1,12 +1,15 @@
-## [2.0.8] - 2026-09-01
+## [2.0.9] - 2026-09-01
 
 ### Added
 - **Terminal Drag-and-Drop Path Pasting**: Dragging files or folders from Finder directly into the terminal window automatically pastes their POSIX shell-escaped paths.
 - **SFTP Drag-and-Drop Upload**: Dragging files or folders into the SFTP Inspector panel automatically uploads them to the current remote directory with a drop target overlay.
 - **Tab Drag-and-Drop Reordering**: Rearrange session and local terminal tabs in the titlebar tab bar via drag-and-drop with spring animation and persisted ordering.
 
+### Fixed
+- **Inspector Panel Resize Flood**: Fixed a critical issue where opening/closing the SFTP Inspector panel caused dozens of SIGWINCH signals to the remote shell during animation, flooding the terminal with duplicate prompt lines. Upgraded to **MactermKit 1.0.22** which debounces rapid resize events.
+
 ### Changed
-- Updated dependencies to **MactermKit 1.0.22** and **SSH2Kit 1.3.16**.
+- Updated dependencies to **MactermKit 1.0.22**.
 
 ---
 
@@ -16,8 +19,24 @@
 - **SFTP 拖放上传**：支持将本地文件或文件夹直接拖放至 SFTP 侧边栏面板，带有视觉拖放高亮区域并自动上传到当前远程目录。
 - **Tab 标签页拖拽重排**：支持在顶部标题栏中拖拽会话标签页与本地终端标签页进行重新排序，支持弹性动画与顺序持久化保存。
 
+### 修复
+- **侧面板 Resize 风暴修复**：修复打开/关闭 SFTP Inspector 侧面板时，面板动画过程中向远端 Shell 连续发送大量 SIGWINCH 信号，导致终端被重复提示符行淹没的严重问题。升级至 **MactermKit 1.0.22**，对快速连续的窗口尺寸变更进行防抖合并。
+
 ### 变更
-- 升级核心依赖组件至 **MactermKit 1.0.22** 与 **SSH2Kit 1.3.16**。
+- 升级核心依赖组件至 **MactermKit 1.0.22**。
+
+---
+
+## [2.0.8] - 2026-09-01
+
+### Changed
+- Automatically bumped dependencies to SSH2Kit version 1.3.16 and MactermKit version 1.0.20.
+
+---
+
+### Chinese
+### 变更
+- 自动更新依赖项 SSH2Kit 至版本 1.3.16，MactermKit 至版本 1.0.20。
 
 ---
 ## [2.0.7] - 2026-09-01
