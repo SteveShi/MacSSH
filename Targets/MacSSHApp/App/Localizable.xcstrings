@@ -2,6 +2,22 @@
   "sourceLanguage": "en",
   "strings": {
     "": {},
+    "Drop files to upload": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop files to upload"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖放文件至此以上传"
+          }
+        }
+      }
+    },
     "·": {},
     "[disconnected]": {
       "extractionState": "stale",

@@ -4,7 +4,7 @@ let project = Project(
     name: "MacSSH",
     packages: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.0.0"),
-        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.21"),
+        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.22"),
         .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.16")
     ],
     settings: .settings(
@@ -13,7 +13,7 @@ let project = Project(
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
             "MARKETING_VERSION": "2.0.8",
-            "CURRENT_PROJECT_VERSION": "20008",
+            "CURRENT_PROJECT_VERSION": "20800",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]

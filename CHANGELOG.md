@@ -1,13 +1,23 @@
 ## [2.0.8] - 2026-09-01
 
+### Added
+- **Terminal Drag-and-Drop Path Pasting**: Dragging files or folders from Finder directly into the terminal window automatically pastes their POSIX shell-escaped paths.
+- **SFTP Drag-and-Drop Upload**: Dragging files or folders into the SFTP Inspector panel automatically uploads them to the current remote directory with a drop target overlay.
+- **Tab Drag-and-Drop Reordering**: Rearrange session and local terminal tabs in the titlebar tab bar via drag-and-drop with spring animation and persisted ordering.
+
 ### Changed
-- Automatically bumped dependencies to SSH2Kit version 1.3.16 and MactermKit version 1.0.20.
+- Updated dependencies to **MactermKit 1.0.22** and **SSH2Kit 1.3.16**.
 
 ---
 
 ### Chinese
+### 新增
+- **终端文件拖放路径粘贴**：支持从 Finder 直接拖放文件或文件夹到终端窗口，自动进行 POSIX Shell 特殊字符转义并粘贴文件路径。
+- **SFTP 拖放上传**：支持将本地文件或文件夹直接拖放至 SFTP 侧边栏面板，带有视觉拖放高亮区域并自动上传到当前远程目录。
+- **Tab 标签页拖拽重排**：支持在顶部标题栏中拖拽会话标签页与本地终端标签页进行重新排序，支持弹性动画与顺序持久化保存。
+
 ### 变更
-- 自动更新依赖项 SSH2Kit 至版本 1.3.16，MactermKit 至版本 1.0.20。
+- 升级核心依赖组件至 **MactermKit 1.0.22** 与 **SSH2Kit 1.3.16**。
 
 ---
 ## [2.0.7] - 2026-09-01

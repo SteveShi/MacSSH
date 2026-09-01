@@ -318,6 +318,26 @@ final class AppModel {
         persistTabs()
     }
 
+    /// Moves a local tab from one position to another (for drag-and-drop reordering).
+    func moveLocalTab(fromID: UUID, toID: UUID) {
+        guard fromID != toID,
+              let fromIndex = localTabs.firstIndex(where: { $0.id == fromID }),
+              let toIndex = localTabs.firstIndex(where: { $0.id == toID }) else { return }
+        let tab = localTabs.remove(at: fromIndex)
+        localTabs.insert(tab, at: toIndex)
+        persistTabs()
+    }
+
+    /// Moves an open SSH tab from one position to another (for drag-and-drop reordering).
+    func moveOpenTab(fromID: UUID, toID: UUID) {
+        guard fromID != toID,
+              let fromIndex = openTabs.firstIndex(where: { $0.id == fromID }),
+              let toIndex = openTabs.firstIndex(where: { $0.id == toID }) else { return }
+        let tab = openTabs.remove(at: fromIndex)
+        openTabs.insert(tab, at: toIndex)
+        persistTabs()
+    }
+
     /// Duplicates a local tab with a fresh surface.
     @MainActor
     func duplicateLocalTab(_ id: UUID, settings: AppSettings) {

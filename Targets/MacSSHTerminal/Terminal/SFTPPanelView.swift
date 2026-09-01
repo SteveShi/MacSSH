@@ -5,6 +5,7 @@ import SSH2Kit
 struct SFTPPanelView: View {
     @Bindable var model: SFTPViewModel
     @State private var selection: Set<SFTPItem.ID> = []
+    @State private var isDropTargeted = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -100,6 +101,37 @@ struct SFTPPanelView: View {
                 }
             }
             .listStyle(.inset)
+            .overlay {
+                if isDropTargeted {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.accentColor, style: StrokeStyle(lineWidth: 2, dash: [6, 4]))
+                            .background(Color.accentColor.opacity(0.1))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+
+                        VStack(spacing: 8) {
+                            Image(systemName: "arrow.down.doc.fill")
+                                .font(.system(size: 28))
+                                .foregroundStyle(Color.accentColor)
+                            Text(String(localized: "Drop files to upload"))
+                                .font(.system(size: 13, weight: .medium))
+                                .foregroundStyle(Color.accentColor)
+                        }
+                    }
+                    .padding(8)
+                    .allowsHitTesting(false)
+                    .transition(.opacity)
+                }
+            }
+            .dropDestination(for: URL.self) { urls, _ in
+                guard !urls.isEmpty else { return false }
+                model.upload(from: urls)
+                return true
+            } isTargeted: { targeted in
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    isDropTargeted = targeted
+                }
+            }
             
             ZStack {
                 if case .transferring(let filename) = model.status {

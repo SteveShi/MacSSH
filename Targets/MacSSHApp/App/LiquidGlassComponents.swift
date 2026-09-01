@@ -81,6 +81,7 @@ struct TitlebarSessionTabBar: View {
     let isLocalMode: Bool
     var onAdd: () -> Void
     @State private var hoveredTabID: UUID?
+    @State private var dropTargetTabID: UUID?
 
     var body: some View {
         HStack(spacing: 2) {
@@ -99,6 +100,9 @@ struct TitlebarSessionTabBar: View {
                         },
                         onClose: {
                             model.removeLocalTab(tab.id)
+                        },
+                        onReorder: { fromID in
+                            model.moveLocalTab(fromID: fromID, toID: tab.id)
                         }
                     )
                 }
@@ -132,6 +136,9 @@ struct TitlebarSessionTabBar: View {
                             },
                             onClose: {
                                 model.closeTab(tab.id)
+                            },
+                            onReorder: { fromID in
+                                model.moveOpenTab(fromID: fromID, toID: tab.id)
                             }
                         )
                     }
@@ -165,9 +172,11 @@ struct TitlebarSessionTabBar: View {
         isConnected: Bool,
         canClose: Bool,
         onSelect: @escaping () -> Void,
-        onClose: @escaping () -> Void
+        onClose: @escaping () -> Void,
+        onReorder: @escaping (UUID) -> Void
     ) -> some View {
         let isHovered = hoveredTabID == id
+        let isDropTarget = dropTargetTabID == id
 
         return HStack(spacing: 6) {
             Circle()
@@ -192,6 +201,9 @@ struct TitlebarSessionTabBar: View {
         .background {
             if isSelected {
                 RaisedCapsule()
+            } else if isDropTarget {
+                Capsule().fill(Color.accentColor.opacity(0.2))
+                    .overlay(Capsule().stroke(Color.accentColor, lineWidth: 1))
             } else if isHovered {
                 Capsule().fill(Color.primary.opacity(0.04))
             }
@@ -201,6 +213,31 @@ struct TitlebarSessionTabBar: View {
         .onTapGesture { onSelect() }
         .onHover { hovering in
             hoveredTabID = hovering ? id : nil
+        }
+        .draggable(id.uuidString) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(isConnected ? Color(red: 0.2, green: 0.85, blue: 0.4) : Color.secondary.opacity(0.5))
+                    .frame(width: 5.5, height: 5.5)
+                Text(title)
+                    .font(.system(size: 12, weight: .medium))
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(RaisedCapsule())
+        }
+        .dropDestination(for: String.self) { items, _ in
+            guard let fromIDStr = items.first,
+                  let fromID = UUID(uuidString: fromIDStr),
+                  fromID != id else { return false }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) {
+                onReorder(fromID)
+            }
+            return true
+        } isTargeted: { targeted in
+            withAnimation(.easeInOut(duration: 0.15)) {
+                dropTargetTabID = targeted ? id : nil
+            }
         }
     }
 }
