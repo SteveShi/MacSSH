@@ -1,3 +1,22 @@
+## [2.0.11] - 2026-09-06
+
+### Fixed
+- **Interactive Single-Key Input (topgrade / CLI prompts)**: Fixed an issue where interactive CLI prompt responses (e.g., `(y)es/(N)o/(s)hell/(q)uit` during `topgrade` update errors) were ignored or dropped because typed keys were dispatched as raw text streams rather than key events, triggering bracketed paste wrapping or silent key dropping. Upgraded to **MactermKit 1.0.23**.
+
+### Changed
+- Updated dependencies to **MactermKit 1.0.23**.
+
+---
+
+### Chinese
+### 修复
+- **交互式单键输入修复（topgrade / CLI 交互提示）**：修复在终端执行 `topgrade` 等工具遇到错误交互提示（如 `Retry? (y)es/(N)o/(s)hell/(q)uit`）时，终端无法接收单字符 `y/n/s/q` 输入的问题。根因是输入字符被当做纯文本流而非键盘事件派发，触发了终端括号粘贴（Bracketed Paste）或被静默丢弃。升级至 **MactermKit 1.0.23**，统一使用按键事件派发按键输入。
+
+### 变更
+- 升级核心依赖组件至 **MactermKit 1.0.23**。
+
+---
+
 ## [2.0.10] - 2026-09-04
 
 ### Changed
