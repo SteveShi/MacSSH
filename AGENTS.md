@@ -20,9 +20,8 @@ This project uses **Tuist** to generate the Xcode project from `Project.swift`. 
 ### Initial Setup
 
 ```bash
-# Install Tuist via mise
-mise install tuist@4.25.0
-mise use -g tuist@4.25.0
+# Install dependencies (Tuist) via mise
+mise install
 
 # Generate Xcode project
 tuist generate --no-open
