@@ -57,7 +57,6 @@ final class AppModel {
             }
         }
     }
-    private var localTabCounter: Int = 0
 
     // Snippets
     var snippets: [Snippet] = []
@@ -134,7 +133,6 @@ final class AppModel {
         static let selectedTabConnection = "selectedTabConnection"
         static let localTabs = "localTabs"
         static let selectedLocalTabID = "selectedLocalTabID"
-        static let localTabCounter = "localTabCounter"
     }
 
     init(settings: AppSettings = AppSettings()) {
@@ -253,12 +251,25 @@ final class AppModel {
     /// Creates a new local terminal tab with a pre-built surface and returns it.
     @MainActor
     func addLocalTab(config: GhosttySurfaceConfiguration) {
-        localTabCounter += 1
+        let nextNumber = nextAvailableLocalTabNumber()
         let surface = GhosttySurfaceView(config: config)
-        let tab = LocalTerminalTab(number: localTabCounter, surfaceView: surface)
+        let tab = LocalTerminalTab(number: nextNumber, surfaceView: surface)
         localTabs.append(tab)
         sidebarSelection = .localTab(tab.id)
         persistTabs()
+    }
+
+    /// Finds the smallest positive integer not already used by an existing local tab name.
+    private func nextAvailableLocalTabNumber() -> Int {
+        let usedNumbers = Set(localTabs.compactMap { tab -> Int? in
+            // Match "Terminal N" pattern
+            let prefix = "Terminal "
+            guard tab.name.hasPrefix(prefix) else { return nil }
+            return Int(tab.name.dropFirst(prefix.count))
+        })
+        var n = 1
+        while usedNumbers.contains(n) { n += 1 }
+        return n
     }
 
     /// Removes a local terminal tab by ID.
@@ -342,7 +353,6 @@ final class AppModel {
     @MainActor
     func duplicateLocalTab(_ id: UUID, settings: AppSettings) {
         guard let sourceTab = localTabs.first(where: { $0.id == id }) else { return }
-        localTabCounter += 1
         var config = GhosttySurfaceConfiguration()
         config.fontSize = Float(settings.fontSize)
         config.environmentVariables = LocalShellEnvironment.make()
@@ -523,7 +533,6 @@ final class AppModel {
         }
         defaults.set(localTabsData, forKey: TabKeys.localTabs)
         defaults.set(selectedLocalTabID?.uuidString, forKey: TabKeys.selectedLocalTabID)
-        defaults.set(localTabCounter, forKey: TabKeys.localTabCounter)
         
         saveLocalSessionsHistory()
     }
@@ -685,7 +694,6 @@ final class AppModel {
     @MainActor
     func restoreLocalTabs(settings: AppSettings) {
         let defaults = UserDefaults.standard
-        self.localTabCounter = defaults.integer(forKey: TabKeys.localTabCounter)
         
         guard let savedTabs = defaults.array(forKey: TabKeys.localTabs) as? [[String: String]],
               !savedTabs.isEmpty else {

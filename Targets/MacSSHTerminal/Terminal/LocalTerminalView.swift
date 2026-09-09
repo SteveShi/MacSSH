@@ -96,6 +96,7 @@ struct LocalTerminalView: View {
     private var content: some View {
         if let selected = selectedTab {
             LocalTerminalSurfaceHost(tab: selected)
+                .id(selected.id)
         } else {
             ContentUnavailableView {
                 Label(String(localized: "No Terminal Open"), systemImage: "terminal")

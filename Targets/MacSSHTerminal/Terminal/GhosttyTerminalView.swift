@@ -7,6 +7,28 @@ import ObjectiveC
 
 // MARK: - Surface View Host (persistent surface reuse)
 
+final class SurfaceHostContainerView: NSView {
+    var hostedSurface: GhosttySurfaceView? {
+        didSet {
+            guard hostedSurface !== oldValue else { return }
+            oldValue?.removeFromSuperview()
+            if let hostedSurface {
+                hostedSurface.translatesAutoresizingMaskIntoConstraints = false
+                addSubview(hostedSurface)
+                NSLayoutConstraint.activate([
+                    hostedSurface.leadingAnchor.constraint(equalTo: leadingAnchor),
+                    hostedSurface.trailingAnchor.constraint(equalTo: trailingAnchor),
+                    hostedSurface.topAnchor.constraint(equalTo: topAnchor),
+                    hostedSurface.bottomAnchor.constraint(equalTo: bottomAnchor)
+                ])
+                if let window = self.window {
+                    window.makeFirstResponder(hostedSurface)
+                }
+            }
+        }
+    }
+}
+
 /// Hosts a pre-existing GhosttySurfaceView without ever creating a new one.
 /// Use this when the GhosttySurfaceView is owned by a long-lived model object
 /// (SessionTab.cachedSurface, LocalTerminalTab.surfaceView) so that the PTY
@@ -14,8 +36,17 @@ import ObjectiveC
 struct SurfaceViewHost: NSViewRepresentable {
     let surface: GhosttySurfaceView
 
-    func makeNSView(context: Context) -> GhosttySurfaceView { surface }
-    func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {}
+    func makeNSView(context: Context) -> SurfaceHostContainerView {
+        let container = SurfaceHostContainerView()
+        container.hostedSurface = surface
+        return container
+    }
+
+    func updateNSView(_ nsView: SurfaceHostContainerView, context: Context) {
+        if nsView.hostedSurface !== surface {
+            nsView.hostedSurface = surface
+        }
+    }
 }
 
 // MARK: - GhosttyTerminalView (creates a surface on first use, caches it back)

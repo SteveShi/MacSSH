@@ -1,3 +1,20 @@
+## [2.0.12] - 2026-09-09
+
+### Fixed
+- **Local Terminal Tab Switching**: Fixed an issue where switching between local terminal tabs failed to update the visible terminal surface, continuing to display output from the previous tab. Refactored `SurfaceViewHost` into a dedicated container architecture (`SurfaceHostContainerView`) to dynamically manage surface detachment, attachment, and focus, and bound explicit SwiftUI Identity to local terminal surface hosts.
+- **Local Terminal Tab Auto-Naming**: Fixed an issue where closed tab numbers were never reclaimed, causing new tabs to use ever-increasing numbers (e.g., Terminal 6 after closing Terminal 2–5). Replaced the monotonically-incrementing counter with a dynamic smallest-available-number algorithm.
+- **Dynamic Shell & Foreground Process Detection**: Fixed an issue where the status bar statically displayed the default shell (e.g., `zsh`) and failed to update when switching shells (e.g., running `bash`, `fish`) or commands. Now dynamically queries the PTY process tree via `sysctl` to reflect the active foreground process in real time.
+
+---
+
+### Chinese
+### 修复
+- **本地终端标签页切换内容同步修复**：修复在多个本地终端标签页之间切换时，中间终端区域仍渲染旧标签页画面、新标签页内容未能及时展示的问题。将 `SurfaceViewHost` 重构为标准容器架构（`SurfaceHostContainerView`），动态管理底层终端视图的卸载、挂载与键盘焦点传递，并为本地终端视图绑定显式 Tab 标识，确保标签页切换时内容与焦点实时同步。
+- **本地终端标签页自动命名修复**：修复关闭标签页后其编号不会被回收、新建标签页编号持续递增的问题（例如关闭 Terminal 2–5 后新建仍为 Terminal 6）。移除单调递增的全局计数器，改为动态查找最小可用编号。
+- **底部状态栏 Shell 与前台进程动态识别**：修复本地终端底部状态栏固定显示系统静态默认 Shell（如 `zsh`），在用户切换 Shell（如启动 `bash`、`fish`）或运行交互命令时未能动态更新的问题。现通过 `sysctl` 实时追踪 PTY 子进程树，精准呈现当前活跃前台命令名称。
+
+---
+
 ## [2.0.11] - 2026-09-06
 
 ### Fixed
