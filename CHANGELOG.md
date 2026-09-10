@@ -1,3 +1,16 @@
+## [2.0.13] - 2026-09-10
+
+### Fixed
+- **Window Size Persistence**: Fixed an issue where the application window failed to reliably remember its size and position across launches. The root cause was a race condition where `setFrameAutosaveName` was called asynchronously via `DispatchQueue.main.async`, allowing SwiftUI's `WindowGroup` to overwrite the restored frame. Replaced the async `NSView` callback with a synchronous `viewDidMoveToWindow()` lifecycle hook to ensure frame autosave is registered before SwiftUI applies its default geometry.
+
+---
+
+### Chinese
+### 修复
+- **窗口尺寸记忆修复**：修复应用窗口在重新启动后无法可靠恢复上次关闭时大小与位置的问题。根因是 `setFrameAutosaveName` 通过 `DispatchQueue.main.async` 异步调用，导致与 SwiftUI `WindowGroup` 的窗口恢复逻辑产生时序竞争，SwiftUI 会在 autosave 生效前覆盖已保存的窗口尺寸。改用 `viewDidMoveToWindow()` 同步生命周期回调，确保在 SwiftUI 应用默认几何之前完成 frame autosave 注册。
+
+---
+
 ## [2.0.12] - 2026-09-09
 
 ### Fixed

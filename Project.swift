@@ -12,8 +12,8 @@ let project = Project(
             "MACOSX_DEPLOYMENT_TARGET": "26.0",
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
-            "MARKETING_VERSION": "2.0.12",
-            "CURRENT_PROJECT_VERSION": "21200",
+            "MARKETING_VERSION": "2.0.13",
+            "CURRENT_PROJECT_VERSION": "21300",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]

@@ -622,23 +622,42 @@ private struct EmptyStateView: View {
 // MARK: - Window Accessor
 
 private struct WindowAccessor: NSViewRepresentable {
-    func makeNSView(context: Context) -> NSView {
-        let view = NSView()
-        DispatchQueue.main.async {
-            if let window = view.window {
-                window.titlebarAppearsTransparent = true
-                window.titlebarSeparatorStyle = .none
-                window.styleMask.insert(.fullSizeContentView)
-                window.backgroundColor = NSColor(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0, alpha: 1.0)
-                window.titleVisibility = .hidden
-                window.toolbarStyle = .unified
-                window.isMovableByWindowBackground = true
-                window.setFrameAutosaveName("MacSSHMainWindow")
-                window.setFrameUsingName("MacSSHMainWindow")
-            }
-        }
-        return view
+    func makeNSView(context: Context) -> WindowAccessorView {
+        WindowAccessorView()
     }
 
-    func updateNSView(_ nsView: NSView, context: Context) {}
+    func updateNSView(_ nsView: WindowAccessorView, context: Context) {}
+}
+
+/// A lightweight NSView that configures its host window's appearance and
+/// frame autosave as soon as it is added to a window, using the synchronous
+/// `viewDidMoveToWindow()` callback to avoid racing with SwiftUI's own
+/// window-restore logic.
+private final class WindowAccessorView: NSView {
+    private var didConfigure = false
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        guard !didConfigure, let window else { return }
+        didConfigure = true
+
+        window.titlebarAppearsTransparent = true
+        window.titlebarSeparatorStyle = .none
+        window.styleMask.insert(.fullSizeContentView)
+        window.backgroundColor = NSColor(
+            red: 36.0 / 255.0,
+            green: 39.0 / 255.0,
+            blue: 46.0 / 255.0,
+            alpha: 1.0
+        )
+        window.titleVisibility = .hidden
+        window.toolbarStyle = .unified
+        window.isMovableByWindowBackground = true
+
+        // Frame autosave: must happen synchronously during window setup,
+        // BEFORE SwiftUI applies its own default/restored geometry.
+        // setFrameAutosaveName both registers the name for future saves
+        // and immediately restores the previously-saved frame if one exists.
+        window.setFrameAutosaveName("MacSSHMainWindow")
+    }
 }
