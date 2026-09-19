@@ -1,3 +1,16 @@
+## [2.1.1] - 2026-09-20
+
+### Fixed
+- **Local Terminal Shell Detection**: The bottom status bar always showed the fallback shell name (e.g. "zsh") regardless of what was actually running in the terminal. Root cause: `proc_listchildpids` returns an empty list on current macOS releases — even for live, direct children of the calling process — so the targeted child-enumeration walk shipped in 2.1.0 silently found nothing and always fell through. Child enumeration now uses a sysctl `KERN_PROC_ALL` snapshot (the API that powered the original working implementation), with a race-safe retry loop. When MactermKit's `ptyPID` is available (1.0.24+) it anchors the walk at the exact shell process, removing the start-time heuristic entirely.
+
+---
+
+### Chinese
+### 修复
+- **本地终端 Shell 检测**：底部状态栏无论如何都显示兜底的 shell 名（如 "zsh"），与终端里实际运行的程序无关。根因：当前 macOS 版本中 `proc_listchildpids` 即使对调用者自己存活的直接子进程也返回空列表，导致 2.1.0 引入的定向子进程枚举静默失效、每次都穿透到兜底分支。子进程枚举改回 sysctl `KERN_PROC_ALL` 快照方案（最初验证可用的实现），并加入竞态重试；MactermKit 的 `ptyPID`（1.0.24+）可用时仍优先以它精确定位遍历起点，彻底去除启动时间猜测。
+
+---
+
 ## [2.1.0] - 2026-09-20
 
 ### Fixed
