@@ -153,7 +153,7 @@ final class AppSettings {
     }
 
     var syncGithubToken: String {
-        didSet { storeSecret(syncGithubToken, account: SyncSecretAccounts.githubToken) }
+        didSet { Self.storeSecret(syncGithubToken, account: SyncSecretAccounts.githubToken) }
     }
 
     var syncGithubGistId: String {
@@ -161,7 +161,7 @@ final class AppSettings {
     }
 
     var syncDropboxToken: String {
-        didSet { storeSecret(syncDropboxToken, account: SyncSecretAccounts.dropboxToken) }
+        didSet { Self.storeSecret(syncDropboxToken, account: SyncSecretAccounts.dropboxToken) }
     }
 
     var syncEncryptData: Bool {
@@ -169,7 +169,7 @@ final class AppSettings {
     }
 
     var syncMasterPassword: String {
-        didSet { storeSecret(syncMasterPassword, account: SyncSecretAccounts.masterPassword) }
+        didSet { Self.storeSecret(syncMasterPassword, account: SyncSecretAccounts.masterPassword) }
     }
 
     var syncLastTime: Date? {

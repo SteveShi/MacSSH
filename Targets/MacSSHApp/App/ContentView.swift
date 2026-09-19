@@ -685,13 +685,13 @@ private final class WindowAccessorView: NSView {
 
     @objc private func restoreSavedFrame() {
         guard let frameString = UserDefaults.standard.string(forKey: Self.frameKey) else { return }
-        _ = window?.setFrame(from: frameString)
+        window?.setFrame(NSRectFromString(frameString), display: true)
     }
 
     @objc private func persistFrame(_ notification: Notification) {
         guard let window = notification.object as? NSWindow else { return }
         UserDefaults.standard.set(
-            window.string(from: window.frame),
+            NSStringFromRect(window.frame),
             forKey: Self.frameKey
         )
     }
