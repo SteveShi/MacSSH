@@ -1,3 +1,46 @@
+## [2.1.0] - 2026-09-20
+
+### Fixed
+- **SSH Host Key Verification**: Host keys are no longer auto-accepted. A changed or unknown host key now requires an explicit user decision in the trust dialog (Cancel actually cancels), and the embedded `ssh` fallback path uses `StrictHostKeyChecking=accept-new` instead of `no`. Man-in-the-middle attacks via changed host keys are now detected and blocked.
+- **Window Size Persistence**: Rewrote window frame persistence to save/restore under a stable `UserDefaults` key. The previous approach relied on `setFrameAutosaveName`, which SwiftUI replaces with an unstable autosave name embedding a runtime type-metadata address, so saved frames could never be found again on the next launch.
+- **Sync Token Storage**: GitHub/Dropbox OAuth tokens and the sync master password are now stored in the Keychain instead of plaintext `UserDefaults` (existing values migrate automatically on first launch).
+- **Weak Sync Encryption**: Cloud sync encryption upgraded from a single SHA-256 round with a static salt to PBKDF2-HMAC-SHA256 (600,000 iterations) with a per-message random salt (`MACSSH_ENC:v2:` format). Previously synced legacy payloads remain decryptable.
+- **Scrollback History Hardening**: Local terminal scrollback files are now written with `0600` permissions inside a `0700` directory, and orphaned history files of closed tabs are pruned on launch.
+- **Cooperative SSH Cancellation** (requires SSH2Kit 1.3.21): Cancelling a stuck connection now aborts the underlying libssh2 handshake immediately via socket I/O callbacks instead of leaving a zombie connection; `disconnect()` also works while the session actor is blocked inside a handshake.
+- **Connection Editor Password**: Clearing the password field now removes the stored Keychain password on save instead of silently keeping the old one.
+- **Launch Crash Guard**: Replaced a `Dictionary(uniqueKeysWithValues:)` call in tab restoration that crashed at startup when `connections.json` contained duplicated ids.
+- **macssh:// URL Scheme**: Validates port range (1–65535) and hostname characters before auto-creating connections from external links.
+
+### Changed
+- **Foreground Process Detection**: The local terminal status bar now reads the PTY child pid directly from the terminal surface (requires MactermKit 1.0.24) instead of enumerating the whole system process table every few seconds; a targeted libproc query over the app's own process tree remains as fallback.
+- **Ghostty User Config**: No longer overwrites the user's `~/.config/ghostty/config` on every surface update; font settings are applied per-surface via the C API and only when they actually change.
+- **Status Bar History Writes**: Switching sidebar tabs no longer rewrites all terminal scrollback files; history is persisted on app resign/terminate only.
+- **Monitor Loop**: Remote metrics polling stops after repeated consecutive failures and logs via `os.Logger` instead of `print`.
+- **Dependency Updates**: SSH2Kit 1.3.21 (cooperative cancellation, ECANCELED-aware I/O callbacks), MactermKit 1.0.24 (ghostty v1.3.1 core + `ghostty_surface_pid` API).
+
+---
+
+### Chinese
+### 修复
+- **SSH 主机密钥校验**：主机密钥不再被自动接受。密钥未知或变更时必须在信任对话框中明确确认（"取消"真正生效），内嵌 `ssh` 回退路径也从 `StrictHostKeyChecking=no` 改为 `accept-new`。通过篡改主机密钥发起的中间人攻击现在会被检测并阻止。
+- **窗口尺寸记忆**：重写窗口 frame 持久化，改为在稳定的 `UserDefaults` 键下手动保存/恢复。原方案依赖的 `setFrameAutosaveName` 会被 SwiftUI 以内嵌运行时类型元数据地址（ASLR 随机）的不稳定键名覆盖，导致每次启动都查不到上次保存的尺寸。
+- **同步凭据存储**：GitHub/Dropbox OAuth token 与同步主密码从明文 `UserDefaults` 迁移至钥匙串（首次启动自动迁移旧值）。
+- **同步加密增强**：云端同步加密从"固定盐 + 单轮 SHA-256"升级为 PBKDF2-HMAC-SHA256（600,000 轮迭代）+ 每条消息独立随机盐（`MACSSH_ENC:v2:` 格式），旧格式数据仍可解密。
+- **终端历史加固**：本地终端 scrollback 文件以 `0600` 权限写入 `0700` 权限目录，启动时自动清理已关闭标签页的孤儿历史文件。
+- **SSH 连接协作取消**（需 SSH2Kit 1.3.21）：取消卡住的连接时，现在通过 socket I/O 回调立即中止底层 libssh2 握手，不再留下僵尸连接；会话 actor 被握手阻塞时 `disconnect()` 也能正常执行。
+- **连接编辑器密码**：清空密码字段后保存会真正删除钥匙串中的旧密码。
+- **启动崩溃防护**：修复标签页恢复中 `Dictionary(uniqueKeysWithValues:)` 在 `connections.json` 含重复 id 时启动即崩溃的问题。
+- **macssh:// URL Scheme**：外部链接自动建连前校验端口范围（1–65535）与主机名字符。
+
+### 变更
+- **前台进程检测**：本地终端状态栏现在直接从终端 surface 读取 PTY 子进程 pid（需 MactermKit 1.0.24），不再每隔几秒全量枚举系统进程表；保留基于 libproc 的定向进程树查询作为兜底。
+- **Ghostty 用户配置**：不再在每次 surface 更新时覆写用户的 `~/.config/ghostty/config`；字体设置通过 C API 按表面应用，且仅在设置实际变化时执行。
+- **状态栏历史写入**：切换侧栏标签不再重写全部终端 scrollback 文件，历史仅在应用失焦/退出时持久化。
+- **监控循环**：远程指标轮询在连续失败后自动停止，日志改用 `os.Logger`。
+- **依赖更新**：SSH2Kit 1.3.21（协作取消、ECANCELED 感知 I/O 回调）、MactermKit 1.0.24（ghostty v1.3.1 核心 + `ghostty_surface_pid` API）。
+
+---
+
 ## [2.0.14] - 2026-09-16
 
 ### Changed
