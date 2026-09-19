@@ -93,8 +93,19 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 let scriptPath = NSTemporaryDirectory() + "macssh_\(uuidStr).exp"
                 let pwdPath = NSTemporaryDirectory() + "macssh_\(uuidStr).pwd"
 
-                try? password.write(toFile: pwdPath, atomically: true, encoding: .utf8)
-                try? FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: pwdPath)
+                do {
+                    try password.write(toFile: pwdPath, atomically: true, encoding: .utf8)
+                    try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: pwdPath)
+                } catch {
+                    // SECURITY: never continue with a half-prepared plaintext
+                    // password file. Remove any partial file and fall back to
+                    // the interactive ssh command (ssh will prompt for it).
+                    NSLog("[MacSSH] Failed to prepare password file; falling back to interactive ssh: \(error)")
+                    try? FileManager.default.removeItem(atPath: pwdPath)
+                    config.command = Self.sshCommand(for: connection, keyPath: nil)
+                    config.workingDirectory = NSHomeDirectory()
+                    return config
+                }
 
                 let expectScript = """
                 #!/usr/bin/expect -f
@@ -107,7 +118,8 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 file delete -force \(Self.tclQuoted(pwdPath))
                 file delete -force [info script]
                 set timeout 30
-                spawn /usr/bin/ssh -p \(connection.port) -o StrictHostKeyChecking=no \(Self.tclQuoted("\(connection.username)@\(connection.host)"))
+                # accept-new: trust unknown hosts (TOFU) but ALWAYS reject changed keys
+                spawn /usr/bin/ssh -p \(connection.port) -o StrictHostKeyChecking=accept-new \(Self.tclQuoted("\(connection.username)@\(connection.host)"))
                 expect {
                     -nocase "*yes/no*" { send -- "yes\\r"; exp_continue }
                     -nocase "*assword:*" { send -- "$pwd\\r" }
@@ -118,34 +130,51 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 log_user 1
                 interact
                 """
-                try? expectScript.write(toFile: scriptPath, atomically: true, encoding: .utf8)
-                try? FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: scriptPath)
+                do {
+                    try expectScript.write(toFile: scriptPath, atomically: true, encoding: .utf8)
+                    try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: scriptPath)
+                } catch {
+                    NSLog("[MacSSH] Failed to write expect script; falling back to interactive ssh: \(error)")
+                    try? FileManager.default.removeItem(atPath: pwdPath)
+                    try? FileManager.default.removeItem(atPath: scriptPath)
+                    config.command = Self.sshCommand(for: connection, keyPath: nil)
+                    config.workingDirectory = NSHomeDirectory()
+                    return config
+                }
 
                 config.command = "/usr/bin/expect \(Self.shellQuoted(scriptPath))"
             } else {
-                var commandParts = ["/usr/bin/ssh"]
-                commandParts.append("-p")
-                commandParts.append("\(connection.port)")
-                commandParts.append("-o")
-                commandParts.append("StrictHostKeyChecking=no")
-
+                var keyPath: String? = nil
                 if connection.usePublicKey {
-                    if let keyPath = connection.keyPath, !keyPath.isEmpty {
-                        commandParts.append("-i")
-                        commandParts.append(Self.shellQuoted(keyPath))
-                    } else if let defaultKey = connection.defaultKeyPath {
-                        commandParts.append("-i")
-                        commandParts.append(Self.shellQuoted(defaultKey))
+                    if let custom = connection.keyPath, !custom.isEmpty {
+                        keyPath = custom
+                    } else {
+                        keyPath = connection.defaultKeyPath
                     }
                 }
-
-                commandParts.append(Self.shellQuoted("\(connection.username)@\(connection.host)"))
-                config.command = commandParts.joined(separator: " ")
+                config.command = Self.sshCommand(for: connection, keyPath: keyPath)
             }
         }
 
         config.workingDirectory = NSHomeDirectory()
         return config
+    }
+
+    /// Builds the plain (non-expect) ssh command line.
+    /// SECURITY: uses `StrictHostKeyChecking=accept-new` — unknown hosts are
+    /// trusted once (TOFU), but changed host keys always abort the connection.
+    private static func sshCommand(for connection: SSHConnection, keyPath: String?) -> String {
+        var commandParts = ["/usr/bin/ssh"]
+        commandParts.append("-p")
+        commandParts.append("\(connection.port)")
+        commandParts.append("-o")
+        commandParts.append("StrictHostKeyChecking=accept-new")
+        if let keyPath, !keyPath.isEmpty {
+            commandParts.append("-i")
+            commandParts.append(shellQuoted(keyPath))
+        }
+        commandParts.append(shellQuoted("\(connection.username)@\(connection.host)"))
+        return commandParts.joined(separator: " ")
     }
 
     func makeNSView(context: Context) -> GhosttySurfaceView {
@@ -169,9 +198,24 @@ struct GhosttyTerminalView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {
-        let fontName = settings.fontName
-        let fontSize = settings.fontSize
-        Self.applyFontConfig(to: nsView, fontName: fontName, fontSize: fontSize)
+        // Only push a config update when the font settings actually changed —
+        // updateNSView fires on every SwiftUI diff and applying the config is
+        // expensive (temp file write + ghostty config rebuild).
+        let coordinator = context.coordinator
+        guard coordinator.lastFontName != settings.fontName
+                || coordinator.lastFontSize != settings.fontSize else { return }
+        coordinator.lastFontName = settings.fontName
+        coordinator.lastFontSize = settings.fontSize
+        Self.applyFontConfig(to: nsView, fontName: settings.fontName, fontSize: settings.fontSize)
+    }
+
+    final class FontConfigCoordinator {
+        var lastFontName: String?
+        var lastFontSize: Double?
+    }
+
+    func makeCoordinator() -> FontConfigCoordinator {
+        FontConfigCoordinator()
     }
 
     // MARK: - Font Configuration
@@ -211,10 +255,11 @@ struct GhosttyTerminalView: NSViewRepresentable {
         }
         let configContents = lines.joined(separator: "\n")
 
-        // 1. Write to ~/.config/ghostty/config for default loading
-        writeGhosttyUserConfig(contents: configContents)
+        // NOTE: we deliberately do NOT write to ~/.config/ghostty/config —
+        // that file belongs to the user. Our font config is applied below via
+        // the C API with an explicitly loaded temp file.
 
-        // 2. Apply to live surface via C API
+        // Apply to live surface via C API
         let url = FileManager.default.temporaryDirectory
             .appendingPathComponent("macssh-font-\(UUID().uuidString).conf")
         do {
@@ -231,19 +276,6 @@ struct GhosttyTerminalView: NSViewRepresentable {
             }
         } catch {
             NSLog("[MacSSH] Failed to apply font config: \(error)")
-        }
-    }
-
-    /// Writes ghostty font configuration to ~/.config/ghostty/config
-    static func writeGhosttyUserConfig(contents: String) {
-        let home = FileManager.default.homeDirectoryForCurrentUser
-        let ghosttyDir = home.appendingPathComponent(".config/ghostty")
-        let configFile = ghosttyDir.appendingPathComponent("config")
-        do {
-            try FileManager.default.createDirectory(at: ghosttyDir, withIntermediateDirectories: true)
-            try contents.write(to: configFile, atomically: true, encoding: .utf8)
-        } catch {
-            NSLog("[MacSSH] Failed to write ghostty user config: \(error)")
         }
     }
 

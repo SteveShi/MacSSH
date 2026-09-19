@@ -1,8 +1,44 @@
 import Foundation
 import CryptoKit
+import CommonCrypto
 
 struct EncryptionHelper {
-    private static func deriveKey(password: String, salt: String) -> SymmetricKey {
+    private static let v2Prefix = "MACSSH_ENC:v2:"
+    private static let legacyPrefix = "MACSSH_ENC:"
+    /// OWASP-recommended PBKDF2-HMAC-SHA256 iteration count.
+    private static let pbkdf2Rounds: UInt32 = 600_000
+    private static let saltLength = 16
+
+    /// PBKDF2-HMAC-SHA256 with a per-message random salt (v2).
+    private static func deriveKeyPBKDF2(password: String, salt: Data) -> SymmetricKey {
+        let passwordData = Data(password.utf8)
+        var derivedKey = Data(repeating: 0, count: 32)
+        let status = derivedKey.withUnsafeMutableBytes { derivedPtr -> Int32 in
+            salt.withUnsafeBytes { saltPtr -> Int32 in
+                passwordData.withUnsafeBytes { pwdPtr -> Int32 in
+                    CCKeyDerivationPBKDF(
+                        CCPBKDFAlgorithm(kCCPBKDF2),
+                        pwdPtr.baseAddress?.assumingMemoryBound(to: Int8.self),
+                        passwordData.count,
+                        saltPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                        salt.count,
+                        CCPseudoRandomAlgorithm(kCCPRFHmacAlgSHA256),
+                        pbkdf2Rounds,
+                        derivedPtr.baseAddress?.assumingMemoryBound(to: UInt8.self),
+                        32
+                    )
+                }
+            }
+        }
+        guard status == kCCSuccess else {
+            fatalError("PBKDF2 key derivation failed (status \(status))")
+        }
+        return SymmetricKey(data: derivedKey)
+    }
+
+    /// Legacy key derivation (single SHA-256 round, static salt) — kept only
+    /// so that previously-synced payloads can still be decrypted.
+    private static func deriveKeyLegacy(password: String, salt: String) -> SymmetricKey {
         let passwordData = password.data(using: .utf8) ?? Data()
         let saltData = salt.data(using: .utf8) ?? Data()
         var hasher = SHA256()
@@ -13,26 +49,49 @@ struct EncryptionHelper {
     }
 
     static func encrypt(text: String, password: String) throws -> String {
-        let plainData = text.data(using: .utf8) ?? Data()
-        let salt = "MacSSHSyncSalt"
-        let key = deriveKey(password: password, salt: salt)
-        let sealedBox = try AES.GCM.seal(plainData, using: key)
+        var salt = Data(count: saltLength)
+        let rc = salt.withUnsafeMutableBytes { buf in
+            SecRandomCopyBytes(kSecRandomDefault, saltLength, buf.baseAddress!)
+        }
+        guard rc == errSecSuccess else {
+            throw NSError(domain: "MacSSH", code: -2, userInfo: [NSLocalizedDescriptionKey: String(localized: "Failed to generate random salt")])
+        }
+        let key = deriveKeyPBKDF2(password: password, salt: salt)
+        let sealedBox = try AES.GCM.seal(Data(text.utf8), using: key)
         guard let combined = sealedBox.combined else {
             throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Encryption failed")])
         }
-        return "MACSSH_ENC:" + combined.base64EncodedString()
+        var payload = salt
+        payload.append(combined)
+        return v2Prefix + payload.base64EncodedString()
     }
 
     static func decrypt(encryptedText: String, password: String) throws -> String {
-        guard encryptedText.hasPrefix("MACSSH_ENC:") else {
+        if encryptedText.hasPrefix(v2Prefix) {
+            guard let payload = Data(base64Encoded: String(encryptedText.dropFirst(v2Prefix.count))),
+                  payload.count > saltLength else {
+                throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Invalid base64 payload")])
+            }
+            let salt = payload.prefix(saltLength)
+            let combined = payload.dropFirst(saltLength)
+            let key = deriveKeyPBKDF2(password: password, salt: salt)
+            let sealedBox = try AES.GCM.SealedBox(combined: combined)
+            let decryptedData = try AES.GCM.open(sealedBox, using: key)
+            guard let decryptedString = String(data: decryptedData, encoding: .utf8) else {
+                throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Invalid utf8 decrypted data")])
+            }
+            return decryptedString
+        }
+
+        guard encryptedText.hasPrefix(legacyPrefix) else {
             throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Not encrypted or invalid prefix")])
         }
-        let base64Part = String(encryptedText.dropFirst("MACSSH_ENC:".count))
+        // Legacy payload (single SHA-256 round, static salt).
+        let base64Part = String(encryptedText.dropFirst(legacyPrefix.count))
         guard let combinedData = Data(base64Encoded: base64Part) else {
             throw NSError(domain: "MacSSH", code: -1, userInfo: [NSLocalizedDescriptionKey: String(localized: "Invalid base64 payload")])
         }
-        let salt = "MacSSHSyncSalt"
-        let key = deriveKey(password: password, salt: salt)
+        let key = deriveKeyLegacy(password: password, salt: "MacSSHSyncSalt")
         let sealedBox = try AES.GCM.SealedBox(combined: combinedData)
         let decryptedData = try AES.GCM.open(sealedBox, using: key)
         guard let decryptedString = String(data: decryptedData, encoding: .utf8) else {

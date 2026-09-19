@@ -29,6 +29,8 @@ public final class SessionHistoryStore {
     private func ensureDirectoryExists() {
         if !fileManager.fileExists(atPath: historyDir.path) {
             try? fileManager.createDirectory(at: historyDir, withIntermediateDirectories: true)
+            // Scrollback may contain sensitive output — restrict to the owner.
+            try? fileManager.setAttributes([.posixPermissions: 0o700], ofItemAtPath: historyDir.path)
         }
     }
 
@@ -54,10 +56,12 @@ public final class SessionHistoryStore {
 
         do {
             try text.write(to: textURL, atomically: true, encoding: .utf8)
+            try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: textURL.path)
             let encoder = JSONEncoder()
             encoder.dateEncodingStrategy = .iso8601
             let metaData = try encoder.encode(metadata)
             try metaData.write(to: metaURL, options: .atomic)
+            try fileManager.setAttributes([.posixPermissions: 0o600], ofItemAtPath: metaURL.path)
         } catch {
             NSLog("[SessionHistoryStore] Failed to save history for tab \(tabID): \(error)")
         }

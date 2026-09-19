@@ -74,6 +74,7 @@ struct TerminalView: View {
             }
             Button(String(localized: "Cancel"), role: .cancel) {
                 model.hostKeyPrompt = nil
+                model.status = .idle
             }
         } message: {
             Text(hostKeyPromptMessage)

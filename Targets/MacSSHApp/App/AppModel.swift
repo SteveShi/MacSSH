@@ -533,8 +533,9 @@ final class AppModel {
         }
         defaults.set(localTabsData, forKey: TabKeys.localTabs)
         defaults.set(selectedLocalTabID?.uuidString, forKey: TabKeys.selectedLocalTabID)
-        
-        saveLocalSessionsHistory()
+        // NOTE: history persistence is intentionally NOT done here — persistTabs
+        // fires on every sidebar selection change; scrollback is saved on app
+        // resign/terminate instead (see MacSSHApp notification wiring).
     }
 
     // MARK: - Local Terminal Session History
@@ -674,7 +675,10 @@ final class AppModel {
         openTabs = []
         selectedTabID = nil
 
-        let connectionsByID = Dictionary(uniqueKeysWithValues: connections.map { ($0.id.uuidString, $0) })
+        let connectionsByID = Dictionary(
+            connections.map { ($0.id.uuidString, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
         if let selectedID = defaults.string(forKey: TabKeys.selectedTabConnection),
            let uuid = UUID(uuidString: selectedID),
            connectionsByID[selectedID] != nil {
@@ -740,6 +744,9 @@ final class AppModel {
         } else if sidebarSelection == nil, let first = localTabs.first {
             self.sidebarSelection = .localTab(first.id)
         }
+
+        // Remove scrollback files for tabs that no longer exist (privacy + disk).
+        SessionHistoryStore.shared.prune(activeTabIDs: Set(localTabs.map { $0.id }))
     }
 
     @MainActor
@@ -758,14 +765,21 @@ final class AppModel {
         for item in queryItems {
             if item.name == "host", let val = item.value {
                 host = val
-            } else if item.name == "port", let val = item.value, let p = Int(val) {
+            } else if item.name == "port", let val = item.value, let p = Int(val), (1...65535).contains(p) {
                 port = p
             } else if item.name == "user", let val = item.value {
                 username = val
             }
         }
-        
-        guard !host.isEmpty else { return }
+
+        // Reject malformed hosts (empty, whitespace, control characters) from
+        // external URL openers — any app or webpage can fire this scheme.
+        // Hostname/IP chars only: alphanumerics plus . - : [ ]
+        let allowed = CharacterSet(charactersIn: ".-:[]")
+        let isSaneHost = !host.isEmpty && host.unicodeScalars.allSatisfy {
+            CharacterSet.alphanumerics.contains($0) || allowed.contains($0)
+        }
+        guard isSaneHost else { return }
         
         // Find existing connection to reuse saved credentials (like Keychain password)
         if let existingConnection = connections.first(where: {

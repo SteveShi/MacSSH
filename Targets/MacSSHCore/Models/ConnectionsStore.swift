@@ -16,6 +16,8 @@ struct ConnectionsStore {
             try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             let data = try JSONEncoder().encode(connections)
             try data.write(to: url, options: .atomic)
+            // Contains host/user metadata — restrict to the owner.
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         } catch {
             storeLog.error("Failed to save connections: \(error.localizedDescription, privacy: .public)")
         }
@@ -25,6 +27,7 @@ struct ConnectionsStore {
         do {
             let data = try JSONEncoder().encode(connections)
             try data.write(to: url, options: .atomic)
+            try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: url.path)
         } catch {
             storeLog.error("Failed to export connections: \(error.localizedDescription, privacy: .public)")
         }

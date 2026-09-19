@@ -110,10 +110,13 @@ struct ConnectionEditorView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button(String(localized: "Save")) {
-                        if !draft.usePublicKey && !password.isEmpty {
-                            KeychainStore.savePassword(password, account: draft.keychainAccount)
-                        } else if draft.usePublicKey {
+                        if draft.usePublicKey {
                             KeychainStore.deletePassword(account: draft.keychainAccount)
+                        } else if password.isEmpty {
+                            // Empty password field = user cleared it → remove stored password.
+                            KeychainStore.deletePassword(account: draft.keychainAccount)
+                        } else {
+                            KeychainStore.savePassword(password, account: draft.keychainAccount)
                         }
                         onSave(draft)
                         dismiss()

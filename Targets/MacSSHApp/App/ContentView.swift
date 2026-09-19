@@ -630,10 +630,16 @@ private struct WindowAccessor: NSViewRepresentable {
 }
 
 /// A lightweight NSView that configures its host window's appearance and
-/// frame autosave as soon as it is added to a window, using the synchronous
-/// `viewDidMoveToWindow()` callback to avoid racing with SwiftUI's own
-/// window-restore logic.
+/// persists/restores the window frame under a stable UserDefaults key.
+///
+/// Why not `setFrameAutosaveName`? SwiftUI assigns its own autosave name to
+/// WindowGroup windows, replacing any manually-set one. Worse, SwiftUI's
+/// generated key embeds a runtime type-metadata address
+/// (`…(unknown context at $…)`), which changes every launch (ASLR), so the
+/// frames SwiftUI saves can never be found again on the next launch. Instead,
+/// we save/restore the frame ourselves under a fixed key.
 private final class WindowAccessorView: NSView {
+    private static let frameKey = "MacSSHMainWindowFrame"
     private var didConfigure = false
 
     override func viewDidMoveToWindow() {
@@ -654,10 +660,39 @@ private final class WindowAccessorView: NSView {
         window.toolbarStyle = .unified
         window.isMovableByWindowBackground = true
 
-        // Frame autosave: must happen synchronously during window setup,
-        // BEFORE SwiftUI applies its own default/restored geometry.
-        // setFrameAutosaveName both registers the name for future saves
-        // and immediately restores the previously-saved frame if one exists.
-        window.setFrameAutosaveName("MacSSHMainWindow")
+        // Restore the previously-saved frame. Deferred via perform(afterDelay:)
+        // (no closure capture) so we apply it after SwiftUI's initial window
+        // layout, which would otherwise overwrite our frame.
+        if UserDefaults.standard.string(forKey: Self.frameKey) != nil {
+            perform(#selector(restoreSavedFrame), with: nil, afterDelay: 0)
+        }
+
+        // Persist on every move/resize end.
+        let center = NotificationCenter.default
+        center.addObserver(
+            self, selector: #selector(persistFrame),
+            name: NSWindow.didEndLiveResizeNotification, object: window
+        )
+        center.addObserver(
+            self, selector: #selector(persistFrame),
+            name: NSWindow.didMoveNotification, object: window
+        )
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    @objc private func restoreSavedFrame() {
+        guard let frameString = UserDefaults.standard.string(forKey: Self.frameKey) else { return }
+        _ = window?.setFrame(from: frameString)
+    }
+
+    @objc private func persistFrame(_ notification: Notification) {
+        guard let window = notification.object as? NSWindow else { return }
+        UserDefaults.standard.set(
+            window.string(from: window.frame),
+            forKey: Self.frameKey
+        )
     }
 }

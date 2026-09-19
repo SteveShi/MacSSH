@@ -1,5 +1,6 @@
 import SwiftUI
 import Observation
+import SSH2Kit
 
 @Observable
 final class AppSettings {
@@ -121,8 +122,38 @@ final class AppSettings {
         didSet { save() }
     }
 
+    // MARK: - Sync secrets (stored in Keychain, never in UserDefaults)
+
+    private enum SyncSecretAccounts {
+        static let githubToken = "sync.github.token"
+        static let dropboxToken = "sync.dropbox.token"
+        static let masterPassword = "sync.master.password"
+    }
+
+    /// Loads a secret from the Keychain; migrates one-time from a legacy
+    /// plaintext UserDefaults entry if present.
+    private static func loadSecret(account: String, legacyKey: String) -> String {
+        if let stored = KeychainStore.loadPassword(account: account), !stored.isEmpty {
+            return stored
+        }
+        if let legacy = UserDefaults.standard.string(forKey: legacyKey), !legacy.isEmpty {
+            KeychainStore.savePassword(legacy, account: account)
+            UserDefaults.standard.removeObject(forKey: legacyKey)
+            return legacy
+        }
+        return ""
+    }
+
+    private static func storeSecret(_ value: String, account: String) {
+        if value.isEmpty {
+            KeychainStore.deletePassword(account: account)
+        } else {
+            KeychainStore.savePassword(value, account: account)
+        }
+    }
+
     var syncGithubToken: String {
-        didSet { save() }
+        didSet { storeSecret(syncGithubToken, account: SyncSecretAccounts.githubToken) }
     }
 
     var syncGithubGistId: String {
@@ -130,7 +161,7 @@ final class AppSettings {
     }
 
     var syncDropboxToken: String {
-        didSet { save() }
+        didSet { storeSecret(syncDropboxToken, account: SyncSecretAccounts.dropboxToken) }
     }
 
     var syncEncryptData: Bool {
@@ -138,7 +169,7 @@ final class AppSettings {
     }
 
     var syncMasterPassword: String {
-        didSet { save() }
+        didSet { storeSecret(syncMasterPassword, account: SyncSecretAccounts.masterPassword) }
     }
 
     var syncLastTime: Date? {
@@ -184,11 +215,11 @@ final class AppSettings {
         notifyTerminalEvents = defaults.object(forKey: Keys.notifyTerminalEvents) as? Bool ?? true
         notifyTerminalBell = defaults.object(forKey: Keys.notifyTerminalBell) as? Bool ?? false
         notifyOnlyWhenInactive = defaults.object(forKey: Keys.notifyOnlyWhenInactive) as? Bool ?? true
-        syncGithubToken = defaults.string(forKey: Keys.syncGithubToken) ?? ""
+        syncGithubToken = Self.loadSecret(account: SyncSecretAccounts.githubToken, legacyKey: Keys.syncGithubToken)
         syncGithubGistId = defaults.string(forKey: Keys.syncGithubGistId) ?? ""
-        syncDropboxToken = defaults.string(forKey: Keys.syncDropboxToken) ?? ""
+        syncDropboxToken = Self.loadSecret(account: SyncSecretAccounts.dropboxToken, legacyKey: Keys.syncDropboxToken)
         syncEncryptData = defaults.object(forKey: Keys.syncEncryptData) as? Bool ?? false
-        syncMasterPassword = defaults.string(forKey: Keys.syncMasterPassword) ?? ""
+        syncMasterPassword = Self.loadSecret(account: SyncSecretAccounts.masterPassword, legacyKey: Keys.syncMasterPassword)
         syncLastTime = defaults.object(forKey: Keys.syncLastTime) as? Date
         syncLastStatus = defaults.string(forKey: Keys.syncLastStatus) ?? ""
         showLocalInspector = defaults.object(forKey: Keys.showLocalInspector) as? Bool ?? false
@@ -281,11 +312,9 @@ final class AppSettings {
         defaults.set(notifyTerminalEvents, forKey: Keys.notifyTerminalEvents)
         defaults.set(notifyTerminalBell, forKey: Keys.notifyTerminalBell)
         defaults.set(notifyOnlyWhenInactive, forKey: Keys.notifyOnlyWhenInactive)
-        defaults.set(syncGithubToken, forKey: Keys.syncGithubToken)
+        // NOTE: syncGithubToken / syncDropboxToken / syncMasterPassword are
+        // secrets — persisted to the Keychain, never to UserDefaults.
         defaults.set(syncGithubGistId, forKey: Keys.syncGithubGistId)
-        defaults.set(syncDropboxToken, forKey: Keys.syncDropboxToken)
-        defaults.set(syncEncryptData, forKey: Keys.syncEncryptData)
-        defaults.set(syncMasterPassword, forKey: Keys.syncMasterPassword)
         defaults.set(syncLastTime, forKey: Keys.syncLastTime)
         defaults.set(syncLastStatus, forKey: Keys.syncLastStatus)
         defaults.set(restoreLocalTerminalHistory, forKey: Keys.restoreLocalTerminalHistory)

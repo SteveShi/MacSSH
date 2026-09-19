@@ -56,3 +56,5 @@ ThirdParty/include/
 .idea/
 .vscode/
 .gemini/
+/.workbuddy
+Derived/

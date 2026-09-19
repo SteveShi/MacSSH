@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import os
 import SSH2Kit
 
 @MainActor
@@ -37,6 +38,8 @@ final class TerminalSessionViewModel {
     private let monitorTaskHolder = TaskHolder()
     private let connectTaskHolder = TaskHolder()
     var appModel: AppModel? = nil
+
+    private static let monitorLogger = Logger(subsystem: "com.steveshi.macssh", category: "TerminalMonitor")
 
     private let monitorScript = """
     OS_NAME=$([ -f /etc/os-release ] && ( . /etc/os-release && echo "$PRETTY_NAME" ) || uname -s)
@@ -131,6 +134,9 @@ final class TerminalSessionViewModel {
         guard status != .connected else { return }
         // Replace any in-flight connect attempt to avoid double-auth racing.
         connectTaskHolder.cancel()
+        // Cooperatively abort a stuck libssh2 handshake so the session actor
+        // frees up for the new attempt (no-op if nothing is in flight).
+        session.cancelActiveOperation()
         status = .connecting
 
         let auth = makeAuth()
@@ -150,8 +156,9 @@ final class TerminalSessionViewModel {
                 if Task.isCancelled { return }
                 switch error {
                 case .hostKeyNotTrusted(let status):
+                    // SECURITY: never auto-accept. Surface the prompt and wait
+                    // for an explicit user decision (Trust and Continue / Cancel).
                     self.hostKeyPrompt = HostKeyPrompt(host: self.connection.host, status: status)
-                    self.trustHostKeyAndConnect()
                 case .authFailed:
                     if case .password = auth, let defaultKey = self.connection.defaultKeyPath {
                         let fallbackAuth = SSHAuth.publicKey(path: defaultKey, passphrase: nil)
@@ -188,6 +195,7 @@ final class TerminalSessionViewModel {
     func trustHostKeyAndConnect() {
         guard status != .connected else { return }
         connectTaskHolder.cancel()
+        session.cancelActiveOperation()
         status = .connecting
         let auth = makeAuth()
         connectTaskHolder.task = Task { [weak self] in
@@ -232,6 +240,10 @@ final class TerminalSessionViewModel {
     func disconnect() {
         monitorTaskHolder.cancel()
         connectTaskHolder.cancel()
+        // Abort any blocking libssh2 call first — the session actor may be
+        // wedged inside a handshake, so `disconnect()` below can only run
+        // after the cancellation flag makes it bail out.
+        session.cancelActiveOperation()
         Task { [session] in
             await session.disconnect()
         }
@@ -244,32 +256,41 @@ final class TerminalSessionViewModel {
             var prevCpuTicks: (idle: UInt64, total: UInt64)? = nil
             var prevNetBytes: (rx: UInt64, tx: UInt64)? = nil
             var lastPollTime = Date()
-            
+            var consecutiveFailures = 0
+
             while !Task.isCancelled {
                 let params: (activeSession: SSHSession, script: String)? = {
                     guard let self else { return nil }
                     return (self.session, self.monitorScript)
                 }()
-                
+
                 guard let (activeSession, script) = params else { break }
-                
+
                 do {
                     let output = try await activeSession.executeCommand(script)
                     if Task.isCancelled { break }
-                    
+
                     let now = Date()
                     let timeInterval = now.timeIntervalSince(lastPollTime)
                     lastPollTime = now
-                    
+                    consecutiveFailures = 0
+
                     if let self {
                         self.parseMetrics(output, timeInterval: timeInterval, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
                     } else {
                         break
                     }
                 } catch {
-                    print("Monitoring error: \(error.localizedDescription)")
+                    consecutiveFailures += 1
+                    Self.monitorLogger.error("Monitoring error (\(consecutiveFailures) consecutive): \(error.localizedDescription)")
+                    if consecutiveFailures >= 3 {
+                        // The session is most likely dead — stop hammering it
+                        // every 3 seconds and give up.
+                        Self.monitorLogger.error("Stopping monitoring after repeated failures")
+                        break
+                    }
                 }
-                
+
                 do {
                     try await Task.sleep(nanoseconds: 3_000_000_000)
                 } catch {
@@ -287,7 +308,7 @@ final class TerminalSessionViewModel {
                 var prevNetBytes: (rx: UInt64, tx: UInt64)? = nil
                 parseMetrics(output, timeInterval: 3.0, prevCpu: &prevCpuTicks, prevNet: &prevNetBytes)
             } catch {
-                print("Force refresh failed: \(error.localizedDescription)")
+                Self.monitorLogger.error("Force refresh failed: \(error.localizedDescription)")
             }
         }
     }

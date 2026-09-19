@@ -160,81 +160,99 @@ struct LocalTerminalStatusBar: View {
     }
 
     private var shellName: String {
-        // Try to resolve the foreground process name from the PTY child process tree.
-        // Falls back to the SHELL environment variable if unavailable.
+        // 1. Preferred: the surface reports its own PTY child pid (MactermKit
+        //    with the ghostty_surface_pid patch) — no process enumeration at all.
+        if let ptyPid = tab.surfaceView.ptyPID,
+           let name = Self.leafProcessName(from: ptyPid) {
+            return name
+        }
+        // 2. Fallback: targeted libproc walk over our own process subtree.
         if let name = Self.foregroundProcessName(for: tab) {
             return name
         }
+        // 3. Last resort: the user's default shell.
         let envShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         return (envShell as NSString).lastPathComponent
     }
 
-    /// Queries the OS process table to find the foreground process name
-    /// running inside the PTY owned by the given local terminal tab.
+    /// Walks from a known pid down to its newest descendant (the foreground
+    /// command, e.g. zsh -> vim) and returns that process's name.
+    private static func leafProcessName(from pid: pid_t) -> String? {
+        var current = processInfo(for: pid)
+        var depth = 0
+        while let node = current, depth < 16 {
+            guard let newest = childPIDs(of: node.pid)
+                .compactMap(processInfo(for:))
+                .max(by: { $0.start < $1.start }) else { break }
+            current = newest
+            depth += 1
+        }
+        guard let name = current?.name, !name.isEmpty else { return nil }
+        return name
+    }
+
+    /// Queries the process tree to find the foreground process name running
+    /// inside the PTY owned by the given local terminal tab.
     ///
-    /// Strategy: find the direct child of this app process whose start time
-    /// is closest to the tab's `connectedAt` timestamp (each tab spawns exactly
-    /// one PTY child), then walk down to the leaf descendant to get the actual
-    /// foreground command (e.g., bash, vim, top).
+    /// Strategy (targeted, O(own process tree) — no full system scan):
+    /// 1. `proc_listchildpids` returns the *direct children* of this app
+    ///    process — its PTY shells, usually just a handful of processes.
+    /// 2. Match the child whose start time is closest to the tab's
+    ///    `connectedAt` timestamp (each tab spawns exactly one PTY child).
+    /// 3. Walk down to the newest descendant to get the actual foreground
+    ///    command (e.g., bash, vim, top).
     private static func foregroundProcessName(for tab: LocalTerminalTab) -> String? {
-        let appPID = getpid()
+        let directChildren = childPIDs(of: getpid())
+        guard !directChildren.isEmpty else { return nil }
 
-        // Get all processes via sysctl
-        var mibSize: size_t = 0
-        var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_ALL]
-        guard sysctl(&mib, 4, nil, &mibSize, nil, 0) == 0 else { return nil }
-
-        let count = mibSize / MemoryLayout<kinfo_proc>.stride
-        var procs = [kinfo_proc](repeating: kinfo_proc(), count: count)
-        guard sysctl(&mib, 4, &procs, &mibSize, nil, 0) == 0 else { return nil }
-
-        let actualCount = mibSize / MemoryLayout<kinfo_proc>.stride
-        procs = Array(procs.prefix(actualCount))
-
-        // Build parent -> children map
-        var childrenMap: [pid_t: [kinfo_proc]] = [:]
-        for proc in procs {
-            let ppid = proc.kp_eproc.e_ppid
-            childrenMap[ppid, default: []].append(proc)
-        }
-
-        // Find direct children of our app process (these are the PTY shell processes)
-        guard let directChildren = childrenMap[appPID], !directChildren.isEmpty else { return nil }
-
-        // Match the child whose start time is closest to the tab's connectedAt
         let tabStartTime = tab.connectedAt.timeIntervalSince1970
-        let matched = directChildren.min(by: { a, b in
-            let aStart = TimeInterval(a.kp_proc.p_starttime.tv_sec) + TimeInterval(a.kp_proc.p_starttime.tv_usec) / 1_000_000
-            let bStart = TimeInterval(b.kp_proc.p_starttime.tv_sec) + TimeInterval(b.kp_proc.p_starttime.tv_usec) / 1_000_000
-            return abs(aStart - tabStartTime) < abs(bStart - tabStartTime)
-        })
+        var current = directChildren
+            .compactMap(processInfo(for:))
+            .min { abs($0.start - tabStartTime) < abs($1.start - tabStartTime) }
 
-        guard let matched else { return nil }
-
-        // Walk to the deepest descendant (leaf) to find the actual foreground process
-        func leafProcess(from pid: pid_t) -> kinfo_proc? {
-            guard let children = childrenMap[pid], !children.isEmpty else { return nil }
-            let sorted = children.sorted { a, b in
-                let aSec = a.kp_proc.p_starttime.tv_sec
-                let bSec = b.kp_proc.p_starttime.tv_sec
-                if aSec != bSec { return aSec < bSec }
-                return a.kp_proc.p_starttime.tv_usec < b.kp_proc.p_starttime.tv_usec
-            }
-            guard let newest = sorted.last else { return nil }
-            if let deeper = leafProcess(from: newest.kp_proc.p_pid) {
-                return deeper
-            }
-            return newest
+        var depth = 0
+        while let node = current, depth < 16 {
+            guard let newest = childPIDs(of: node.pid)
+                .compactMap(processInfo(for:))
+                .max(by: { $0.start < $1.start }) else { break }
+            current = newest
+            depth += 1
         }
 
-        let target = leafProcess(from: matched.kp_proc.p_pid) ?? matched
-        let name = withUnsafeBytes(of: target.kp_proc.p_comm) { rawBuffer -> String? in
-            guard let base = rawBuffer.baseAddress?.assumingMemoryBound(to: CChar.self) else {
-                return nil
+        return current?.name
+    }
+
+    /// Direct children of a process via libproc. Costs one syscall over the
+    /// caller's own subtree instead of enumerating every process on the system.
+    private static func childPIDs(of ppid: pid_t) -> [pid_t] {
+        var capacity = 64
+        while capacity <= 4096 {
+            var buffer = [pid_t](repeating: 0, count: capacity)
+            let bytes = buffer.withUnsafeMutableBytes { raw -> Int32 in
+                proc_listchildpids(ppid, raw.baseAddress, Int32(raw.count))
             }
+            guard bytes >= 0 else { return [] }
+            let stride = MemoryLayout<pid_t>.stride
+            if Int(bytes) < capacity * stride {
+                return Array(buffer.prefix(Int(bytes) / stride))
+            }
+            capacity *= 4 // Buffer exactly filled — retry with more room.
+        }
+        return []
+    }
+
+    private static func processInfo(for pid: pid_t) -> (pid: pid_t, start: TimeInterval, name: String?)? {
+        var info = proc_bsdinfo()
+        let copied = withUnsafeMutableBytes(of: &info) { raw -> Int32 in
+            proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, raw.baseAddress, Int32(MemoryLayout<proc_bsdinfo>.stride))
+        }
+        guard copied >= Int32(MemoryLayout<proc_bsdinfo>.stride) else { return nil }
+        let start = TimeInterval(info.pbi_start_tvsec) + TimeInterval(info.pbi_start_tvusec) / 1_000_000
+        let name = withUnsafeBytes(of: info.pbi_comm) { raw -> String? in
+            guard let base = raw.baseAddress?.assumingMemoryBound(to: CChar.self) else { return nil }
             return String(cString: base)
         }
-        return (name?.isEmpty == false) ? name : nil
+        return (pid, start, name)
     }
 
     private func durationString(from start: Date, to now: Date) -> String {
