@@ -269,7 +269,7 @@ jobs:
             appcast.xml \
             release_notes_en.md \
             release_notes_zh.md \
-            --title "v${NEXT_APP_VER}" \
+            --title "Release v${NEXT_APP_VER}" \
             --notes-file release_notes.md
 
           # Update Homebrew tap Cask
