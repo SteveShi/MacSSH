@@ -191,7 +191,8 @@ Defined in `MacSSHApp.swift`:
 
 User preferences in `AppSettings.swift`:
 - Default input source ID for automatic switching
-- Stored in UserDefaults with `@AppStorage` property wrappers
+- Stored in UserDefaults with `@AppStorage` property wrappers or `@Observable` AppSettings
+- **Settings Integrity**: Strictly prohibit placeholder or non-functional settings items; every exposed setting option must connect to real, verifiable functional logic (设置项不许出现无功能空项目，所有设置项都必须接入对应功能).
 
 <!-- BEGIN brain.md -->
 ## Project Brain
