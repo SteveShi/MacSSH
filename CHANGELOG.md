@@ -1,3 +1,22 @@
+## [2.1.7] - 2026-10-13
+
+### Fixed
+- **Seamless Terminal Slate Background Unification**:
+  - Restored unified slate background color (`#24272e`) across Ghostty terminal canvas in dark appearance, perfectly matching the top titlebar / session tab bar and bottom status bar.
+  - Eliminated the visual regression where GitHub Dark forced an opaque jet-black canvas (`#101216`), removing all visible color seams and border discrepancy around the terminal body.
+  - Standardized container views (`TerminalView` & `LocalTerminalView`) with solid Slate theme background to maintain visual cohesion across split panes and vibrancy states.
+
+---
+
+### Chinese
+### 修复
+- **终端背景色与上下栏无缝统一**：
+  - 彻底恢复深色模式下终端画布与应用全局 Liquid Glass Slate 灰青色调（`#24272e`）的严格统一，使终端内容区域与顶部标题/标签栏、底部状态栏完全浑然一体。
+  - 修复深色模式下 Ghostty 渲染器因引入 GitHub Dark 导致画布变为纯黑（`#101216`）的视觉断层回归，彻底消除终端四周与上下两条栏之间的色差缝隙。
+  - 规范 SSH 远程会话与本地终端容器底色层级，确保在开启或关闭“生动感（玻璃效果）”时均呈现一致纯正的 Slate 质感。
+
+---
+
 ## [2.1.6] - 2026-10-13
 
 ### Fixed

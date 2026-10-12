@@ -286,16 +286,26 @@ struct GhosttyTerminalView: NSViewRepresentable {
             resolvedTheme = .gitHub_Dark
         }
 
-        let bgHex = resolvedTheme.background.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        let fgHex = resolvedTheme.foreground.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        // MacSSH Liquid Glass Design System:
+        // Dark terminal surface background strictly unifies with the window and toolbar slate background (#24272e)
+        // to eliminate any color seams between top tab bar, terminal surface, and bottom status bar.
+        let bgHex: String
+        let fgHex: String
+        if resolvedTheme == .gitHub_Dark {
+            bgHex = "24272e"
+            fgHex = "c9d1d9"
+        } else {
+            bgHex = resolvedTheme.background.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            fgHex = resolvedTheme.foreground.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        }
         lines.append("background = #\(bgHex)")
         lines.append("foreground = #\(fgHex)")
 
-        if let cursor = resolvedTheme.cursorColor {
+        if let cursor = (resolvedTheme == .gitHub_Dark ? "58a6ff" : resolvedTheme.cursorColor) {
             let cursorHex = cursor.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
             lines.append("cursor-color = #\(cursorHex)")
         }
-        if let cursorTxt = resolvedTheme.cursorText {
+        if let cursorTxt = (resolvedTheme == .gitHub_Dark ? "24272e" : resolvedTheme.cursorText) {
             let cursorTxtHex = cursorTxt.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
             lines.append("cursor-text = #\(cursorTxtHex)")
         }

@@ -14,7 +14,7 @@ struct LocalTerminalView: View {
                 LocalTerminalStatusBar(tab: selected)
             }
         }
-        .background(settings.vibrancyEnabled ? Color.clear : (settings.theme == .light ? Color(nsColor: .windowBackgroundColor) : Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0)))
+        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
         .navigationTitle("")
         .inspector(isPresented: inspectorBinding) {
             if let selected = selectedTab {
