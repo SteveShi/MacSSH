@@ -1,3 +1,22 @@
+## [2.1.6] - 2026-10-13
+
+### Fixed
+- **Terminal Appearance Real-Time Synchronization**:
+  - Connected live Ghostty surfaces (both local shell and SSH tabs, including split views) to Appearance settings via main-thread notification and real-time observers. Font size, font family, color scheme themes, and background vibrancy take effect instantly across all active terminals without requiring restart or reconnection.
+  - Resolved Ghostty font-family list caching by clearing the repeatable font list before applying user selection.
+  - Added localization for terminal theme options ("Follow System", "Light", "Dark").
+
+---
+
+### Chinese
+### 修复
+- **终端外观设置实时动态联动**：
+  - 全面打通本地终端与 SSH 远程会话（含所有分屏终端）与“外观”设置的即时联动。调整字体大小、字体家族、配色主题及毛玻璃生动感效果时，所有处于活跃状态的终端界面均能即时毫秒级重绘生效，无需重启或重新连接。
+  - 修复 Ghostty 字体列表增量追加导致的字体家族切换无效问题，切换时重置字体列表以确保所选字体优先加载。
+  - 补充主题选项（“跟随系统”、“浅色”、“深色”）完整的本地化多语言支持。
+
+---
+
 ## [2.1.5] - 2026-10-12
 
 ### Added

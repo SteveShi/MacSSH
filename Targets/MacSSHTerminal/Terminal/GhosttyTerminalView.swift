@@ -244,6 +244,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
     ) {
         guard !fontName.isEmpty else { return }
         var lines: [String] = [
+            "font-family = \"\"",
             "font-family = \"\(fontName)\"",
             "window-padding-x = 10",
             "window-padding-y = 8",
@@ -270,7 +271,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         }
 
         if let fontSize {
-            lines.append("font-size = \(fontSize)")
+            lines.append("font-size = \(String(format: "%.1f", fontSize))")
         }
 
         // Theme palette resolution
@@ -317,6 +318,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
             lines.append("background-blur = 20")
         } else {
             lines.append("background-opacity = 1.0")
+            lines.append("background-blur = false")
         }
 
         let configContents = lines.joined(separator: "\n")
@@ -332,11 +334,13 @@ struct GhosttyTerminalView: NSViewRepresentable {
             try configContents.write(to: url, atomically: true, encoding: .utf8)
             defer { try? FileManager.default.removeItem(at: url) }
             if let nextConfig = ghostty_config_new() {
-                ghostty_config_load_default_files(nextConfig)
                 ghostty_config_load_file(nextConfig, url.path)
                 ghostty_config_finalize(nextConfig)
                 if let rawSurface = surface.rawSurface {
                     ghostty_surface_update_config(rawSurface, nextConfig)
+                    surface.needsDisplay = true
+                    GhosttyRuntime.shared.setPendingTick()
+                    GhosttyRuntime.shared.appTick()
                 }
                 ghostty_config_free(nextConfig)
             }

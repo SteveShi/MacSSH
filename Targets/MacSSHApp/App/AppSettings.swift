@@ -2,6 +2,10 @@ import SwiftUI
 import Observation
 import SSH2Kit
 
+extension Notification.Name {
+    static let terminalAppearanceDidChange = Notification.Name("terminalAppearanceDidChange")
+}
+
 @Observable
 final class AppSettings {
     enum TerminalTheme: String, CaseIterable, Identifiable, Codable {
@@ -10,6 +14,17 @@ final class AppSettings {
         case dark
 
         var id: String { rawValue }
+
+        var localizedTitle: String {
+            switch self {
+            case .system:
+                return String(localized: "Follow System")
+            case .light:
+                return String(localized: "Light")
+            case .dark:
+                return String(localized: "Dark")
+            }
+        }
     }
 
     private enum Keys {
@@ -50,20 +65,31 @@ final class AppSettings {
     }
 
     var fontSize: Double {
-        didSet { save() }
+        didSet {
+            save()
+            NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
+        }
     }
 
     var fontName: String {
-        didSet { save() }
+        didSet {
+            save()
+            NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
+        }
     }
 
     var theme: TerminalTheme {
-        didSet { save() }
+        didSet {
+            save()
+            NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
+        }
     }
 
-
     var vibrancyEnabled: Bool {
-        didSet { save() }
+        didSet {
+            save()
+            NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
+        }
     }
 
 

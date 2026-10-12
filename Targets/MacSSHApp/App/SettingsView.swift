@@ -204,7 +204,7 @@ struct SettingsView: View {
             Section {
                 Picker(String(localized: "Theme"), selection: $settings.theme) {
                     ForEach(AppSettings.TerminalTheme.allCases) { theme in
-                        Text(theme.rawValue.capitalized).tag(theme)
+                        Text(theme.localizedTitle).tag(theme)
                     }
                 }
                 Toggle(String(localized: "Enable Vibrancy (Glass Effect)"), isOn: $settings.vibrancyEnabled)
@@ -244,6 +244,18 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onChange(of: settings.theme) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.vibrancyEnabled) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.fontName) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.fontSize) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
     }
     
     private var sftpTab: some View {

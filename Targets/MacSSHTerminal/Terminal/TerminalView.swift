@@ -17,7 +17,7 @@ struct TerminalView: View {
         @Bindable var tab = self.tab
 
         VStack(spacing: 0) {
-            if (model.status == .idle || model.status == .failed(model.lastErrorMessage ?? "")) && tab.cachedSurface == nil {
+            if (model.status == .idle || model.status == .failed(model.lastErrorMessage)) && tab.cachedSurface == nil {
                 unconnectedPromptView
             } else {
                 let mainTerminal = GhosttyTerminalView(tab: tab, settings: settings)
@@ -46,7 +46,7 @@ struct TerminalView: View {
                 connectedAt: model.connectedAt
             )
         }
-        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+        .background(settings.vibrancyEnabled ? Color.clear : (settings.theme == .light ? Color(nsColor: .windowBackgroundColor) : Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0)))
         .navigationTitle("")
         .inspector(isPresented: $tab.showInspector) {
             InspectorContentView(tab: tab, appModel: appModel)

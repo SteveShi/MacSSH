@@ -50,7 +50,7 @@ final class LocalTerminalTab: Identifiable {
         config.workingDirectory = NSHomeDirectory()
         
         let surface = GhosttySurfaceView(config: config)
-        GhosttyTerminalView.applyFontConfig(to: surface, fontName: settings.fontName)
+        GhosttyTerminalView.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
         setupMenuBuilder(for: surface, localTab: self)
         self.splitSurface = surface
         self.splitDirection = direction

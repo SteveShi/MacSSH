@@ -156,6 +156,17 @@ final class AppModel {
             addLocalTab(config: config)
         }
         isRestoring = false
+
+        NotificationCenter.default.addObserver(
+            forName: .terminalAppearanceDidChange,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                guard let self else { return }
+                self.applyTerminalSettingsToAllSurfaces(settings: AppSettings())
+            }
+        }
     }
 
     var selectedConnection: SSHConnection? {
@@ -267,6 +278,51 @@ final class AppModel {
             }
         }
         persistTabs()
+    }
+
+    // MARK: - Terminal Appearance Management
+
+    /// Applies font-family, font-size, theme and vibrancy to all active surfaces (SSH and Local, including splits).
+    @MainActor
+    func applyTerminalSettingsToAllSurfaces(settings: AppSettings) {
+        for tab in openTabs {
+            if let surface = tab.cachedSurface {
+                GhosttyTerminalView.applyTerminalConfig(
+                    to: surface,
+                    fontName: settings.fontName,
+                    fontSize: settings.fontSize,
+                    theme: settings.theme,
+                    vibrancyEnabled: settings.vibrancyEnabled
+                )
+            }
+            if let split = tab.splitSurface {
+                GhosttyTerminalView.applyTerminalConfig(
+                    to: split,
+                    fontName: settings.fontName,
+                    fontSize: settings.fontSize,
+                    theme: settings.theme,
+                    vibrancyEnabled: settings.vibrancyEnabled
+                )
+            }
+        }
+        for tab in localTabs {
+            GhosttyTerminalView.applyTerminalConfig(
+                to: tab.surfaceView,
+                fontName: settings.fontName,
+                fontSize: settings.fontSize,
+                theme: settings.theme,
+                vibrancyEnabled: settings.vibrancyEnabled
+            )
+            if let split = tab.splitSurface {
+                GhosttyTerminalView.applyTerminalConfig(
+                    to: split,
+                    fontName: settings.fontName,
+                    fontSize: settings.fontSize,
+                    theme: settings.theme,
+                    vibrancyEnabled: settings.vibrancyEnabled
+                )
+            }
+        }
     }
 
     // MARK: - Local Terminal Tab Management
@@ -570,7 +626,6 @@ final class AppModel {
         guard settings.restoreLocalTerminalHistory else { return }
         guard !localTabs.isEmpty else { return }
         let store = SessionHistoryStore.shared
-        let activeIDs = Set(localTabs.map { $0.id })
 
         for tab in localTabs {
             if let text = tab.surfaceView.readFullText(maxLines: settings.scrollbackHistoryLimit) {

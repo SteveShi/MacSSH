@@ -49,6 +49,11 @@ struct MacSSHApp: App {
                 .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in
                     model.saveLocalSessionsHistory(settings: settings)
                 }
+                .onReceive(DistributedNotificationCenter.default().publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))) { _ in
+                    if settings.theme == .system {
+                        model.applyTerminalSettingsToAllSurfaces(settings: settings)
+                    }
+                }
         }
         .commands {
             CommandGroup(after: .appInfo) {
