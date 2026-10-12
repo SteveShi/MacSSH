@@ -17,8 +17,6 @@ final class AppSettings {
         static let fontName = "terminalFontName"
         static let theme = "terminalTheme"
         static let vibrancyEnabled = "vibrancyEnabled"
-        static let showGrid = "showGrid"
-        static let terminalGlow = "terminalGlow"
         static let defaultInputSourceID = "defaultInputSourceID"
         static let confirmBeforeDisconnect = "confirmBeforeDisconnect"
         static let autoReconnect = "autoReconnect"
@@ -68,13 +66,6 @@ final class AppSettings {
         didSet { save() }
     }
 
-    var showGrid: Bool {
-        didSet { save() }
-    }
-
-    var terminalGlow: Bool {
-        didSet { save() }
-    }
 
     var defaultInputSourceID: String {
         didSet { save() }
@@ -199,8 +190,6 @@ final class AppSettings {
             self.theme = .system
         }
         vibrancyEnabled = defaults.object(forKey: Keys.vibrancyEnabled) as? Bool ?? true
-        showGrid = defaults.object(forKey: Keys.showGrid) as? Bool ?? false
-        terminalGlow = defaults.object(forKey: Keys.terminalGlow) as? Bool ?? true
         defaultInputSourceID = defaults.string(forKey: Keys.defaultInputSourceID) ?? ""
         confirmBeforeDisconnect = defaults.object(forKey: Keys.confirmBeforeDisconnect) as? Bool ?? true
         autoReconnect = defaults.object(forKey: Keys.autoReconnect) as? Bool ?? false
@@ -299,8 +288,6 @@ final class AppSettings {
         defaults.set(fontName, forKey: Keys.fontName)
         defaults.set(theme.rawValue, forKey: Keys.theme)
         defaults.set(vibrancyEnabled, forKey: Keys.vibrancyEnabled)
-        defaults.set(showGrid, forKey: Keys.showGrid)
-        defaults.set(terminalGlow, forKey: Keys.terminalGlow)
         defaults.set(defaultInputSourceID, forKey: Keys.defaultInputSourceID)
         defaults.set(confirmBeforeDisconnect, forKey: Keys.confirmBeforeDisconnect)
         defaults.set(autoReconnect, forKey: Keys.autoReconnect)

@@ -77,7 +77,7 @@ struct MacSSHApp: App {
                     if let id = model.selectedLocalTabID {
                         model.removeLocalTab(id)
                     } else if let tabID = model.selectedTabID {
-                        model.closeTab(tabID)
+                        model.requestCloseTab(tabID, settings: settings)
                     }
                 }
                 .keyboardShortcut("w", modifiers: .command)

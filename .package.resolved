@@ -1,22 +1,13 @@
 {
-  "originHash" : "b1997fcaef92ed500a48541850d0d62ec2982e9ee99eab9c14f5a2842abe1669",
+  "originHash" : "5dc6bb760be523e9a1ee795aaab9043877d98bf1a7def89d18b0090b76b8d727",
   "pins" : [
     {
-      "identity" : "libghostty-swift",
+      "identity" : "mactermkit",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SteveShi/libghostty-swift.git",
+      "location" : "https://github.com/SteveShi/MactermKit.git",
       "state" : {
-        "revision" : "b038766861f41252f3b622f464c60708fff526df",
-        "version" : "1.0.13"
-      }
-    },
-    {
-      "identity" : "libssh2-swift",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/SteveShi/libssh2-swift.git",
-      "state" : {
-        "revision" : "f674b5d2415ac911ba7e8f60156cd745d922a10b",
-        "version" : "1.3.12"
+        "revision" : "d1c94b8473deb17a9cb38aad8bf82e6af1b9551e",
+        "version" : "1.0.24"
       }
     },
     {
@@ -35,6 +26,15 @@
       "state" : {
         "revision" : "79bc9e872948e47877e76f194cb0c8e0412b0b90",
         "version" : "2.9.5"
+      }
+    },
+    {
+      "identity" : "ssh2kit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SteveShi/SSH2Kit.git",
+      "state" : {
+        "revision" : "05c59674fe5440eda60862968cb2f733b58747cf",
+        "version" : "1.3.23"
       }
     }
   ],

@@ -52,15 +52,18 @@ final class SessionTab: Identifiable {
     init(connection: SSHConnection) {
         self.id = UUID()
         self.connection = connection
-        self.terminalModel = TerminalSessionViewModel(connection: connection)
+        let model = TerminalSessionViewModel(connection: connection)
+        model.settings = AppSettings()
+        self.terminalModel = model
     }
 
     func split(direction: SplitDirection) {
+        let settings = AppSettings()
         let model = TerminalSessionViewModel(connection: connection)
         model.appModel = terminalModel.appModel
+        model.settings = settings
         model.connect()
         
-        let settings = AppSettings()
         let helper = GhosttyTerminalView(tab: self, settings: settings)
         let config = helper.configuration
         let surface = GhosttySurfaceView(config: config)

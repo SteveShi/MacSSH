@@ -1,3 +1,30 @@
+## [2.1.5] - 2026-10-12
+
+### Added
+- **Complete Logic Implementation for Settings**:
+  - **Terminal Appearance & Themes**: Fully connected the Appearance tab to Ghostty Metal renderer. Theme selection (System, Light, Dark) now dynamically updates the terminal palette in real time, and the Vibrancy toggle enables native semi-transparent background blur.
+  - **Disconnect Confirmation**: Added session disconnect confirmation dialog when closing active SSH tabs via tab close button, shortcut (Cmd+W), or context menu when "Confirm before disconnecting" is enabled.
+  - **Auto-Reconnect**: Implemented automatic retry mechanism for unexpected SSH session disconnections with backoff delay.
+  - **SFTP Preferences**: Added live filtering for hidden files based on the "Show hidden files" toggle, and implemented overwrite protection for uploads and downloads when "Overwrite existing files" is disabled.
+- **Settings Architecture Cleanup**:
+  - Reorganized Appearance and Terminal settings tabs, moving theme and typography into Appearance while focusing Terminal on session history and buffer management.
+  - Removed deprecated zombie placeholders (subtle grid and text glow) from legacy views.
+
+---
+
+### Chinese
+### 新增
+- **全面补齐所有设置项实际逻辑**：
+  - **终端外观与色彩主题**：彻底打通“外观”设置与 Ghostty Metal 渲染核心。主题配色（跟随系统、浅色、深色）现已实时动态生效，且“生动感（玻璃效果）”原生接入 Ghostty 半透明磨砂背景模糊。
+  - **断开连接前确认**：在开启“断开连接前确认”时，通过标签栏关闭按钮、快捷键 (Cmd+W) 或右键菜单关闭活跃 SSH 会话均会弹出安全确认弹窗。
+  - **连接异常自动重连**：为非主动退出的 SSH 异常断开添加自动重连重试机制及退避延迟。
+  - **SFTP 偏好设置生效**：在文件列表中根据“显示隐藏文件”开关实时过滤以点号开头的文件；在上传和下载时遵循“覆盖已有文件”开关，保护已有文件不被意外覆盖。
+- **设置界面架构重构**：
+  - 重新梳理“外观”与“终端”选项卡划分，将色彩风格与排版收归“外观”，将“终端”聚焦于会话历史与缓冲区控制。
+  - 彻底清理早期纯 SwiftUI 临时视图遗留的无效假开关（隐形网格与文本发光）。
+
+---
+
 ## [2.1.4] - 2026-10-02
 
 ### Changed

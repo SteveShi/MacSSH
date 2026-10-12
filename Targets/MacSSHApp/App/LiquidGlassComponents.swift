@@ -78,6 +78,7 @@ struct LiquidGlassIconPicker<T: Hashable>: View {
 
 struct TitlebarSessionTabBar: View {
     @Bindable var model: AppModel
+    var settings: AppSettings? = nil
     let isLocalMode: Bool
     var onAdd: () -> Void
     @State private var hoveredTabID: UUID?
@@ -135,7 +136,7 @@ struct TitlebarSessionTabBar: View {
                                 model.sidebarSelection = .connection(tab.connection.id)
                             },
                             onClose: {
-                                model.closeTab(tab.id)
+                                model.requestCloseTab(tab.id, settings: settings ?? AppSettings())
                             },
                             onReorder: { fromID in
                                 model.moveOpenTab(fromID: fromID, toID: tab.id)

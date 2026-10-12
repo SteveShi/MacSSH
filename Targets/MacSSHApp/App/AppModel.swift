@@ -227,6 +227,29 @@ final class AppModel {
         persistTabs()
     }
 
+    /// Currently pending SSH tab waiting for user confirmation before disconnecting.
+    var pendingDisconnectTab: SessionTab?
+
+    /// Requests closing an open SSH tab.
+    /// If confirmBeforeDisconnect is enabled and the session is active/connecting,
+    /// triggers a confirmation dialog. Otherwise closes immediately.
+    func requestCloseTab(_ tabID: SessionTab.ID, settings: AppSettings) {
+        guard let tab = openTabs.first(where: { $0.id == tabID }) else { return }
+        if settings.confirmBeforeDisconnect, tab.terminalModel.status == .connected || tab.terminalModel.status == .connecting {
+            pendingDisconnectTab = tab
+        } else {
+            closeTab(tabID)
+        }
+    }
+
+    /// Confirms closing the pending tab that was awaiting user confirmation.
+    func confirmClosePendingTab() {
+        if let tab = pendingDisconnectTab {
+            closeTab(tab.id)
+            pendingDisconnectTab = nil
+        }
+    }
+
     func closeTab(_ tabID: SessionTab.ID) {
         if let tab = openTabs.first(where: { $0.id == tabID }) {
             tab.terminalModel.disconnect()

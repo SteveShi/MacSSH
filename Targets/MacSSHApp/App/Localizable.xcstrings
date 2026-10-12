@@ -4383,7 +4383,6 @@
       }
     },
     "Disconnect Session": {
-      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -4412,6 +4411,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "MacSSH 新功能介绍"
+          }
+        }
+      }
+    },
+    "Theme & Style": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme & Style"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题与风格"
+          }
+        }
+      }
+    },
+    "Adjust the terminal color scheme and semi-transparent background blur.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust the terminal color scheme and semi-transparent background blur."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调节终端配色方案及半透明背景模糊效果。"
+          }
+        }
+      }
+    },
+    "Are you sure you want to disconnect from %@?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to disconnect from %@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要断开与 %@ 的连接吗？"
+          }
+        }
+      }
+    },
+    "Are you sure you want to disconnect?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to disconnect?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要断开连接吗？"
+          }
+        }
+      }
+    },
+    "File already exists. Overwrite is disabled in Settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File already exists. Overwrite is disabled in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件已存在。设置中已禁用覆盖已有文件。"
+          }
+        }
+      }
+    },
+    "Remote file already exists. Overwrite is disabled in Settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote file already exists. Overwrite is disabled in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远程文件已存在。设置中已禁用覆盖已有文件。"
+          }
+        }
+      }
+    },
+    "Transferred with %lld skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transferred with %lld skipped"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传输完成，已跳过 %lld 个已存在文件"
+          }
+        }
+      }
+    },
+    "Uploaded with %lld skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uploaded with %lld skipped"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传完成，已跳过 %lld 个已存在文件"
           }
         }
       }

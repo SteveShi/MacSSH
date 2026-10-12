@@ -4,8 +4,17 @@ import SSH2Kit
 
 struct SFTPPanelView: View {
     @Bindable var model: SFTPViewModel
+    var settings: AppSettings = AppSettings()
     @State private var selection: Set<SFTPItem.ID> = []
     @State private var isDropTargeted = false
+
+    private var displayedItems: [SFTPItem] {
+        if settings.showHiddenFiles {
+            return model.items
+        } else {
+            return model.items.filter { !$0.name.hasPrefix(".") }
+        }
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -68,7 +77,7 @@ struct SFTPPanelView: View {
             Divider()
 
             List(selection: $selection) {
-                ForEach(model.items) { item in
+                ForEach(displayedItems) { item in
                     HStack(spacing: 10) {
                         Image(systemName: item.isDirectory ? "folder.fill" : "doc.fill")
                             .foregroundStyle(item.isDirectory ? AnyShapeStyle(Color.accentColor) : AnyShapeStyle(.secondary))
@@ -183,6 +192,12 @@ struct SFTPPanelView: View {
             .animation(.spring(response: 0.4, dampingFraction: 0.8), value: model.status)
         }
         .frame(minWidth: 280)
+        .onAppear {
+            model.settings = settings
+        }
+        .onChange(of: settings.overwriteExistingFiles) { _, _ in
+            model.settings = settings
+        }
     }
 
     private var selectedItems: [SFTPItem] {

@@ -16,6 +16,7 @@ final class SFTPViewModel {
     var currentPath: String = "."
     var items: [SFTPItem] = []
     var status: Status = .idle
+    var settings: AppSettings? = nil
 
     /// Tracks the currently running directory listing / refresh so that a new
     /// navigation cancels any in-flight one. Without this, fast clicks could
@@ -63,6 +64,12 @@ final class SFTPViewModel {
     }
 
     func download(_ item: SFTPItem, to url: URL) {
+        let shouldOverwrite = settings?.overwriteExistingFiles ?? AppSettings().overwriteExistingFiles
+        if !shouldOverwrite && FileManager.default.fileExists(atPath: url.path) {
+            self.status = .error(String(localized: "File already exists. Overwrite is disabled in Settings."))
+            return
+        }
+
         transferTask?.cancel()
         status = .transferring(item.name)
         transferTask = Task { [weak self] in
@@ -81,20 +88,29 @@ final class SFTPViewModel {
     }
 
     func download(_ items: [SFTPItem], to directory: URL) {
+        let shouldOverwrite = settings?.overwriteExistingFiles ?? AppSettings().overwriteExistingFiles
         transferTask?.cancel()
         status = .loading
         transferTask = Task { [weak self] in
             guard let self else { return }
             do {
+                var skippedCount = 0
                 for item in items where !item.isDirectory {
                     if Task.isCancelled { return }
-                    self.status = .transferring(item.name)
                     let target = directory.appendingPathComponent(item.name)
+                    if !shouldOverwrite && FileManager.default.fileExists(atPath: target.path) {
+                        skippedCount += 1
+                        continue
+                    }
+                    self.status = .transferring(item.name)
                     try await self.service.download(remotePath: item.path, localURL: target)
                 }
                 if Task.isCancelled { return }
                 self.status = .idle
-                NotificationService.shared.notifySFTP(success: true, name: String(localized: "Multiple files"))
+                let summaryName = skippedCount > 0
+                    ? String(localized: "Transferred with \(skippedCount) skipped")
+                    : String(localized: "Multiple files")
+                NotificationService.shared.notifySFTP(success: true, name: summaryName)
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)
@@ -104,39 +120,56 @@ final class SFTPViewModel {
     }
 
     func upload(from url: URL) {
+        let filename = url.lastPathComponent
+        let shouldOverwrite = settings?.overwriteExistingFiles ?? AppSettings().overwriteExistingFiles
+        if !shouldOverwrite && items.contains(where: { $0.name == filename }) {
+            self.status = .error(String(localized: "Remote file already exists. Overwrite is disabled in Settings."))
+            return
+        }
+
         transferTask?.cancel()
-        status = .transferring(url.lastPathComponent)
-        let target = (currentPath as NSString).appendingPathComponent(url.lastPathComponent)
+        status = .transferring(filename)
+        let target = (currentPath as NSString).appendingPathComponent(filename)
         transferTask = Task { [weak self] in
             guard let self else { return }
             do {
                 try await self.service.upload(localURL: url, remotePath: target)
                 if Task.isCancelled { return }
                 self.refresh()
-                NotificationService.shared.notifySFTP(success: true, name: url.lastPathComponent)
+                NotificationService.shared.notifySFTP(success: true, name: filename)
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)
-                NotificationService.shared.notifySFTP(success: false, name: url.lastPathComponent)
+                NotificationService.shared.notifySFTP(success: false, name: filename)
             }
         }
     }
 
     func upload(from urls: [URL]) {
+        let shouldOverwrite = settings?.overwriteExistingFiles ?? AppSettings().overwriteExistingFiles
         transferTask?.cancel()
         status = .loading
         transferTask = Task { [weak self] in
             guard let self else { return }
             do {
+                var skippedCount = 0
                 for url in urls {
                     if Task.isCancelled { return }
-                    self.status = .transferring(url.lastPathComponent)
-                    let target = (self.currentPath as NSString).appendingPathComponent(url.lastPathComponent)
+                    let filename = url.lastPathComponent
+                    if !shouldOverwrite && self.items.contains(where: { $0.name == filename }) {
+                        skippedCount += 1
+                        continue
+                    }
+                    self.status = .transferring(filename)
+                    let target = (self.currentPath as NSString).appendingPathComponent(filename)
                     try await self.service.upload(localURL: url, remotePath: target)
                 }
                 if Task.isCancelled { return }
                 self.refresh()
-                NotificationService.shared.notifySFTP(success: true, name: String(localized: "Multiple files"))
+                let summaryName = skippedCount > 0
+                    ? String(localized: "Uploaded with \(skippedCount) skipped")
+                    : String(localized: "Multiple files")
+                NotificationService.shared.notifySFTP(success: true, name: summaryName)
             } catch {
                 if Task.isCancelled { return }
                 self.status = .error(error.localizedDescription)

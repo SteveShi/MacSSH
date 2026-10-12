@@ -173,34 +173,6 @@ struct SettingsView: View {
     private var terminalTab: some View {
         Form {
             Section {
-                Picker(String(localized: "Theme"), selection: $settings.theme) {
-                    ForEach(AppSettings.TerminalTheme.allCases) { theme in
-                        Text(theme.rawValue.capitalized).tag(theme)
-                    }
-                }
-            } header: {
-                Text(String(localized: "Engine"))
-            }
-
-            Section {
-                Picker(String(localized: "Font Family"), selection: $settings.fontName) {
-                    ForEach(settings.availableFonts, id: \.self) { font in
-                        Text(font).tag(font)
-                    }
-                }
-                
-                HStack {
-                    Text(String(localized: "Font Size"))
-                    Slider(value: $settings.fontSize, in: 9...24, step: 1)
-                    Text("\(Int(settings.fontSize))")
-                        .monospacedDigit()
-                        .frame(width: 30)
-                }
-            } header: {
-                Text(String(localized: "Typography"))
-            }
-
-            Section {
                 Toggle(String(localized: "Load Previous Terminal History"), isOn: $settings.restoreLocalTerminalHistory)
                 if settings.restoreLocalTerminalHistory {
                     Stepper(value: $settings.scrollbackHistoryLimit, in: 1000...50000, step: 1000) {
@@ -230,13 +202,34 @@ struct SettingsView: View {
     private var appearanceTab: some View {
         Form {
             Section {
+                Picker(String(localized: "Theme"), selection: $settings.theme) {
+                    ForEach(AppSettings.TerminalTheme.allCases) { theme in
+                        Text(theme.rawValue.capitalized).tag(theme)
+                    }
+                }
                 Toggle(String(localized: "Enable Vibrancy (Glass Effect)"), isOn: $settings.vibrancyEnabled)
-                Toggle(String(localized: "Show Subtle Grid"), isOn: $settings.showGrid)
-                Toggle(String(localized: "Enable Terminal Text Glow"), isOn: $settings.terminalGlow)
             } header: {
-                Text(String(localized: "Premium Effects"))
+                Text(String(localized: "Theme & Style"))
             } footer: {
-                Text(String(localized: "Enable these effects for a more modern, state-of-the-art macOS experience."))
+                Text(String(localized: "Adjust the terminal color scheme and semi-transparent background blur."))
+            }
+
+            Section {
+                Picker(String(localized: "Font Family"), selection: $settings.fontName) {
+                    ForEach(settings.availableFonts, id: \.self) { font in
+                        Text(font).tag(font)
+                    }
+                }
+                
+                HStack {
+                    Text(String(localized: "Font Size"))
+                    Slider(value: $settings.fontSize, in: 9...24, step: 1)
+                    Text("\(Int(settings.fontSize))")
+                        .monospacedDigit()
+                        .frame(width: 30)
+                }
+            } header: {
+                Text(String(localized: "Typography"))
             }
 
             Section {

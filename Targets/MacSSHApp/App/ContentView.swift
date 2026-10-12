@@ -168,6 +168,7 @@ struct ContentView: View {
                 ToolbarItem(placement: .navigation) {
                     TitlebarSessionTabBar(
                         model: model,
+                        settings: settings,
                         isLocalMode: sidebarTab == .local,
                         onAdd: {
                             if sidebarTab == .local {
@@ -181,6 +182,27 @@ struct ContentView: View {
             }
         }
         .navigationSplitViewStyle(.balanced)
+        .confirmationDialog(
+            String(localized: "Disconnect Session"),
+            isPresented: Binding(
+                get: { model.pendingDisconnectTab != nil },
+                set: { if !$0 { model.pendingDisconnectTab = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(String(localized: "Disconnect"), role: .destructive) {
+                model.confirmClosePendingTab()
+            }
+            Button(String(localized: "Cancel"), role: .cancel) {
+                model.pendingDisconnectTab = nil
+            }
+        } message: {
+            if let tab = model.pendingDisconnectTab {
+                Text(String(localized: "Are you sure you want to disconnect from \(tab.connection.name)?"))
+            } else {
+                Text(String(localized: "Are you sure you want to disconnect?"))
+            }
+        }
         .sheet(item: $editorConnection) { connection in
             ConnectionEditorView(connection: connection) { updated in
                 model.upsertConnection(updated)
@@ -444,7 +466,7 @@ struct ContentView: View {
 
         if let tab = existingTab {
             Button {
-                model.closeTab(tab.id)
+                model.requestCloseTab(tab.id, settings: settings)
             } label: {
                 Label(String(localized: "Close Tab"), systemImage: "xmark")
             }

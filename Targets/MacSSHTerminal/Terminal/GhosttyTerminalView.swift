@@ -188,7 +188,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         let config = configuration
         let surface = GhosttySurfaceView(config: config)
         tab?.cachedSurface = surface
-        Self.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
+        Self.applyTerminalConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize, theme: settings.theme, vibrancyEnabled: settings.vibrancyEnabled)
         
         if let tab = self.tab {
             setupMenuBuilder(for: surface, sshTab: tab, localTab: nil)
@@ -198,31 +198,50 @@ struct GhosttyTerminalView: NSViewRepresentable {
     }
 
     func updateNSView(_ nsView: GhosttySurfaceView, context: Context) {
-        // Only push a config update when the font settings actually changed —
+        // Only push a config update when appearance settings actually changed —
         // updateNSView fires on every SwiftUI diff and applying the config is
         // expensive (temp file write + ghostty config rebuild).
         let coordinator = context.coordinator
+        let currentTheme = settings.theme
+        let currentVibrancy = settings.vibrancyEnabled
         guard coordinator.lastFontName != settings.fontName
-                || coordinator.lastFontSize != settings.fontSize else { return }
+                || coordinator.lastFontSize != settings.fontSize
+                || coordinator.lastTheme != currentTheme
+                || coordinator.lastVibrancyEnabled != currentVibrancy else { return }
         coordinator.lastFontName = settings.fontName
         coordinator.lastFontSize = settings.fontSize
-        Self.applyFontConfig(to: nsView, fontName: settings.fontName, fontSize: settings.fontSize)
+        coordinator.lastTheme = currentTheme
+        coordinator.lastVibrancyEnabled = currentVibrancy
+        Self.applyTerminalConfig(to: nsView, fontName: settings.fontName, fontSize: settings.fontSize, theme: currentTheme, vibrancyEnabled: currentVibrancy)
     }
 
-    final class FontConfigCoordinator {
+    final class TerminalConfigCoordinator {
         var lastFontName: String?
         var lastFontSize: Double?
+        var lastTheme: AppSettings.TerminalTheme?
+        var lastVibrancyEnabled: Bool?
     }
 
-    func makeCoordinator() -> FontConfigCoordinator {
-        FontConfigCoordinator()
+    func makeCoordinator() -> TerminalConfigCoordinator {
+        TerminalConfigCoordinator()
     }
 
     // MARK: - Font Configuration
 
-    /// Applies font-family (with fallback chain) and font-size to a Ghostty surface using the config-file mechanism
-    /// (same approach as GhosttySurfaceView.applyTheme).
+    /// Applies font-family, font-size, theme and vibrancy to a Ghostty surface using the config-file mechanism.
     static func applyFontConfig(to surface: GhosttySurfaceView, fontName: String, fontSize: Double? = nil) {
+        let settings = AppSettings()
+        applyTerminalConfig(to: surface, fontName: fontName, fontSize: fontSize, theme: settings.theme, vibrancyEnabled: settings.vibrancyEnabled)
+    }
+
+    /// Full terminal appearance configuration application (font, font-size, color theme, background vibrancy).
+    static func applyTerminalConfig(
+        to surface: GhosttySurfaceView,
+        fontName: String,
+        fontSize: Double? = nil,
+        theme: AppSettings.TerminalTheme = .system,
+        vibrancyEnabled: Bool = true
+    ) {
         guard !fontName.isEmpty else { return }
         var lines: [String] = [
             "font-family = \"\(fontName)\"",
@@ -253,15 +272,62 @@ struct GhosttyTerminalView: NSViewRepresentable {
         if let fontSize {
             lines.append("font-size = \(fontSize)")
         }
+
+        // Theme palette resolution
+        let resolvedTheme: GhosttyThemeDefinition
+        switch theme {
+        case .system:
+            let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            resolvedTheme = isDark ? .gitHub_Dark : .gitHub_Light
+        case .light:
+            resolvedTheme = .gitHub_Light
+        case .dark:
+            resolvedTheme = .gitHub_Dark
+        }
+
+        let bgHex = resolvedTheme.background.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let fgHex = resolvedTheme.foreground.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        lines.append("background = #\(bgHex)")
+        lines.append("foreground = #\(fgHex)")
+
+        if let cursor = resolvedTheme.cursorColor {
+            let cursorHex = cursor.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            lines.append("cursor-color = #\(cursorHex)")
+        }
+        if let cursorTxt = resolvedTheme.cursorText {
+            let cursorTxtHex = cursorTxt.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            lines.append("cursor-text = #\(cursorTxtHex)")
+        }
+        if let selBg = resolvedTheme.selectionBackground {
+            let selBgHex = selBg.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            lines.append("selection-background = #\(selBgHex)")
+        }
+        if let selFg = resolvedTheme.selectionForeground {
+            let selFgHex = selFg.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            lines.append("selection-foreground = #\(selFgHex)")
+        }
+        for (idx, color) in resolvedTheme.palette {
+            let colorHex = color.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+            lines.append("palette = \(idx)=#\(colorHex)")
+        }
+
+        // Background vibrancy (Metal glass / opacity)
+        if vibrancyEnabled {
+            lines.append("background-opacity = 0.85")
+            lines.append("background-blur = 20")
+        } else {
+            lines.append("background-opacity = 1.0")
+        }
+
         let configContents = lines.joined(separator: "\n")
 
         // NOTE: we deliberately do NOT write to ~/.config/ghostty/config —
-        // that file belongs to the user. Our font config is applied below via
+        // that file belongs to the user. Our terminal config is applied below via
         // the C API with an explicitly loaded temp file.
 
         // Apply to live surface via C API
         let url = FileManager.default.temporaryDirectory
-            .appendingPathComponent("macssh-font-\(UUID().uuidString).conf")
+            .appendingPathComponent("macssh-term-\(UUID().uuidString).conf")
         do {
             try configContents.write(to: url, atomically: true, encoding: .utf8)
             defer { try? FileManager.default.removeItem(at: url) }
@@ -275,7 +341,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 ghostty_config_free(nextConfig)
             }
         } catch {
-            NSLog("[MacSSH] Failed to apply font config: \(error)")
+            NSLog("[MacSSH] Failed to apply terminal config: \(error)")
         }
     }
 

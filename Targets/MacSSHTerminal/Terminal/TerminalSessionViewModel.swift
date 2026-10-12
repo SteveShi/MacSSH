@@ -38,6 +38,10 @@ final class TerminalSessionViewModel {
     private let monitorTaskHolder = TaskHolder()
     private let connectTaskHolder = TaskHolder()
     var appModel: AppModel? = nil
+    var settings: AppSettings? = nil
+    private var reconnectAttempts: Int = 0
+    private let maxReconnectAttempts: Int = 3
+    private var reconnectTask: Task<Void, Never>?
 
     private static let monitorLogger = Logger(subsystem: "com.steveshi.macssh", category: "TerminalMonitor")
 
@@ -148,6 +152,8 @@ final class TerminalSessionViewModel {
                 if Task.isCancelled { return }
                 self.status = .connected
                 self.connectedAt = Date()
+                self.reconnectAttempts = 0
+                self.reconnectTask?.cancel()
                 self.handlePasswordPersistence(auth)
                 self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
                 self.startMonitoring()
@@ -167,6 +173,8 @@ final class TerminalSessionViewModel {
                             if Task.isCancelled { return }
                             self.status = .connected
                             self.connectedAt = Date()
+                            self.reconnectAttempts = 0
+                            self.reconnectTask?.cancel()
                             self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
                             self.startMonitoring()
                             self.sftpViewModel.refresh()
@@ -175,19 +183,30 @@ final class TerminalSessionViewModel {
                             // Fallback auth failed
                         }
                     }
-                    self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
-                    self.status = .failed(error.localizedDescription)
-                    self.lastErrorMessage = error.localizedDescription
+                    self.handleConnectionFailure(errorDescription: error.localizedDescription, allowsAutoReconnect: false)
                 default:
-                    self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
-                    self.status = .failed(error.localizedDescription)
-                    self.lastErrorMessage = error.localizedDescription
+                    self.handleConnectionFailure(errorDescription: error.localizedDescription, allowsAutoReconnect: true)
                 }
             } catch {
                 if Task.isCancelled { return }
-                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
-                self.status = .failed(error.localizedDescription)
-                self.lastErrorMessage = error.localizedDescription
+                self.handleConnectionFailure(errorDescription: error.localizedDescription, allowsAutoReconnect: true)
+            }
+        }
+    }
+
+    private func handleConnectionFailure(errorDescription: String, allowsAutoReconnect: Bool = true) {
+        self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+        self.status = .failed(errorDescription)
+        self.lastErrorMessage = errorDescription
+        
+        let shouldAutoReconnect = (settings?.autoReconnect ?? AppSettings().autoReconnect)
+        if allowsAutoReconnect, shouldAutoReconnect, reconnectAttempts < maxReconnectAttempts {
+            reconnectAttempts += 1
+            reconnectTask?.cancel()
+            reconnectTask = Task { [weak self] in
+                try? await Task.sleep(nanoseconds: 3_000_000_000)
+                guard let self, !Task.isCancelled else { return }
+                self.connect()
             }
         }
     }
@@ -205,6 +224,9 @@ final class TerminalSessionViewModel {
                 if Task.isCancelled { return }
                 self.hostKeyPrompt = nil
                 self.status = .connected
+                self.connectedAt = Date()
+                self.reconnectAttempts = 0
+                self.reconnectTask?.cancel()
                 self.handlePasswordPersistence(auth)
                 self.appModel?.recordHistory(for: self.connection.id, isSuccess: true)
                 self.startMonitoring()
@@ -225,19 +247,17 @@ final class TerminalSessionViewModel {
                         // Fallback auth failed
                     }
                 }
-                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
-                self.status = .failed(error.localizedDescription)
-                self.lastErrorMessage = error.localizedDescription
+                self.handleConnectionFailure(errorDescription: error.localizedDescription, allowsAutoReconnect: false)
             } catch {
                 if Task.isCancelled { return }
-                self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
-                self.status = .failed(error.localizedDescription)
-                self.lastErrorMessage = error.localizedDescription
+                self.handleConnectionFailure(errorDescription: error.localizedDescription, allowsAutoReconnect: true)
             }
         }
     }
 
     func disconnect() {
+        reconnectTask?.cancel()
+        reconnectAttempts = 0
         monitorTaskHolder.cancel()
         connectTaskHolder.cancel()
         // Abort any blocking libssh2 call first — the session actor may be
