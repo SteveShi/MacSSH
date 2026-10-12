@@ -1,3 +1,26 @@
+## [2.1.8] - 2026-10-13
+
+### Added
+- **Warm Beige Light Theme with Unified Palette**:
+  - Implemented an elegant, warm beige cream light palette (`#f5f2eb`) designed for extended reading comfort.
+  - Strict color unification across the titlebar, terminal surface canvas, and bottom status bar, achieving complete seamlessness with zero color seams.
+  - Sidebar styled in a slightly deeper warm beige tone (`#ebe5da`) for distinct visual hierarchy.
+  - Tailored light terminal typography: deep charcoal text (`#24292f`), subtle selection highlight (`#d8d0bf`), refined blue cursor (`#0969da`), and a high-contrast ANSI 16-color palette.
+  - Adaptive floating status bar capsule and window appearance synchronization for seamless hot switching between dark Slate and light Beige.
+
+---
+
+### Chinese
+### 新增
+- **无缝米色浅色主题（Warm Beige Cream）**：
+  - 带来温润优雅的高级暖米色调浅色主题（`#f5f2eb`），温和护眼且富有现代质感。
+  - 严格保持终端部分标题栏、终端主界面画布与底部状态栏色调完全统一，实现纯粹的无缝融合。
+  - 侧边栏采用稍微深一点的暖米色（`#ebe5da`），层次分明且视觉自然。
+  - 适配深炭灰高对比文字（`#24292f`）、雅致蓝光标（`#0969da`）、柔和选区与清晰明丽的 16 色 ANSI 调色板。
+  - 底部浮动状态栏胶囊与系统窗口外观随深浅主题动态自适应，支持秒级无感热切换。
+
+---
+
 ## [2.1.7] - 2026-10-13
 
 ### Fixed

@@ -23,7 +23,7 @@ struct ContentView: View {
     var body: some View {
         splitView
         .frame(minWidth: 850, minHeight: 560)
-        .background(WindowAccessor())
+        .background(WindowAccessor(settings: settings))
         .sheet(isPresented: $model.showingWhatsNew) {
             WhatsNewSheetView()
         }
@@ -139,6 +139,7 @@ struct ContentView: View {
         NavigationSplitView {
             sidebarContent
                 .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 320)
+                .background(ThemeColors.sidebarBackground(isDark: settings.isDarkMode))
         } detail: {
             Group {
                 if case .localTab = model.sidebarSelection {
@@ -162,7 +163,7 @@ struct ContentView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+            .background(ThemeColors.terminalBackground(isDark: settings.isDarkMode))
             .toolbarBackground(.hidden, for: .windowToolbar)
             .toolbar {
                 ToolbarItem(placement: .navigation) {
@@ -644,43 +645,67 @@ private struct EmptyStateView: View {
 // MARK: - Window Accessor
 
 private struct WindowAccessor: NSViewRepresentable {
+    let settings: AppSettings
+
     func makeNSView(context: Context) -> WindowAccessorView {
-        WindowAccessorView()
+        let view = WindowAccessorView()
+        view.settings = settings
+        return view
     }
 
-    func updateNSView(_ nsView: WindowAccessorView, context: Context) {}
+    func updateNSView(_ nsView: WindowAccessorView, context: Context) {
+        nsView.settings = settings
+        nsView.applyAppearance()
+    }
 }
 
 /// A lightweight NSView that configures its host window's appearance and
 /// persists/restores the window frame under a stable UserDefaults key.
-///
-/// Why not `setFrameAutosaveName`? SwiftUI assigns its own autosave name to
-/// WindowGroup windows, replacing any manually-set one. Worse, SwiftUI's
-/// generated key embeds a runtime type-metadata address
-/// (`…(unknown context at $…)`), which changes every launch (ASLR), so the
-/// frames SwiftUI saves can never be found again on the next launch. Instead,
-/// we save/restore the frame ourselves under a fixed key.
 private final class WindowAccessorView: NSView {
     private static let frameKey = "MacSSHMainWindowFrame"
     private var didConfigure = false
+    var settings: AppSettings?
+
+    func applyAppearance() {
+        guard let window else { return }
+        let isDark = settings?.isDarkMode ?? true
+        window.backgroundColor = ThemeColors.terminalBackgroundNSColor(isDark: isDark)
+
+        switch settings?.theme {
+        case .dark:
+            window.appearance = NSAppearance(named: .darkAqua)
+        case .light:
+            window.appearance = NSAppearance(named: .aqua)
+        case .system, nil:
+            window.appearance = nil
+        }
+    }
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        guard !didConfigure, let window else { return }
+        guard !didConfigure, let window else {
+            applyAppearance()
+            return
+        }
         didConfigure = true
 
         window.titlebarAppearsTransparent = true
         window.titlebarSeparatorStyle = .none
         window.styleMask.insert(.fullSizeContentView)
-        window.backgroundColor = NSColor(
-            red: 36.0 / 255.0,
-            green: 39.0 / 255.0,
-            blue: 46.0 / 255.0,
-            alpha: 1.0
-        )
         window.titleVisibility = .hidden
         window.toolbarStyle = .unified
         window.isMovableByWindowBackground = true
+
+        applyAppearance()
+
+        NotificationCenter.default.addObserver(
+            self, selector: #selector(handleAppearanceChange),
+            name: .terminalAppearanceDidChange, object: nil
+        )
+        DistributedNotificationCenter.default().addObserver(
+            self, selector: #selector(handleAppearanceChange),
+            name: Notification.Name("AppleInterfaceThemeChangedNotification"), object: nil
+        )
 
         // Restore the previously-saved frame. Deferred via perform(afterDelay:)
         // (no closure capture) so we apply it after SwiftUI's initial window
@@ -701,8 +726,15 @@ private final class WindowAccessorView: NSView {
         )
     }
 
+    @objc private func handleAppearanceChange() {
+        DispatchQueue.main.async { [weak self] in
+            self?.applyAppearance()
+        }
+    }
+
     deinit {
         NotificationCenter.default.removeObserver(self)
+        DistributedNotificationCenter.default().removeObserver(self)
     }
 
     @objc private func restoreSavedFrame() {

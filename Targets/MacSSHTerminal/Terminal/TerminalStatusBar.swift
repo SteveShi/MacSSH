@@ -8,6 +8,7 @@ struct TerminalStatusBar: View {
     let status: TerminalSessionViewModel.Status
     let metrics: SystemMetrics
     let connectedAt: Date?
+    var isDarkMode: Bool = true
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1.0)) { context in
@@ -49,9 +50,18 @@ struct TerminalStatusBar: View {
             .frame(height: 28)
             .background(
                 Capsule()
-                    .fill(Color(white: 0.12).opacity(0.92))
-                    .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 0.8))
-                    .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+                    .fill(isDarkMode ? Color(white: 0.12).opacity(0.92) : Color.white.opacity(0.88))
+                    .overlay(
+                        Capsule().stroke(
+                            isDarkMode ? Color.white.opacity(0.08) : Color(red: 215.0 / 255.0, green: 210.0 / 255.0, blue: 200.0 / 255.0),
+                            lineWidth: 0.8
+                        )
+                    )
+                    .shadow(
+                        color: isDarkMode ? Color.black.opacity(0.25) : Color.black.opacity(0.08),
+                        radius: 6,
+                        y: 2
+                    )
             )
         }
         .padding(.horizontal, 10)
@@ -121,6 +131,7 @@ struct TerminalStatusBar: View {
 @MainActor
 struct LocalTerminalStatusBar: View {
     let tab: LocalTerminalTab
+    var isDarkMode: Bool = true
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1.0)) { context in
@@ -150,9 +161,18 @@ struct LocalTerminalStatusBar: View {
             .frame(height: 28)
             .background(
                 Capsule()
-                    .fill(Color(white: 0.12).opacity(0.92))
-                    .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 0.8))
-                    .shadow(color: .black.opacity(0.25), radius: 6, y: 2)
+                    .fill(isDarkMode ? Color(white: 0.12).opacity(0.92) : Color.white.opacity(0.88))
+                    .overlay(
+                        Capsule().stroke(
+                            isDarkMode ? Color.white.opacity(0.08) : Color(red: 215.0 / 255.0, green: 210.0 / 255.0, blue: 200.0 / 255.0),
+                            lineWidth: 0.8
+                        )
+                    )
+                    .shadow(
+                        color: isDarkMode ? Color.black.opacity(0.25) : Color.black.opacity(0.08),
+                        radius: 6,
+                        y: 2
+                    )
             )
         }
         .padding(.horizontal, 10)

@@ -11,10 +11,10 @@ struct LocalTerminalView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             if let selected = selectedTab {
-                LocalTerminalStatusBar(tab: selected)
+                LocalTerminalStatusBar(tab: selected, isDarkMode: settings.isDarkMode)
             }
         }
-        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+        .background(ThemeColors.terminalBackground(isDark: settings.isDarkMode))
         .navigationTitle("")
         .inspector(isPresented: inspectorBinding) {
             if let selected = selectedTab {

@@ -43,10 +43,11 @@ struct TerminalView: View {
                 connection: tab.connection,
                 status: model.status,
                 metrics: model.metrics,
-                connectedAt: model.connectedAt
+                connectedAt: model.connectedAt,
+                isDarkMode: settings.isDarkMode
             )
         }
-        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+        .background(ThemeColors.terminalBackground(isDark: settings.isDarkMode))
         .navigationTitle("")
         .inspector(isPresented: $tab.showInspector) {
             InspectorContentView(tab: tab, appModel: appModel)
@@ -142,7 +143,7 @@ struct TerminalView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(red: 36.0 / 255.0, green: 39.0 / 255.0, blue: 46.0 / 255.0))
+        .background(ThemeColors.terminalBackground(isDark: settings.isDarkMode))
     }
 
     // MARK: - Actions

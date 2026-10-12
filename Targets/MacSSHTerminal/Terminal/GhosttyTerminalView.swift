@@ -274,50 +274,36 @@ struct GhosttyTerminalView: NSViewRepresentable {
             lines.append("font-size = \(String(format: "%.1f", fontSize))")
         }
 
-        // Theme palette resolution
-        let resolvedTheme: GhosttyThemeDefinition
+        let isDark: Bool
         switch theme {
-        case .system:
-            let isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-            resolvedTheme = isDark ? .gitHub_Dark : .gitHub_Light
-        case .light:
-            resolvedTheme = .gitHub_Light
         case .dark:
-            resolvedTheme = .gitHub_Dark
+            isDark = true
+        case .light:
+            isDark = false
+        case .system:
+            isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         }
 
-        // MacSSH Liquid Glass Design System:
-        // Dark terminal surface background strictly unifies with the window and toolbar slate background (#24272e)
-        // to eliminate any color seams between top tab bar, terminal surface, and bottom status bar.
-        let bgHex: String
-        let fgHex: String
-        if resolvedTheme == .gitHub_Dark {
-            bgHex = "24272e"
-            fgHex = "c9d1d9"
-        } else {
-            bgHex = resolvedTheme.background.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-            fgHex = resolvedTheme.foreground.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-        }
+        // MacSSH Seamless Theme Architecture:
+        // - Dark Mode: Unified Slate (#24272e)
+        // - Light Mode: Unified Warm Beige Cream (#f5f2eb)
+        // Strict unification across Titlebar, Terminal Canvas, and Statusbar.
+        let bgHex = ThemeColors.terminalBackgroundHex(isDark: isDark)
+        let fgHex = isDark ? ThemeColors.darkForegroundHex : ThemeColors.lightForegroundHex
+        let cursorHex = isDark ? ThemeColors.darkCursorHex : ThemeColors.lightCursorHex
+        let cursorTxtHex = isDark ? ThemeColors.darkCursorTextHex : ThemeColors.lightCursorTextHex
+        let selBgHex = isDark ? ThemeColors.darkSelectionBgHex : ThemeColors.lightSelectionBgHex
+        let selFgHex = isDark ? ThemeColors.darkSelectionFgHex : ThemeColors.lightSelectionFgHex
+
         lines.append("background = #\(bgHex)")
         lines.append("foreground = #\(fgHex)")
+        lines.append("cursor-color = #\(cursorHex)")
+        lines.append("cursor-text = #\(cursorTxtHex)")
+        lines.append("selection-background = #\(selBgHex)")
+        lines.append("selection-foreground = #\(selFgHex)")
 
-        if let cursor = (resolvedTheme == .gitHub_Dark ? "58a6ff" : resolvedTheme.cursorColor) {
-            let cursorHex = cursor.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-            lines.append("cursor-color = #\(cursorHex)")
-        }
-        if let cursorTxt = (resolvedTheme == .gitHub_Dark ? "24272e" : resolvedTheme.cursorText) {
-            let cursorTxtHex = cursorTxt.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-            lines.append("cursor-text = #\(cursorTxtHex)")
-        }
-        if let selBg = resolvedTheme.selectionBackground {
-            let selBgHex = selBg.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-            lines.append("selection-background = #\(selBgHex)")
-        }
-        if let selFg = resolvedTheme.selectionForeground {
-            let selFgHex = selFg.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
-            lines.append("selection-foreground = #\(selFgHex)")
-        }
-        for (idx, color) in resolvedTheme.palette {
+        let paletteDefinition = isDark ? GhosttyThemeDefinition.gitHub_Dark : GhosttyThemeDefinition.gitHub_Light
+        for (idx, color) in paletteDefinition.palette {
             let colorHex = color.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
             lines.append("palette = \(idx)=#\(colorHex)")
         }

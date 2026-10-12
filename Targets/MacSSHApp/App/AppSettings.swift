@@ -27,6 +27,18 @@ final class AppSettings {
         }
     }
 
+    /// Resolves whether the current appearance should be dark or light (beige).
+    public var isDarkMode: Bool {
+        switch theme {
+        case .dark:
+            return true
+        case .light:
+            return false
+        case .system:
+            return NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        }
+    }
+
     private enum Keys {
         static let fontSize = "terminalFontSize"
         static let fontName = "terminalFontName"
