@@ -1,3 +1,22 @@
+## [2.2.3] - 2026-10-17
+
+### Fixed
+- **Root-Cause Remediation for Settings Theme Picker Presentation**:
+  - Refactored Appearance Settings tab into an isolated component (`AppearanceSettingsTab`) with dedicated local `@State` lifecycle management, eliminating presentation stalling caused by AppKit TabView state dependency isolation.
+  - Replaced duplicate `.sheet(isPresented:)` modifiers with a unified `.sheet(item: $activeThemeTarget)`, completely resolving multi-sheet coordinator collision in macOS SwiftUI.
+  - Expanded tap hit targets across Dark and Light mode theme rows to full row width with `.contentShape(Rectangle())` for an intuitive macOS native experience.
+
+---
+
+### Chinese
+### 修复
+- **根因修复外观设置主题选择器弹窗异常**：
+  - 架构重构：将外观设置抽离为独立的私有组件 `AppearanceSettingsTab` 并引入局部专用的 `@State` 生命周期驱动，彻底解决 AppKit 原生 TabView 依赖失效导致的 Sheet 弹出挂起与延迟问题。
+  - 消除协调器冲突：用统一的单一 `.sheet(item: $activeThemeTarget)` 替换原先在同一容器上挂载的两个 `.sheet(isPresented:)`，彻底杜绝 macOS SwiftUI 内部的 Sheet 协调器竞争缺陷。
+  - 交互优化：将暗色模式与浅色模式主题选择项的热区扩大为整行点击（`.contentShape(Rectangle())`），带来丝滑的原生系统设置操作手感。
+
+---
+
 ## [2.2.2] - 2026-10-17
 
 ### Fixed

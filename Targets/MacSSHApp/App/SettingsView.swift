@@ -9,8 +9,6 @@ struct SettingsView: View {
     @State private var importMode: ImportMode = .merge
     @State private var syncStatus: String = ""
     @State private var syncSuccess: Bool = true
-    @State private var showingDarkThemePicker: Bool = false
-    @State private var showingLightThemePicker: Bool = false
     
     private let syncDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -58,7 +56,7 @@ struct SettingsView: View {
                 }
                 .tag(Tab.general)
             
-            appearanceTab
+            AppearanceSettingsTab(settings: settings, model: model)
                 .tabItem {
                     Label(Tab.appearance.label, systemImage: Tab.appearance.icon)
                 }
@@ -199,126 +197,6 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
-    }
-
-    private var appearanceTab: some View {
-        Form {
-            Section {
-                Picker(String(localized: "Appearance Mode"), selection: $settings.theme) {
-                    ForEach(AppSettings.TerminalTheme.allCases) { theme in
-                        Text(theme.localizedTitle).tag(theme)
-                    }
-                }
-
-                HStack {
-                    Text(String(localized: "Dark Mode Theme"))
-                    Spacer()
-                    Button {
-                        showingDarkThemePicker = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text(settings.selectedDarkThemeName)
-                                .foregroundStyle(.primary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                HStack {
-                    Text(String(localized: "Light Mode Theme"))
-                    Spacer()
-                    Button {
-                        showingLightThemePicker = true
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text(settings.selectedLightThemeName)
-                                .foregroundStyle(.primary)
-                            Image(systemName: "chevron.right")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    .buttonStyle(.plain)
-                }
-
-                Toggle(String(localized: "Enable Vibrancy (Glass Effect)"), isOn: $settings.vibrancyEnabled)
-            } header: {
-                Text(String(localized: "Theme & Style"))
-            } footer: {
-                Text(String(localized: "Select distinct color schemes for dark and light modes, and adjust background blur."))
-            }
-
-            Section {
-                Toggle(String(localized: "Enable Shell Integration (OSC 7 / OSC 133)"), isOn: $settings.shellIntegrationEnabled)
-                Toggle(String(localized: "Notify on Long Command Completion"), isOn: $settings.commandCompletionNotification)
-                    .disabled(!settings.shellIntegrationEnabled)
-            } header: {
-                Text(String(localized: "Shell Integration"))
-            } footer: {
-                Text(String(localized: "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."))
-            }
-
-            Section {
-                Picker(String(localized: "Font Family"), selection: $settings.fontName) {
-                    ForEach(settings.availableFonts, id: \.self) { font in
-                        Text(font).tag(font)
-                    }
-                }
-                
-                HStack {
-                    Text(String(localized: "Font Size"))
-                    Slider(value: $settings.fontSize, in: 9...24, step: 1)
-                    Text("\(Int(settings.fontSize))")
-                        .monospacedDigit()
-                        .frame(width: 30)
-                }
-            } header: {
-                Text(String(localized: "Typography"))
-            }
-
-            Section {
-                HStack {
-                    Text(String(localized: "Terminal Engine"))
-                    Spacer()
-                    Text(String(localized: "Native Ghostty (Metal)"))
-                        .foregroundStyle(.secondary)
-                }
-            } header: {
-                Text(String(localized: "Rendering"))
-            }
-        }
-        .formStyle(.grouped)
-        .sheet(isPresented: $showingDarkThemePicker) {
-            ThemePickerView(selectedThemeName: $settings.selectedDarkThemeName, isDarkTarget: true) { _ in
-                model.applyTerminalSettingsToAllSurfaces(settings: settings)
-            }
-        }
-        .sheet(isPresented: $showingLightThemePicker) {
-            ThemePickerView(selectedThemeName: $settings.selectedLightThemeName, isDarkTarget: false) { _ in
-                model.applyTerminalSettingsToAllSurfaces(settings: settings)
-            }
-        }
-        .onChange(of: settings.theme) { _, _ in
-            model.applyTerminalSettingsToAllSurfaces(settings: settings)
-        }
-        .onChange(of: settings.selectedDarkThemeName) { _, _ in
-            model.applyTerminalSettingsToAllSurfaces(settings: settings)
-        }
-        .onChange(of: settings.selectedLightThemeName) { _, _ in
-            model.applyTerminalSettingsToAllSurfaces(settings: settings)
-        }
-        .onChange(of: settings.vibrancyEnabled) { _, _ in
-            model.applyTerminalSettingsToAllSurfaces(settings: settings)
-        }
-        .onChange(of: settings.fontName) { _, _ in
-            model.applyTerminalSettingsToAllSurfaces(settings: settings)
-        }
-        .onChange(of: settings.fontSize) { _, _ in
-            model.applyTerminalSettingsToAllSurfaces(settings: settings)
-        }
     }
     
     private var sftpTab: some View {
@@ -613,5 +491,147 @@ struct SettingsView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color(NSColor.windowBackgroundColor))
+    }
+}
+
+// MARK: - Appearance Settings Tab
+
+private struct AppearanceSettingsTab: View {
+    @Bindable var settings: AppSettings
+    @Bindable var model: AppModel
+
+    private enum ThemeTarget: String, Identifiable {
+        case dark
+        case light
+
+        var id: String { rawValue }
+    }
+
+    @State private var activeThemeTarget: ThemeTarget?
+
+    var body: some View {
+        Form {
+            Section {
+                Picker(String(localized: "Appearance Mode"), selection: $settings.theme) {
+                    ForEach(AppSettings.TerminalTheme.allCases) { theme in
+                        Text(theme.localizedTitle).tag(theme)
+                    }
+                }
+
+                Button {
+                    activeThemeTarget = .dark
+                } label: {
+                    HStack {
+                        Text(String(localized: "Dark Mode Theme"))
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        HStack(spacing: 6) {
+                            Text(settings.selectedDarkThemeName)
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Button {
+                    activeThemeTarget = .light
+                } label: {
+                    HStack {
+                        Text(String(localized: "Light Mode Theme"))
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        HStack(spacing: 6) {
+                            Text(settings.selectedLightThemeName)
+                                .foregroundStyle(.secondary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.tertiary)
+                        }
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+
+                Toggle(String(localized: "Enable Vibrancy (Glass Effect)"), isOn: $settings.vibrancyEnabled)
+            } header: {
+                Text(String(localized: "Theme & Style"))
+            } footer: {
+                Text(String(localized: "Select distinct color schemes for dark and light modes, and adjust background blur."))
+            }
+
+            Section {
+                Toggle(String(localized: "Enable Shell Integration (OSC 7 / OSC 133)"), isOn: $settings.shellIntegrationEnabled)
+                Toggle(String(localized: "Notify on Long Command Completion"), isOn: $settings.commandCompletionNotification)
+                    .disabled(!settings.shellIntegrationEnabled)
+            } header: {
+                Text(String(localized: "Shell Integration"))
+            } footer: {
+                Text(String(localized: "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."))
+            }
+
+            Section {
+                Picker(String(localized: "Font Family"), selection: $settings.fontName) {
+                    ForEach(settings.availableFonts, id: \.self) { font in
+                        Text(font).tag(font)
+                    }
+                }
+                
+                HStack {
+                    Text(String(localized: "Font Size"))
+                    Slider(value: $settings.fontSize, in: 9...24, step: 1)
+                    Text("\(Int(settings.fontSize))")
+                        .monospacedDigit()
+                        .frame(width: 30)
+                }
+            } header: {
+                Text(String(localized: "Typography"))
+            }
+
+            Section {
+                HStack {
+                    Text(String(localized: "Terminal Engine"))
+                    Spacer()
+                    Text(String(localized: "Native Ghostty (Metal)"))
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text(String(localized: "Rendering"))
+            }
+        }
+        .formStyle(.grouped)
+        .sheet(item: $activeThemeTarget) { target in
+            switch target {
+            case .dark:
+                ThemePickerView(selectedThemeName: $settings.selectedDarkThemeName, isDarkTarget: true) { _ in
+                    model.applyTerminalSettingsToAllSurfaces(settings: settings)
+                }
+            case .light:
+                ThemePickerView(selectedThemeName: $settings.selectedLightThemeName, isDarkTarget: false) { _ in
+                    model.applyTerminalSettingsToAllSurfaces(settings: settings)
+                }
+            }
+        }
+        .onChange(of: settings.theme) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.selectedDarkThemeName) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.selectedLightThemeName) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.vibrancyEnabled) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.fontName) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.fontSize) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
     }
 }
