@@ -1,3 +1,24 @@
+## [2.2.2] - 2026-10-17
+
+### Fixed
+- **Root-Cause Remediation for Auxiliary SSH Authentication (`SSH auth failed (-16)`)**:
+  - Corrected custom socket I/O callbacks in `SSH2Kit` to bind the underlying `socketFD` passed from libssh2 instead of hardcoding `context.socketFD`. This prevents local Unix Domain Socket traffic destined for `ssh-agent` from being mistakenly transmitted across the remote SSH TCP stream, entirely eliminating connection stream corruption.
+  - Optimized SSH authentication order: prioritize direct password authentication when configured; prioritize `ssh-agent` for public-key sessions to enable seamless passphraseless authentication.
+  - Added automatic system Agent discovery: automatically query `/bin/launchctl getenv SSH_AUTH_SOCK` when launched from macOS LaunchServices / GUI environments without inherited shell environment variables.
+  - Upgraded `SSH2Kit` to `1.3.27`.
+
+---
+
+### Chinese
+### 修复
+- **根因修复辅助服务通道 SSH 鉴权失败（`SSH auth failed (-16)`）**：
+  - 根因修复 `SSH2Kit` 底层自定义 Socket I/O 回调：准确绑定并使用 libssh2 传递的底层实际 `socketFD`，彻底解决此前硬编码远程 TCP 连接描述符导致与本地 `ssh-agent` 通信的数据包错发至远端 SSH 会话、破坏协议数据流的严重缺陷。
+  - 优化认证策略与执行顺序：配置密码时优先走密码认证，公钥会话优先尝试系统 `ssh-agent`（无感解锁受密码保护的私钥）。
+  - GUI 运行环境自适应：脱离终端直接启动时，自动通过 `/bin/launchctl getenv SSH_AUTH_SOCK` 动态定位 macOS 系统 Agent Socket，确保免密能力始终可用。
+  - 核心依赖升级：升级至 `SSH2Kit 1.3.27`。
+
+---
+
 ## [2.2.1] - 2026-10-17
 
 ### Changed
