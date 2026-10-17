@@ -125,7 +125,7 @@ struct MacSSHApp: App {
                     // Show SSH session tabs (if any exist)
                     let tabs = Array(model.openTabs.prefix(9))
                     ForEach(Array(tabs.enumerated()), id: \.element.id) { index, tab in
-                        Button(tab.connection.name) {
+                        Button(tab.title) {
                             model.selectTab(at: index)
                         }
                         .keyboardShortcut(KeyEquivalent(Character("\(index + 1)")), modifiers: .command)

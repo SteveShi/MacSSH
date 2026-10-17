@@ -64,6 +64,8 @@ struct GhosttyTerminalView: NSViewRepresentable {
 
         var env = ProcessInfo.processInfo.environment
         env["TERM"] = "xterm-256color"
+        env["TERM_PROGRAM"] = "ghostty"
+        env["TERM_PROGRAM_VERSION"] = "1.1.2"
         if env["LANG"] == nil || env["LANG"]?.isEmpty == true {
             env["LANG"] = "en_US.UTF-8"
         }
@@ -147,7 +149,14 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 var keyPath: String? = nil
                 if connection.usePublicKey {
                     if let custom = connection.keyPath, !custom.isEmpty {
-                        keyPath = custom
+                        let trimmed = custom.trimmingCharacters(in: .whitespacesAndNewlines)
+                        let expanded = (trimmed as NSString).expandingTildeInPath
+                        if expanded.hasSuffix(".pub") {
+                            let privCandidate = String(expanded.dropLast(4))
+                            keyPath = FileManager.default.fileExists(atPath: privCandidate) ? privCandidate : expanded
+                        } else {
+                            keyPath = expanded
+                        }
                     } else {
                         keyPath = connection.defaultKeyPath
                     }
@@ -191,6 +200,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         Self.applyTerminalConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize, theme: settings.theme, vibrancyEnabled: settings.vibrancyEnabled)
         
         if let tab = self.tab {
+            tab.configureSurfaceEvents(for: surface)
             setupMenuBuilder(for: surface, sshTab: tab, localTab: nil)
         }
         
@@ -204,21 +214,36 @@ struct GhosttyTerminalView: NSViewRepresentable {
         let coordinator = context.coordinator
         let currentTheme = settings.theme
         let currentVibrancy = settings.vibrancyEnabled
+        let currentDark = settings.selectedDarkThemeName
+        let currentLight = settings.selectedLightThemeName
         guard coordinator.lastFontName != settings.fontName
                 || coordinator.lastFontSize != settings.fontSize
                 || coordinator.lastTheme != currentTheme
+                || coordinator.lastDarkTheme != currentDark
+                || coordinator.lastLightTheme != currentLight
                 || coordinator.lastVibrancyEnabled != currentVibrancy else { return }
         coordinator.lastFontName = settings.fontName
         coordinator.lastFontSize = settings.fontSize
         coordinator.lastTheme = currentTheme
+        coordinator.lastDarkTheme = currentDark
+        coordinator.lastLightTheme = currentLight
         coordinator.lastVibrancyEnabled = currentVibrancy
-        Self.applyTerminalConfig(to: nsView, fontName: settings.fontName, fontSize: settings.fontSize, theme: currentTheme, vibrancyEnabled: currentVibrancy)
+        Self.applyTerminalConfig(
+            to: nsView,
+            fontName: settings.fontName,
+            fontSize: settings.fontSize,
+            theme: currentTheme,
+            vibrancyEnabled: currentVibrancy,
+            appSettings: settings
+        )
     }
 
     final class TerminalConfigCoordinator {
         var lastFontName: String?
         var lastFontSize: Double?
         var lastTheme: AppSettings.TerminalTheme?
+        var lastDarkTheme: String?
+        var lastLightTheme: String?
         var lastVibrancyEnabled: Bool?
     }
 
@@ -231,7 +256,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
     /// Applies font-family, font-size, theme and vibrancy to a Ghostty surface using the config-file mechanism.
     static func applyFontConfig(to surface: GhosttySurfaceView, fontName: String, fontSize: Double? = nil) {
         let settings = AppSettings()
-        applyTerminalConfig(to: surface, fontName: fontName, fontSize: fontSize, theme: settings.theme, vibrancyEnabled: settings.vibrancyEnabled)
+        applyTerminalConfig(to: surface, fontName: fontName, fontSize: fontSize, theme: settings.theme, vibrancyEnabled: settings.vibrancyEnabled, appSettings: settings)
     }
 
     /// Full terminal appearance configuration application (font, font-size, color theme, background vibrancy).
@@ -240,7 +265,9 @@ struct GhosttyTerminalView: NSViewRepresentable {
         fontName: String,
         fontSize: Double? = nil,
         theme: AppSettings.TerminalTheme = .system,
-        vibrancyEnabled: Bool = true
+        vibrancyEnabled: Bool = true,
+        connectionTheme: String? = nil,
+        appSettings: AppSettings? = nil
     ) {
         guard !fontName.isEmpty else { return }
         var lines: [String] = [
@@ -284,16 +311,20 @@ struct GhosttyTerminalView: NSViewRepresentable {
             isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
         }
 
-        // MacSSH Seamless Theme Architecture:
-        // - Dark Mode: Unified Slate (#24272e)
-        // - Light Mode: Unified Warm Beige Cream (#f5f2eb)
-        // Strict unification across Titlebar, Terminal Canvas, and Statusbar.
-        let bgHex = ThemeColors.terminalBackgroundHex(isDark: isDark)
-        let fgHex = isDark ? ThemeColors.darkForegroundHex : ThemeColors.lightForegroundHex
-        let cursorHex = isDark ? ThemeColors.darkCursorHex : ThemeColors.lightCursorHex
-        let cursorTxtHex = isDark ? ThemeColors.darkCursorTextHex : ThemeColors.lightCursorTextHex
-        let selBgHex = isDark ? ThemeColors.darkSelectionBgHex : ThemeColors.lightSelectionBgHex
-        let selFgHex = isDark ? ThemeColors.darkSelectionFgHex : ThemeColors.lightSelectionFgHex
+        let currentSettings = appSettings ?? AppSettings()
+        let resolvedTheme = ThemeManager.shared.resolveTheme(
+            connectionTheme: connectionTheme,
+            isDark: isDark,
+            preferredDarkTheme: currentSettings.selectedDarkThemeName,
+            preferredLightTheme: currentSettings.selectedLightThemeName
+        )
+
+        let bgHex = resolvedTheme.background.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let fgHex = resolvedTheme.foreground.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let cursorHex = (resolvedTheme.cursorColor ?? (isDark ? ThemeColors.darkCursorHex : ThemeColors.lightCursorHex)).trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let cursorTxtHex = (resolvedTheme.cursorText ?? (isDark ? ThemeColors.darkCursorTextHex : ThemeColors.lightCursorTextHex)).trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let selBgHex = (resolvedTheme.selectionBackground ?? (isDark ? ThemeColors.darkSelectionBgHex : ThemeColors.lightSelectionBgHex)).trimmingCharacters(in: CharacterSet(charactersIn: "#"))
+        let selFgHex = (resolvedTheme.selectionForeground ?? (isDark ? ThemeColors.darkSelectionFgHex : ThemeColors.lightSelectionFgHex)).trimmingCharacters(in: CharacterSet(charactersIn: "#"))
 
         lines.append("background = #\(bgHex)")
         lines.append("foreground = #\(fgHex)")
@@ -302,8 +333,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         lines.append("selection-background = #\(selBgHex)")
         lines.append("selection-foreground = #\(selFgHex)")
 
-        let paletteDefinition = isDark ? GhosttyThemeDefinition.gitHub_Dark : GhosttyThemeDefinition.gitHub_Light
-        for (idx, color) in paletteDefinition.palette {
+        for (idx, color) in resolvedTheme.palette {
             let colorHex = color.trimmingCharacters(in: CharacterSet(charactersIn: "#"))
             lines.append("palette = \(idx)=#\(colorHex)")
         }
@@ -536,14 +566,15 @@ final class TerminalMenuHandler: NSObject {
         alert.addButton(withTitle: String(localized: "Cancel"))
         
         let input = NSTextField(frame: NSRect(x: 0, y: 0, width: 200, height: 24))
-        input.stringValue = sshTab?.connection.name ?? localTab?.name ?? ""
+        input.stringValue = sshTab?.title ?? localTab?.name ?? ""
         alert.accessoryView = input
         
         if alert.runModal() == .alertFirstButtonReturn {
             let val = input.stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
             if !val.isEmpty {
-                sshTab?.connection.name = val
+                sshTab?.customTitle = val
                 localTab?.name = val
+                localTab?.hasCustomUserTitle = true
             }
         }
     }

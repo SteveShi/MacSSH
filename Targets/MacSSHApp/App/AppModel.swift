@@ -230,6 +230,8 @@ final class AppModel {
             return
         }
         let tab = tabForConnection(connection)
+        tab.isProcessExited = false
+        tab.connectedAt = Date()
         if !openTabs.contains(where: { $0.id == tab.id }) {
             openTabs.append(tab)
         }
@@ -286,13 +288,16 @@ final class AppModel {
     @MainActor
     func applyTerminalSettingsToAllSurfaces(settings: AppSettings) {
         for tab in openTabs {
+            let connTheme = tab.connection.themeName
             if let surface = tab.cachedSurface {
                 GhosttyTerminalView.applyTerminalConfig(
                     to: surface,
                     fontName: settings.fontName,
                     fontSize: settings.fontSize,
                     theme: settings.theme,
-                    vibrancyEnabled: settings.vibrancyEnabled
+                    vibrancyEnabled: settings.vibrancyEnabled,
+                    connectionTheme: connTheme,
+                    appSettings: settings
                 )
             }
             if let split = tab.splitSurface {
@@ -301,7 +306,9 @@ final class AppModel {
                     fontName: settings.fontName,
                     fontSize: settings.fontSize,
                     theme: settings.theme,
-                    vibrancyEnabled: settings.vibrancyEnabled
+                    vibrancyEnabled: settings.vibrancyEnabled,
+                    connectionTheme: connTheme,
+                    appSettings: settings
                 )
             }
         }
@@ -311,7 +318,8 @@ final class AppModel {
                 fontName: settings.fontName,
                 fontSize: settings.fontSize,
                 theme: settings.theme,
-                vibrancyEnabled: settings.vibrancyEnabled
+                vibrancyEnabled: settings.vibrancyEnabled,
+                appSettings: settings
             )
             if let split = tab.splitSurface {
                 GhosttyTerminalView.applyTerminalConfig(
@@ -319,7 +327,8 @@ final class AppModel {
                     fontName: settings.fontName,
                     fontSize: settings.fontSize,
                     theme: settings.theme,
-                    vibrancyEnabled: settings.vibrancyEnabled
+                    vibrancyEnabled: settings.vibrancyEnabled,
+                    appSettings: settings
                 )
             }
         }
@@ -451,7 +460,11 @@ final class AppModel {
     @MainActor
     func requestReconnect(connectionID: SSHConnection.ID) {
         // Clear the cached surface so the next makeNSView call starts a fresh PTY.
-        openTabs.first(where: { $0.connection.id == connectionID })?.cachedSurface = nil
+        if let tab = openTabs.first(where: { $0.connection.id == connectionID }) {
+            tab.cachedSurface = nil
+            tab.isProcessExited = false
+            tab.connectedAt = Date()
+        }
         reconnectRequests[connectionID] = UUID()
     }
 
@@ -619,6 +632,18 @@ final class AppModel {
 
     // MARK: - Local Terminal Session History
 
+    private static let ansiRegex = try? NSRegularExpression(
+        pattern: #"\x1B\[[0-9;?]*[a-zA-Z]|\x1B\][^\x07\x1B]*(?:\x07|\x1B\\)"#,
+        options: []
+    )
+
+    /// Strips ANSI escape sequences (SGR, OSC, CSI) for plain text analysis.
+    static func stripANSI(_ text: String) -> String {
+        guard let regex = ansiRegex else { return text }
+        let range = NSRange(text.startIndex..., in: text)
+        return regex.stringByReplacingMatches(in: text, options: [], range: range, withTemplate: "")
+    }
+
     /// Saves the scrollback history for all active local terminal tabs.
     @MainActor
     func saveLocalSessionsHistory(settings: AppSettings = AppSettings()) {
@@ -628,9 +653,10 @@ final class AppModel {
         let store = SessionHistoryStore.shared
 
         for tab in localTabs {
-            if let text = tab.surfaceView.readFullText(maxLines: settings.scrollbackHistoryLimit) {
+            let limit = settings.scrollbackHistoryLimit
+            if let text = tab.surfaceView.readFullVTText(maxLines: limit) ?? tab.surfaceView.readFullText(maxLines: limit) {
                 let cleaned = Self.sanitizeHistoryText(text)
-                let lines = cleaned.components(separatedBy: "\n").filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+                let lines = cleaned.components(separatedBy: "\n").filter { !Self.stripANSI($0).trimmingCharacters(in: .whitespaces).isEmpty }
                 
                 // If the terminal has been cleared (only 1 prompt line or empty), clear persisted history
                 guard lines.count > 1 else {
@@ -652,26 +678,26 @@ final class AppModel {
         let lines = rawText.components(separatedBy: "\n")
         var cleaned: [String] = []
         for line in lines {
-            let trimmed = line.trimmingCharacters(in: .whitespaces)
-            if trimmed.isEmpty {
+            let plainLine = stripANSI(line).trimmingCharacters(in: .whitespaces)
+            if plainLine.isEmpty {
                 cleaned.append(line)
                 continue
             }
             // Strip out synthesized quit/restore dividers (including ANSI color sequences)
-            if (trimmed.contains("Quitted at") || trimmed.contains("Restored at")) &&
-               (trimmed.contains("───") || trimmed.contains("——")) {
+            if (plainLine.contains("Quitted at") || plainLine.contains("Restored at")) &&
+               (plainLine.contains("───") || plainLine.contains("——")) {
                 continue
             }
             // Strip out historical login banners to prevent stacking
-            if trimmed.hasPrefix("Last login:") {
+            if plainLine.hasPrefix("Last login:") {
                 continue
             }
             cleaned.append(line)
         }
-        while let first = cleaned.first, first.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        while let first = cleaned.first, stripANSI(first).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             cleaned.removeFirst()
         }
-        while let last = cleaned.last, last.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        while let last = cleaned.last, stripANSI(last).trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             cleaned.removeLast()
         }
         return cleaned.joined(separator: "\n")

@@ -9,8 +9,9 @@ struct SSHConnection: Identifiable, Hashable, Codable {
     var keyPath: String?
     var usePublicKey: Bool = false
     var history: [ConnectionHistoryEntry]? = []
+    var themeName: String? = nil
 
-    init(id: UUID = UUID(), name: String, host: String, port: Int, username: String, keyPath: String? = nil, usePublicKey: Bool = false, history: [ConnectionHistoryEntry]? = []) {
+    init(id: UUID = UUID(), name: String, host: String, port: Int, username: String, keyPath: String? = nil, usePublicKey: Bool = false, history: [ConnectionHistoryEntry]? = [], themeName: String? = nil) {
         self.id = id
         self.name = name
         self.host = host
@@ -19,6 +20,7 @@ struct SSHConnection: Identifiable, Hashable, Codable {
         self.keyPath = keyPath
         self.usePublicKey = usePublicKey
         self.history = history
+        self.themeName = themeName
     }
 
     var displayName: String {

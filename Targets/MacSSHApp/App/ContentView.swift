@@ -87,9 +87,9 @@ struct ContentView: View {
                     model.sidebarSelection = .connection(firstConn.id)
                 }
             }
-            if lastSeenWhatsNewVersion != "2.0.7" {
+            if lastSeenWhatsNewVersion != "2.2.0" {
                 model.showingWhatsNew = true
-                lastSeenWhatsNewVersion = "2.0.7"
+                lastSeenWhatsNewVersion = "2.2.0"
             }
             triggerInputSourceSwitch()
         }
@@ -220,6 +220,9 @@ struct ContentView: View {
             .frame(width: 0, height: 0)
             .opacity(0)
             .allowsHitTesting(false)
+        }
+        .overlay(alignment: .top) {
+            ToastOverlayView()
         }
     }
 

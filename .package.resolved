@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SteveShi/MactermKit.git",
       "state" : {
-        "revision" : "d1c94b8473deb17a9cb38aad8bf82e6af1b9551e",
-        "version" : "1.0.24"
+        "revision" : "e8bd1b49daa86ffb706053c768cde673dcecfe4c",
+        "version" : "1.0.26"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Lakr233/MSDisplayLink.git",
       "state" : {
-        "revision" : "1ba3e769b734e456317fa7e45321fa7f53eefb67",
-        "version" : "2.1.0"
+        "revision" : "ac406dbb7dd329e256a555f929cd9cb94d809c7b",
+        "version" : "2.2.1"
       }
     },
     {
@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SteveShi/SSH2Kit.git",
       "state" : {
-        "revision" : "05c59674fe5440eda60862968cb2f733b58747cf",
-        "version" : "1.3.23"
+        "revision" : "c2a7bf312f8cbc062948623235158dde1ca771dd",
+        "version" : "1.3.25"
       }
     }
   ],

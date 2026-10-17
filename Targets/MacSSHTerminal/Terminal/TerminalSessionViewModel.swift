@@ -195,7 +195,10 @@ final class TerminalSessionViewModel {
     }
 
     private func handleConnectionFailure(errorDescription: String, allowsAutoReconnect: Bool = true) {
-        self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+        let isTerminalActive = appModel?.openTabs.first(where: { $0.connection.id == connection.id })?.isTerminalActive ?? false
+        if !isTerminalActive {
+            self.appModel?.recordHistory(for: self.connection.id, isSuccess: false)
+        }
         self.status = .failed(errorDescription)
         self.lastErrorMessage = errorDescription
         
@@ -486,19 +489,34 @@ final class TerminalSessionViewModel {
         self.metrics = newMetrics
     }
 
+    private func normalizeKeyPath(_ path: String) -> String {
+        let trimmed = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return trimmed }
+        let expanded = (trimmed as NSString).expandingTildeInPath
+        if expanded.hasSuffix(".pub") {
+            let privCandidate = String(expanded.dropLast(4))
+            if FileManager.default.fileExists(atPath: privCandidate) {
+                return privCandidate
+            }
+        }
+        return expanded
+    }
+
     private func makeAuth() -> SSHAuth {
         if usePublicKey, !keyPath.isEmpty {
+            let normalized = normalizeKeyPath(keyPath)
             let passphrase = keyPassphrase.isEmpty ? nil : keyPassphrase
-            return .publicKey(path: keyPath, passphrase: passphrase)
+            return .publicKey(path: normalized, passphrase: passphrase)
         }
         if !password.isEmpty {
             return .password(password, remember: rememberPassword)
         }
         if !keyPath.isEmpty {
+            let normalized = normalizeKeyPath(keyPath)
             let passphrase = keyPassphrase.isEmpty ? nil : keyPassphrase
-            return .publicKey(path: keyPath, passphrase: passphrase)
+            return .publicKey(path: normalized, passphrase: passphrase)
         } else if let defaultKey = connection.defaultKeyPath {
-            return .publicKey(path: defaultKey, passphrase: nil)
+            return .publicKey(path: normalizeKeyPath(defaultKey), passphrase: nil)
         }
         return .password(password, remember: rememberPassword)
     }

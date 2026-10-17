@@ -4590,6 +4590,598 @@
           }
         }
       }
+    },
+    "Search themes...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search themes..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索主题..."
+          }
+        }
+      }
+    },
+    "themes available": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "themes available"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个可用主题"
+          }
+        }
+      }
+    },
+    "Theme applied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme applied"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已应用主题"
+          }
+        }
+      }
+    },
+    "Theme imported": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme imported"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题已导入"
+          }
+        }
+      }
+    },
+    "Import failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入失败"
+          }
+        }
+      }
+    },
+    "Custom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义"
+          }
+        }
+      }
+    },
+    "Appearance Mode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观模式"
+          }
+        }
+      }
+    },
+    "Dark Mode Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark Mode Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深色模式主题"
+          }
+        }
+      }
+    },
+    "Light Mode Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light Mode Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浅色模式主题"
+          }
+        }
+      }
+    },
+    "Select distinct color schemes for dark and light modes, and adjust background blur.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select distinct color schemes for dark and light modes, and adjust background blur."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为深色和浅色模式选择独立的配色方案，并调整背景模糊效果。"
+          }
+        }
+      }
+    },
+    "Enable Shell Integration (OSC 7 / OSC 133)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Shell Integration (OSC 7 / OSC 133)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用 Shell 集成 (OSC 7 / OSC 133)"
+          }
+        }
+      }
+    },
+    "Notify on Long Command Completion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notify on Long Command Completion"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长耗时命令完成时提醒"
+          }
+        }
+      }
+    },
+    "Shell Integration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell Integration"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell 集成"
+          }
+        }
+      }
+    },
+    "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用工作目录自动同步至 SFTP、智能标签页标题以及后台耗时命令完成提醒。"
+          }
+        }
+      }
+    },
+    "Command completed (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command completed (%@)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令已完成 (%@)"
+          }
+        }
+      }
+    },
+    "Command failed with code %d (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command failed with code %d (%@)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令执行失败，退出码 %d (%@)"
+          }
+        }
+      }
+    },
+    "Command Completed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command Completed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令已完成"
+          }
+        }
+      }
+    },
+    "Command Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令执行失败"
+          }
+        }
+      }
+    },
+    "Completed in %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed in %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "耗时 %@ 完成"
+          }
+        }
+      }
+    },
+    "Exit code %d after %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit code %d after %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "耗时 %@，退出码 %d"
+          }
+        }
+      }
+    },
+    "Use Global Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Global Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用全局主题"
+          }
+        }
+      }
+    },
+    "Reset to Global Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset to Global Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复使用全局主题"
+          }
+        }
+      }
+    },
+    "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可选为该主机指定独立的配色方案（如生产环境使用红色警示主题）。"
+          }
+        }
+      }
+    },
+    "Appearance & Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance & Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观与主题"
+          }
+        }
+      }
+    },
+    "Import...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入..."
+          }
+        }
+      }
+    },
+    "Done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
+    "监控同步中…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Syncing monitor..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控同步中…"
+          }
+        }
+      }
+    },
+    "监控未就绪": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitor unavailable"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "监控未就绪"
+          }
+        }
+      }
+    },
+    "终端已连接": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal Connected"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终端已连接"
+          }
+        }
+      }
+    },
+    "What's New in MacSSH 2.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's New in MacSSH 2.2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MacSSH 2.2 新功能"
+          }
+        }
+      }
+    },
+    "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "精心甄选的终端色彩主题库、原生 Shell 深度集成 HUD 与更稳固的双通道连接架构。"
+          }
+        }
+      }
+    },
+    "Curated Color Schemes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curated Color Schemes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "甄选终端配色方案"
+          }
+        }
+      }
+    },
+    "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成丰富的主流经典主题（Tokyo Night、Catppuccin、Nord、Dracula 等），所有会话支持毫秒级无感热切换。"
+          }
+        }
+      }
+    },
+    "Native Shell Integration & HUD": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Native Shell Integration & HUD"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原生 Shell 集成与智能 HUD"
+          }
+        }
+      }
+    },
+    "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OSC 7 远端目录自动同步 SFTP、动态标签标题，以及长耗时命令完成时的轻量浮动状态气泡。"
+          }
+        }
+      }
+    },
+    "Dual-Channel SSH Architecture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dual-Channel SSH Architecture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "双通道 SSH 稳态架构"
+          }
+        }
+      }
+    },
+    "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "彻底隔离终端交互式 PTY 与后台 SFTP / 系统指标遥测通道，互不冲突且状态精准呈现。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

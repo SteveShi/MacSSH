@@ -17,7 +17,7 @@ struct TerminalView: View {
         @Bindable var tab = self.tab
 
         VStack(spacing: 0) {
-            if (model.status == .idle || model.status == .failed(model.lastErrorMessage)) && tab.cachedSurface == nil {
+            if (model.status == .idle || model.status == .failed(model.lastErrorMessage)) && !tab.isTerminalActive {
                 unconnectedPromptView
             } else {
                 let mainTerminal = GhosttyTerminalView(tab: tab, settings: settings)
@@ -43,8 +43,9 @@ struct TerminalView: View {
                 connection: tab.connection,
                 status: model.status,
                 metrics: model.metrics,
-                connectedAt: model.connectedAt,
-                isDarkMode: settings.isDarkMode
+                connectedAt: tab.connectedAt,
+                isDarkMode: settings.isDarkMode,
+                isTerminalRunning: tab.isTerminalActive
             )
         }
         .background(ThemeColors.terminalBackground(isDark: settings.isDarkMode))
@@ -94,7 +95,7 @@ struct TerminalView: View {
                 .foregroundStyle(Color.secondary.opacity(0.7))
 
             VStack(spacing: 6) {
-                Text(tab.connection.name)
+                Text(tab.title)
                     .font(.title2.bold())
                     .foregroundStyle(.primary)
 
@@ -149,6 +150,8 @@ struct TerminalView: View {
     // MARK: - Actions
 
     private func startConnection() {
+        tab.isProcessExited = false
+        tab.connectedAt = Date()
         model.appModel = appModel
         if !appModel.openTabs.contains(where: { $0.id == tab.id }) {
             appModel.openTabs.append(tab)
@@ -161,6 +164,7 @@ struct TerminalView: View {
     private func stopConnection() {
         model.disconnect()
         tab.cachedSurface = nil
+        tab.isProcessExited = true
         tab.closeSplit()
     }
 
@@ -169,7 +173,7 @@ struct TerminalView: View {
     @ViewBuilder
     private var toolbarActionButtons: some View {
         @Bindable var tab = self.tab
-        let isConnected = model.status == .connected
+        let isConnected = model.status == .connected || tab.isTerminalActive
 
         if !isConnected {
             Button {

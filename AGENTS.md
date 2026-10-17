@@ -113,14 +113,14 @@ MacSSH App (SwiftUI)
 
 ## Version Management
 
-Version numbers are defined in `project.yml`:
-```yaml
-MARKETING_VERSION: "1.8.0"      # User-facing version
-CURRENT_PROJECT_VERSION: "180"  # Build number for Sparkle
+Version numbers are defined in `Project.swift`:
+```swift
+MARKETING_VERSION: "2.2.0"      // User-facing version
+CURRENT_PROJECT_VERSION: "20200"  // Build number for Sparkle
 ```
 
 **Release Process:**
-1. Update version in `project.yml`
+1. Update version in `Project.swift`
 2. Update `CHANGELOG.md` with new version section
 3. Push to main branch
 4. GitHub Actions automatically builds, packages, and releases

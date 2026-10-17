@@ -9,6 +9,8 @@ struct SettingsView: View {
     @State private var importMode: ImportMode = .merge
     @State private var syncStatus: String = ""
     @State private var syncSuccess: Bool = true
+    @State private var showingDarkThemePicker: Bool = false
+    @State private var showingLightThemePicker: Bool = false
     
     private let syncDateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -202,16 +204,61 @@ struct SettingsView: View {
     private var appearanceTab: some View {
         Form {
             Section {
-                Picker(String(localized: "Theme"), selection: $settings.theme) {
+                Picker(String(localized: "Appearance Mode"), selection: $settings.theme) {
                     ForEach(AppSettings.TerminalTheme.allCases) { theme in
                         Text(theme.localizedTitle).tag(theme)
                     }
                 }
+
+                HStack {
+                    Text(String(localized: "Dark Mode Theme"))
+                    Spacer()
+                    Button {
+                        showingDarkThemePicker = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(settings.selectedDarkThemeName)
+                                .foregroundStyle(.primary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+
+                HStack {
+                    Text(String(localized: "Light Mode Theme"))
+                    Spacer()
+                    Button {
+                        showingLightThemePicker = true
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text(settings.selectedLightThemeName)
+                                .foregroundStyle(.primary)
+                            Image(systemName: "chevron.right")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .buttonStyle(.plain)
+                }
+
                 Toggle(String(localized: "Enable Vibrancy (Glass Effect)"), isOn: $settings.vibrancyEnabled)
             } header: {
                 Text(String(localized: "Theme & Style"))
             } footer: {
-                Text(String(localized: "Adjust the terminal color scheme and semi-transparent background blur."))
+                Text(String(localized: "Select distinct color schemes for dark and light modes, and adjust background blur."))
+            }
+
+            Section {
+                Toggle(String(localized: "Enable Shell Integration (OSC 7 / OSC 133)"), isOn: $settings.shellIntegrationEnabled)
+                Toggle(String(localized: "Notify on Long Command Completion"), isOn: $settings.commandCompletionNotification)
+                    .disabled(!settings.shellIntegrationEnabled)
+            } header: {
+                Text(String(localized: "Shell Integration"))
+            } footer: {
+                Text(String(localized: "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."))
             }
 
             Section {
@@ -244,7 +291,23 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .sheet(isPresented: $showingDarkThemePicker) {
+            ThemePickerView(selectedThemeName: $settings.selectedDarkThemeName, isDarkTarget: true) { _ in
+                model.applyTerminalSettingsToAllSurfaces(settings: settings)
+            }
+        }
+        .sheet(isPresented: $showingLightThemePicker) {
+            ThemePickerView(selectedThemeName: $settings.selectedLightThemeName, isDarkTarget: false) { _ in
+                model.applyTerminalSettingsToAllSurfaces(settings: settings)
+            }
+        }
         .onChange(of: settings.theme) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.selectedDarkThemeName) { _, _ in
+            model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+        .onChange(of: settings.selectedLightThemeName) { _, _ in
             model.applyTerminalSettingsToAllSurfaces(settings: settings)
         }
         .onChange(of: settings.vibrancyEnabled) { _, _ in

@@ -9,6 +9,7 @@ struct TerminalStatusBar: View {
     let metrics: SystemMetrics
     let connectedAt: Date?
     var isDarkMode: Bool = true
+    var isTerminalRunning: Bool = false
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1.0)) { context in
@@ -75,23 +76,52 @@ struct TerminalStatusBar: View {
     }
 
     private var statusColor: Color {
-        switch status {
-        case .connected: Color(red: 0.2, green: 0.85, blue: 0.4)
-        case .connecting: Color.yellow
-        case .failed: Color.red
-        case .idle: Color.secondary.opacity(0.5)
+        if isTerminalRunning {
+            switch status {
+            case .connected: Color(red: 0.2, green: 0.85, blue: 0.4)
+            case .connecting: Color(red: 0.2, green: 0.85, blue: 0.4)
+            case .failed: Color.orange
+            case .idle: Color(red: 0.2, green: 0.85, blue: 0.4)
+            }
+        } else {
+            switch status {
+            case .connected: Color(red: 0.2, green: 0.85, blue: 0.4)
+            case .connecting: Color.yellow
+            case .failed: Color.red
+            case .idle: Color.secondary.opacity(0.5)
+            }
         }
     }
 
     private func stateText(now: Date) -> String {
-        switch status {
-        case .idle: return String(localized: "未连接")
-        case .connecting: return String(localized: "连接中…")
-        case .connected:
-            guard let start = connectedAt else { return String(localized: "已连接") }
-            return "\(String(localized: "已连接")) \(durationString(from: start, to: now))"
-        case .failed(let reason):
-            return "\(String(localized: "连接失败")): \(reason)"
+        if isTerminalRunning {
+            let duration: String
+            if let start = connectedAt {
+                duration = " \(durationString(from: start, to: now))"
+            } else {
+                duration = ""
+            }
+
+            switch status {
+            case .connected:
+                return "\(String(localized: "已连接"))\(duration)"
+            case .connecting:
+                return "\(String(localized: "已连接"))\(duration) (\(String(localized: "监控同步中…")))"
+            case .failed(let reason):
+                return "\(String(localized: "终端已连接"))\(duration) (\(String(localized: "监控未就绪")): \(reason))"
+            case .idle:
+                return "\(String(localized: "已连接"))\(duration)"
+            }
+        } else {
+            switch status {
+            case .idle: return String(localized: "未连接")
+            case .connecting: return String(localized: "连接中…")
+            case .connected:
+                guard let start = connectedAt else { return String(localized: "已连接") }
+                return "\(String(localized: "已连接")) \(durationString(from: start, to: now))"
+            case .failed(let reason):
+                return "\(String(localized: "连接失败")): \(reason)"
+            }
         }
     }
 

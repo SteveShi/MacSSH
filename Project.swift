@@ -4,16 +4,16 @@ let project = Project(
     name: "MacSSH",
     packages: [
         .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.0.0"),
-        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.24"),
-        .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.23")
+        .package(url: "https://github.com/SteveShi/MactermKit.git", from: "1.0.26"),
+        .package(url: "https://github.com/SteveShi/SSH2Kit.git", from: "1.3.25")
     ],
     settings: .settings(
         base: [
             "MACOSX_DEPLOYMENT_TARGET": "26.0",
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
-            "MARKETING_VERSION": "2.1.8",
-            "CURRENT_PROJECT_VERSION": "20108",
+            "MARKETING_VERSION": "2.2.0",
+            "CURRENT_PROJECT_VERSION": "20200",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]
@@ -28,7 +28,8 @@ let project = Project(
             sources: ["Targets/**"],
             resources: [
                 "Targets/MacSSHApp/App/Assets.xcassets",
-                "Targets/MacSSHApp/App/Localizable.xcstrings"
+                "Targets/MacSSHApp/App/Localizable.xcstrings",
+                "Targets/MacSSHApp/App/Themes.json"
             ],
             dependencies: [
                 .package(product: "Sparkle"),

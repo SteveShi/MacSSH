@@ -55,6 +55,15 @@ final class SFTPViewModel {
         refresh()
     }
 
+    func navigateTo(path: String) {
+        let trimmed = path.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed != currentPath else { return }
+        currentPath = trimmed
+        if status != .loading {
+            refresh()
+        }
+    }
+
     func goUp() {
         guard currentPath != "." else { return }
         let url = URL(fileURLWithPath: currentPath)

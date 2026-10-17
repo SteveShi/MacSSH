@@ -1,3 +1,42 @@
+## [2.2.0] - 2026-10-17
+
+### Added
+- **Curated Color Scheme Catalog & Real-Time Live Reloading**:
+  - Integrated a rich catalog of 112 popular, carefully curated terminal themes derived from `iTerm2-Color-Schemes` (Tokyo Night, Catppuccin Mocha/Latte, Nord, Dracula, Gruvbox Dark, One Dark, Solarized Dark/Light, Monokai Pro, GitHub Dark/Light, Warm Beige Cream, and Slate Dark).
+  - Designed dynamic theme pairing for both Dark and Light system appearances, plus per-host theme overrides for distinguishing staging, test, and production environments.
+  - Implemented instant live reloading across all active SSH sessions and split panes upon theme changes with zero terminal restart or reconnect.
+- **Native Shell Integration & Productivity HUD**:
+  - Enabled deep Ghostty shell integration (`TERM_PROGRAM = "ghostty"`) across local shells and remote SSH sessions.
+  - Automatic SFTP directory tracking: remote directory changes (OSC 7) automatically synchronize the right SFTP Inspector to the current working directory.
+  - Dynamic window and tab title updates driven by shell OSC 0 and OSC 2 escape sequences.
+  - Native SwiftUI Toast HUD (`ToastManager` & `ToastView`) delivering floating status toasts with execution duration and exit codes when long-running commands (>=5s) complete, paired with background system notifications.
+- **Dual-Channel SSH Architecture & Handshake Resilience**:
+  - Fixed root cause of `LIBSSH2_ERROR_SOCKET_RECV (-43)` in `SSH2Kit` by strictly returning `-EAGAIN` during non-blocking Socket I/O as required by libssh2.
+  - Decoupled interactive terminal PTY state from auxiliary SFTP and host telemetry, ensuring the status bar accurately reflects active terminal connectivity even when auxiliary telemetry is establishing.
+  - Added seamless public key (`.pub`) to private key fallback and path normalization across both PTY and libssh2 channels.
+  - Upgraded dependencies: `SSH2Kit` to 1.3.25 and `MactermKit` to 1.0.26.
+
+---
+
+### Chinese
+### 新增
+- **甄选终端配色库与实时动态无感热切换**：
+  - 深度集成精选自 `iTerm2-Color-Schemes` 的 112 款主流经典配色方案（Tokyo Night、Catppuccin Mocha/Latte、Nord、Dracula、Gruvbox Dark、One Dark、Solarized Dark/Light、Monokai Pro、GitHub Dark/Light、Warm Beige Cream 与 Slate Dark）。
+  - 支持随系统深浅外观自适应切换的双主题配对，并支持为单台主机单独配置专属高亮主题（如为生产环境设置醒目警示色）。
+  - 全面打通活跃终端实时渲染联动，切换主题或字号时所有活动终端及分屏会话毫秒级重绘生效，无需重启或重新连接。
+- **原生 Shell 深度集成与智能 HUD 气泡**：
+  - 自动向本地 Shell 与远端 SSH 会话注入 Ghostty Shell Integration 特性（`TERM_PROGRAM = "ghostty"`）。
+  - OSC 7 远端目录智能联动：终端切换工作目录时，右侧 SFTP 检查器面板自动同步跳转至对应路径。
+  - 支持 OSC 0 / OSC 2 动态窗口与标签标题智能更新。
+  - 内置零外部依赖的原生 SwiftUI 浮动气泡 HUD（`ToastManager` 与 `ToastView`），长耗时命令（>=5秒）执行完毕后自动弹出耗时与退出码提示，并在后台静默时联动 macOS 系统通知。
+- **双通道 SSH 稳态架构与握手韧性修复**：
+  - 根因修复 `SSH2Kit` 在非阻塞 Socket I/O 中遇到 `EAGAIN` 时错误返回 `-1` 导致 libssh2 握手抛出 `LIBSSH2_ERROR_SOCKET_RECV (-43)` 的核心缺陷，恢复严格的 `-EAGAIN` 规范返回。
+  - 彻底解耦交互式 PTY 终端通道与后台 SFTP / 系统指标遥测通道，消除界面虚假“连接失败”报错与状态割裂。
+  - 全流程支持误选 `.pub` 公钥文件时自动推导对应私钥，保证认证路径的鲁棒性。
+  - 核心依赖升级：升级至 `SSH2Kit 1.3.25` 与 `MactermKit 1.0.26`。
+
+---
+
 ## [2.1.8] - 2026-10-13
 
 ### Added

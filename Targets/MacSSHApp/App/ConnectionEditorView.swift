@@ -5,6 +5,7 @@ struct ConnectionEditorView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var draft: SSHConnection
     @State private var password: String = ""
+    @State private var showingThemePicker: Bool = false
     let onSave: (SSHConnection) -> Void
 
     init(connection: SSHConnection?, onSave: @escaping (SSHConnection) -> Void) {
@@ -101,8 +102,49 @@ struct ConnectionEditorView: View {
                 } header: {
                     Text(String(localized: "Authentication"))
                 }
+
+                Section {
+                    HStack {
+                        Image(systemName: "paintpalette.fill")
+                            .foregroundStyle(.purple)
+                            .frame(width: 20)
+                        Text(String(localized: "Terminal Theme"))
+                        Spacer()
+                        Button {
+                            showingThemePicker = true
+                        } label: {
+                            HStack(spacing: 6) {
+                                Text(draft.themeName?.isEmpty == false ? draft.themeName! : String(localized: "Use Global Theme"))
+                                    .foregroundStyle(draft.themeName?.isEmpty == false ? .primary : .secondary)
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        .buttonStyle(.plain)
+                    }
+
+                    if draft.themeName != nil {
+                        Button(role: .destructive) {
+                            draft.themeName = nil
+                        } label: {
+                            Text(String(localized: "Reset to Global Theme"))
+                                .font(.caption)
+                        }
+                    }
+                } header: {
+                    Text(String(localized: "Appearance & Theme"))
+                } footer: {
+                    Text(String(localized: "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production)."))
+                }
             }
             .formStyle(.grouped)
+            .sheet(isPresented: $showingThemePicker) {
+                ThemePickerView(selectedThemeName: Binding(
+                    get: { draft.themeName ?? "" },
+                    set: { draft.themeName = $0 }
+                ))
+            }
             .navigationTitle(String(localized: "Connection Settings"))
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -119,6 +161,7 @@ struct ConnectionEditorView: View {
                             KeychainStore.savePassword(password, account: draft.keychainAccount)
                         }
                         onSave(draft)
+                        ToastManager.shared.show(String(localized: "Connection saved"), message: draft.displayName, preset: .done)
                         dismiss()
                     }
                     .buttonStyle(.borderedProminent)

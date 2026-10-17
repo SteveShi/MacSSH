@@ -78,6 +78,29 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
             guard settings.notifyTerminalBell else { return }
             NSSound.beep()
             send(title: String(localized: "Terminal Bell"), body: "")
+        case .commandFinished(let exitCode, let durationNs):
+            guard settings.commandCompletionNotification else { return }
+            let durationSeconds = Double(durationNs) / 1_000_000_000.0
+            guard durationSeconds >= 5.0 else { return }
+            let formattedDuration: String
+            if durationSeconds < 60.0 {
+                formattedDuration = String(format: "%.1fs", durationSeconds)
+            } else {
+                formattedDuration = String(format: "%dm %ds", Int(durationSeconds) / 60, Int(durationSeconds) % 60)
+            }
+            if exitCode == 0 {
+                send(
+                    title: String(localized: "Command Completed"),
+                    body: String(localized: "Completed in \(formattedDuration)")
+                )
+            } else {
+                send(
+                    title: String(localized: "Command Failed"),
+                    body: String(localized: "Exit code \(exitCode) after \(formattedDuration)")
+                )
+            }
+        case .currentDirectoryChanged, .titleChanged, .tabTitleChanged:
+            break
         }
     }
 

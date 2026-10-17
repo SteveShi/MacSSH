@@ -12,10 +12,10 @@ struct WhatsNewSheetView: View {
                     .foregroundStyle(.tint)
                     .padding(.top, 8)
 
-                Text(String(localized: "What's New in MacSSH 2.0"))
+                Text(String(localized: "What's New in MacSSH 2.2"))
                     .font(.title2.bold())
 
-                Text(String(localized: "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows."))
+                Text(String(localized: "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -25,24 +25,24 @@ struct WhatsNewSheetView: View {
             // Feature Highlights
             VStack(alignment: .leading, spacing: 18) {
                 featureRow(
-                    icon: "curlybraces",
+                    icon: "paintpalette.fill",
+                    iconColor: .purple,
+                    title: String(localized: "Curated Color Schemes"),
+                    subtitle: String(localized: "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions.")
+                )
+
+                featureRow(
+                    icon: "bell.badge.fill",
                     iconColor: .orange,
-                    title: String(localized: "Code Snippets Library"),
-                    subtitle: String(localized: "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution.")
+                    title: String(localized: "Native Shell Integration & HUD"),
+                    subtitle: String(localized: "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands.")
                 )
 
                 featureRow(
-                    icon: "macwindow",
-                    iconColor: .blue,
-                    title: String(localized: "Liquid Glass Titlebar & Tabs"),
-                    subtitle: String(localized: "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar.")
-                )
-
-                featureRow(
-                    icon: "chart.bar.fill",
+                    icon: "shield.lefthalf.filled",
                     iconColor: .green,
-                    title: String(localized: "Modern Metrics & Local Status"),
-                    subtitle: String(localized: "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions.")
+                    title: String(localized: "Dual-Channel SSH Architecture"),
+                    subtitle: String(localized: "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry.")
                 )
             }
             .padding(.horizontal, 16)

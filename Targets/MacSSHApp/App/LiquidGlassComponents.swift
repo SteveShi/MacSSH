@@ -127,7 +127,7 @@ struct TitlebarSessionTabBar: View {
                         let isConnected = tab.terminalModel.status == .connected
                         tabChip(
                             id: tab.id,
-                            title: tab.connection.name,
+                            title: tab.title,
                             isSelected: isSelected,
                             isConnected: isConnected,
                             canClose: true,

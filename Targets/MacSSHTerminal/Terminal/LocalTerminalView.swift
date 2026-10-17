@@ -203,6 +203,7 @@ private struct RenameTabSheet: View {
                     let trimmed = newName.trimmingCharacters(in: .whitespaces)
                     if !trimmed.isEmpty {
                         tab.name = trimmed
+                        tab.hasCustomUserTitle = true
                     }
                     tab.isRenaming = false
                     dismiss()

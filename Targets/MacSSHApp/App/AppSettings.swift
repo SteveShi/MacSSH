@@ -43,6 +43,10 @@ final class AppSettings {
         static let fontSize = "terminalFontSize"
         static let fontName = "terminalFontName"
         static let theme = "terminalTheme"
+        static let selectedDarkThemeName = "selectedDarkThemeName"
+        static let selectedLightThemeName = "selectedLightThemeName"
+        static let shellIntegrationEnabled = "shellIntegrationEnabled"
+        static let commandCompletionNotification = "commandCompletionNotification"
         static let vibrancyEnabled = "vibrancyEnabled"
         static let defaultInputSourceID = "defaultInputSourceID"
         static let confirmBeforeDisconnect = "confirmBeforeDisconnect"
@@ -95,6 +99,28 @@ final class AppSettings {
             save()
             NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
         }
+    }
+
+    var selectedDarkThemeName: String {
+        didSet {
+            save()
+            NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
+        }
+    }
+
+    var selectedLightThemeName: String {
+        didSet {
+            save()
+            NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
+        }
+    }
+
+    var shellIntegrationEnabled: Bool {
+        didSet { save() }
+    }
+
+    var commandCompletionNotification: Bool {
+        didSet { save() }
     }
 
     var vibrancyEnabled: Bool {
@@ -227,6 +253,10 @@ final class AppSettings {
         } else {
             self.theme = .system
         }
+        selectedDarkThemeName = defaults.string(forKey: Keys.selectedDarkThemeName) ?? "GitHub Dark"
+        selectedLightThemeName = defaults.string(forKey: Keys.selectedLightThemeName) ?? "GitHub Light"
+        shellIntegrationEnabled = defaults.object(forKey: Keys.shellIntegrationEnabled) as? Bool ?? true
+        commandCompletionNotification = defaults.object(forKey: Keys.commandCompletionNotification) as? Bool ?? true
         vibrancyEnabled = defaults.object(forKey: Keys.vibrancyEnabled) as? Bool ?? true
         defaultInputSourceID = defaults.string(forKey: Keys.defaultInputSourceID) ?? ""
         confirmBeforeDisconnect = defaults.object(forKey: Keys.confirmBeforeDisconnect) as? Bool ?? true
@@ -325,6 +355,10 @@ final class AppSettings {
         defaults.set(fontSize, forKey: Keys.fontSize)
         defaults.set(fontName, forKey: Keys.fontName)
         defaults.set(theme.rawValue, forKey: Keys.theme)
+        defaults.set(selectedDarkThemeName, forKey: Keys.selectedDarkThemeName)
+        defaults.set(selectedLightThemeName, forKey: Keys.selectedLightThemeName)
+        defaults.set(shellIntegrationEnabled, forKey: Keys.shellIntegrationEnabled)
+        defaults.set(commandCompletionNotification, forKey: Keys.commandCompletionNotification)
         defaults.set(vibrancyEnabled, forKey: Keys.vibrancyEnabled)
         defaults.set(defaultInputSourceID, forKey: Keys.defaultInputSourceID)
         defaults.set(confirmBeforeDisconnect, forKey: Keys.confirmBeforeDisconnect)

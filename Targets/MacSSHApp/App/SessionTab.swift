@@ -39,6 +39,27 @@ final class SessionTab: Identifiable {
     /// This ensures the SSH process (PTY) survives sidebar navigation in SwiftUI.
     var cachedSurface: GhosttySurfaceView?
 
+    /// Connection timestamp for terminal duration tracking.
+    var connectedAt: Date = Date()
+
+    /// Whether the remote child process (ssh/expect) has exited.
+    var isProcessExited: Bool = false
+
+    /// Indicates whether the interactive terminal session is active and responsive.
+    var isTerminalActive: Bool {
+        cachedSurface != nil && !isProcessExited
+    }
+
+    /// Current remote working directory reported via OSC 7.
+    var currentRemotePath: String?
+
+    /// Dynamic title set by remote shell (OSC 0 / OSC 2) or manual override.
+    var customTitle: String?
+
+    var title: String {
+        customTitle ?? connection.name
+    }
+
     // Split terminal support
     var isSplit: Bool = false
     var splitDirection: SplitDirection = .right
@@ -69,6 +90,7 @@ final class SessionTab: Identifiable {
         let surface = GhosttySurfaceView(config: config)
         GhosttyTerminalView.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
         setupMenuBuilder(for: surface, sshTab: self)
+        configureSurfaceEvents(for: surface)
         
         self.splitTerminalModel = model
         self.splitSurface = surface
@@ -80,6 +102,70 @@ final class SessionTab: Identifiable {
         self.isSplit = false
         self.splitSurface = nil
         self.splitTerminalModel = nil
+    }
+
+    // MARK: - Shell Integration Events
+
+    func configureSurfaceEvents(for surface: GhosttySurfaceView) {
+        surface.onEvent = { [weak self] event in
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.handleTerminalEvent(event)
+            }
+        }
+    }
+
+    private func handleTerminalEvent(_ event: GhosttyTerminalEvent) {
+        let settings = AppSettings()
+        switch event {
+        case .currentDirectoryChanged(let rawURL):
+            guard settings.shellIntegrationEnabled else { return }
+            let path = Self.extractPath(from: rawURL)
+            guard !path.isEmpty else { return }
+            self.currentRemotePath = path
+            self.terminalModel.sftpViewModel.navigateTo(path: path)
+
+        case .titleChanged(let title), .tabTitleChanged(let title):
+            guard settings.shellIntegrationEnabled else { return }
+            let trimmed = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !trimmed.isEmpty {
+                self.customTitle = trimmed
+            }
+
+        case .commandFinished(let exitCode, let durationNs):
+            guard settings.commandCompletionNotification else { return }
+            let durationSeconds = Double(durationNs) / 1_000_000_000.0
+            guard durationSeconds >= 5.0 else { return }
+            let formattedDuration: String
+            if durationSeconds < 60.0 {
+                formattedDuration = String(format: "%.1fs", durationSeconds)
+            } else {
+                formattedDuration = String(format: "%dm %ds", Int(durationSeconds) / 60, Int(durationSeconds) % 60)
+            }
+            let message = exitCode == 0
+                ? String(localized: "Command completed (\(formattedDuration))")
+                : String(localized: "Command failed with code \(exitCode) (\(formattedDuration))")
+            ToastManager.shared.show(message, preset: exitCode == 0 ? .done : .error)
+
+        case .bell, .desktopNotification:
+            break
+
+        case .childExited:
+            self.isProcessExited = true
+        }
+    }
+
+    static func extractPath(from urlString: String) -> String {
+        if let url = URL(string: urlString), url.scheme == "file" {
+            return url.path
+        }
+        if urlString.hasPrefix("file://") {
+            let withoutPrefix = urlString.dropFirst(7)
+            if let slashIndex = withoutPrefix.firstIndex(of: "/") {
+                return String(withoutPrefix[slashIndex...])
+            }
+        }
+        return urlString
     }
 }
 
