@@ -7,6 +7,7 @@
   - Dynamically bound `ThemePickerView` color scheme to match target mode (Dark / Light Aqua), resized to 480x380 to naturally fit the Settings window without clipping.
   - Refactored `RaisedCapsule` to dynamically adapt to color schemes: renders a crisp pure-white raised capsule with soft shadow in light mode (completely eliminating dirty grayish glass tint on beige surfaces), and smooth translucent glass in dark mode.
   - Expanded tap hit targets across Dark and Light mode theme rows to full row width with `.contentShape(Rectangle())` for an intuitive macOS native experience.
+  - Reorganized Settings tabs: moved Shell Integration (OSC 7 / OSC 133, long-running command alerts) and Rendering engine settings from Appearance to the Terminal tab for correct category separation.
 - **Dependency Updates**:
   - Automatically bumped dependencies to SSH2Kit version 1.3.28 and MactermKit version 1.0.26.
 
@@ -15,6 +16,7 @@
 ### Chinese
 ### 修复
 - **根因修复外观设置、主题选择器与全界面亮色模式适配**：
+  - 设置选项卡归类根因修正：将 “Shell 集成”（OSC 7 / OSC 133、后台长耗时命令提醒）与渲染引擎设置由“外观”选项卡迁移至“终端”选项卡，外观页纯粹保留主题与字体，分类严格符合 macOS 规范。
   - 全界面深浅模式动态同步：为主窗口与设置窗口场景双向绑定 `.preferredColorScheme(settings.isDarkMode ? .dark : .light)`，侧边栏、Tab 栏、未连接状态与状态栏组件完全自适应浅色模式，文字由白变黑、图标精准变深灰，彻底杜绝浅色米白底色上白字不可见的问题。
   - 模态呈现层级根因修复：将 `.sheet(item: $activeThemeTarget)` 提升至 `SettingsView` 根视图（`TabView` 外层），彻底解决 macOS AppKit `NSTabViewController` 容器子视图层级隔离导致的模态展示挂起问题，点击即可秒级原生呼出。
   - 主题选择器深浅配色与尺寸适配：将 `ThemePickerView` 尺寸优化为 480×380，完美契合偏好设置窗口并避免溢出；弹窗深浅模式自适应当前所选的深色/浅色目标。

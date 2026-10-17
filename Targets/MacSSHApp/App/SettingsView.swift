@@ -193,6 +193,16 @@ struct SettingsView: View {
     private var terminalTab: some View {
         Form {
             Section {
+                Toggle(String(localized: "Enable Shell Integration (OSC 7 / OSC 133)"), isOn: $settings.shellIntegrationEnabled)
+                Toggle(String(localized: "Notify on Long Command Completion"), isOn: $settings.commandCompletionNotification)
+                    .disabled(!settings.shellIntegrationEnabled)
+            } header: {
+                Text(String(localized: "Shell Integration"))
+            } footer: {
+                Text(String(localized: "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."))
+            }
+
+            Section {
                 Toggle(String(localized: "Load Previous Terminal History"), isOn: $settings.restoreLocalTerminalHistory)
                 if settings.restoreLocalTerminalHistory {
                     Stepper(value: $settings.scrollbackHistoryLimit, in: 1000...50000, step: 1000) {
@@ -214,6 +224,17 @@ struct SettingsView: View {
                 Text(String(localized: "Session History"))
             } footer: {
                 Text(String(localized: "Automatically restores the previous output history and scrollback buffer when reopening local terminal tabs."))
+            }
+
+            Section {
+                HStack {
+                    Text(String(localized: "Terminal Engine"))
+                    Spacer()
+                    Text(String(localized: "Native Ghostty (Metal)"))
+                        .foregroundStyle(.secondary)
+                }
+            } header: {
+                Text(String(localized: "Rendering"))
             }
         }
         .formStyle(.grouped)
@@ -576,16 +597,6 @@ private struct AppearanceSettingsTab: View {
             }
 
             Section {
-                Toggle(String(localized: "Enable Shell Integration (OSC 7 / OSC 133)"), isOn: $settings.shellIntegrationEnabled)
-                Toggle(String(localized: "Notify on Long Command Completion"), isOn: $settings.commandCompletionNotification)
-                    .disabled(!settings.shellIntegrationEnabled)
-            } header: {
-                Text(String(localized: "Shell Integration"))
-            } footer: {
-                Text(String(localized: "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."))
-            }
-
-            Section {
                 Picker(String(localized: "Font Family"), selection: $settings.fontName) {
                     ForEach(settings.availableFonts, id: \.self) { font in
                         Text(font).tag(font)
@@ -601,17 +612,6 @@ private struct AppearanceSettingsTab: View {
                 }
             } header: {
                 Text(String(localized: "Typography"))
-            }
-
-            Section {
-                HStack {
-                    Text(String(localized: "Terminal Engine"))
-                    Spacer()
-                    Text(String(localized: "Native Ghostty (Metal)"))
-                        .foregroundStyle(.secondary)
-                }
-            } header: {
-                Text(String(localized: "Rendering"))
             }
         }
         .formStyle(.grouped)
