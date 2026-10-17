@@ -25,6 +25,17 @@ final class AppSettings {
                 return String(localized: "Dark")
             }
         }
+
+        var colorScheme: ColorScheme? {
+            switch self {
+            case .system:
+                return nil
+            case .light:
+                return .light
+            case .dark:
+                return .dark
+            }
+        }
     }
 
     /// Resolves whether the current appearance should be dark or light (beige).

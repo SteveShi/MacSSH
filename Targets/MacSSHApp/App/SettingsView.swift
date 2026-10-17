@@ -4,6 +4,13 @@ struct SettingsView: View {
     @Bindable var settings: AppSettings
     @Bindable var model: AppModel
     
+    enum ThemePickerTarget: String, Identifiable {
+        case dark
+        case light
+        var id: String { rawValue }
+    }
+
+    @State private var activeThemeTarget: ThemePickerTarget?
     @State private var pendingImportURL: URL?
     @State private var showImportDialog: Bool = false
     @State private var importMode: ImportMode = .merge
@@ -56,7 +63,7 @@ struct SettingsView: View {
                 }
                 .tag(Tab.general)
             
-            AppearanceSettingsTab(settings: settings, model: model)
+            AppearanceSettingsTab(settings: settings, model: model, activeThemeTarget: $activeThemeTarget)
                 .tabItem {
                     Label(Tab.appearance.label, systemImage: Tab.appearance.icon)
                 }
@@ -93,6 +100,19 @@ struct SettingsView: View {
                 .tag(Tab.about)
         }
         .frame(width: 500, height: 400)
+        .preferredColorScheme(settings.isDarkMode ? .dark : .light)
+        .sheet(item: $activeThemeTarget) { target in
+            switch target {
+            case .dark:
+                ThemePickerView(selectedThemeName: $settings.selectedDarkThemeName, isDarkTarget: true) { _ in
+                    model.applyTerminalSettingsToAllSurfaces(settings: settings)
+                }
+            case .light:
+                ThemePickerView(selectedThemeName: $settings.selectedLightThemeName, isDarkTarget: false) { _ in
+                    model.applyTerminalSettingsToAllSurfaces(settings: settings)
+                }
+            }
+        }
         .confirmationDialog(
             String(localized: "Import Connections"),
             isPresented: $showImportDialog,
@@ -499,15 +519,7 @@ struct SettingsView: View {
 private struct AppearanceSettingsTab: View {
     @Bindable var settings: AppSettings
     @Bindable var model: AppModel
-
-    private enum ThemeTarget: String, Identifiable {
-        case dark
-        case light
-
-        var id: String { rawValue }
-    }
-
-    @State private var activeThemeTarget: ThemeTarget?
+    @Binding var activeThemeTarget: SettingsView.ThemePickerTarget?
 
     var body: some View {
         Form {
@@ -603,18 +615,6 @@ private struct AppearanceSettingsTab: View {
             }
         }
         .formStyle(.grouped)
-        .sheet(item: $activeThemeTarget) { target in
-            switch target {
-            case .dark:
-                ThemePickerView(selectedThemeName: $settings.selectedDarkThemeName, isDarkTarget: true) { _ in
-                    model.applyTerminalSettingsToAllSurfaces(settings: settings)
-                }
-            case .light:
-                ThemePickerView(selectedThemeName: $settings.selectedLightThemeName, isDarkTarget: false) { _ in
-                    model.applyTerminalSettingsToAllSurfaces(settings: settings)
-                }
-            }
-        }
         .onChange(of: settings.theme) { _, _ in
             model.applyTerminalSettingsToAllSurfaces(settings: settings)
         }

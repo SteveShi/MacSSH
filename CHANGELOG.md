@@ -1,31 +1,27 @@
-## [2.2.4] - 2026-10-17
-
-### Changed
-- Automatically bumped dependencies to SSH2Kit version 1.3.28 and MactermKit version 1.0.26.
-
----
-
-### Chinese
-### 变更
-- 自动更新依赖项 SSH2Kit 至版本 1.3.28，MactermKit 至版本 1.0.26。
-
----
-## [2.2.3] - 2026-10-17
+## [2.2.3] - 2026-10-18
 
 ### Fixed
-- **Root-Cause Remediation for Settings Theme Picker Presentation**:
-  - Refactored Appearance Settings tab into an isolated component (`AppearanceSettingsTab`) with dedicated local `@State` lifecycle management, eliminating presentation stalling caused by AppKit TabView state dependency isolation.
-  - Replaced duplicate `.sheet(isPresented:)` modifiers with a unified `.sheet(item: $activeThemeTarget)`, completely resolving multi-sheet coordinator collision in macOS SwiftUI.
+- **Root-Cause Remediation for Settings Appearance Mode, Theme Picker, and Light Mode UI Adaptation**:
+  - Bound `.preferredColorScheme(settings.isDarkMode ? .dark : .light)` across both the main window and Settings scene, ensuring all text labels, icons, and components in the sidebar, tabs, toolbar, and status bar automatically flip between dark and light Aqua mode (preventing unreadable white-on-beige text).
+  - Hoisted `.sheet(item: $activeThemeTarget)` to the root of `SettingsView` (outside `TabView`), resolving AppKit's `NSTabViewController` child presentation isolation that previously required interacting with an input control to trigger presentation.
+  - Dynamically bound `ThemePickerView` color scheme to match target mode (Dark / Light Aqua), resized to 480x380 to naturally fit the Settings window without clipping.
+  - Refactored `RaisedCapsule` to dynamically adapt to color schemes: renders a crisp pure-white raised capsule with soft shadow in light mode (completely eliminating dirty grayish glass tint on beige surfaces), and smooth translucent glass in dark mode.
   - Expanded tap hit targets across Dark and Light mode theme rows to full row width with `.contentShape(Rectangle())` for an intuitive macOS native experience.
+- **Dependency Updates**:
+  - Automatically bumped dependencies to SSH2Kit version 1.3.28 and MactermKit version 1.0.26.
 
 ---
 
 ### Chinese
 ### 修复
-- **根因修复外观设置主题选择器弹窗异常**：
-  - 架构重构：将外观设置抽离为独立的私有组件 `AppearanceSettingsTab` 并引入局部专用的 `@State` 生命周期驱动，彻底解决 AppKit 原生 TabView 依赖失效导致的 Sheet 弹出挂起与延迟问题。
-  - 消除协调器冲突：用统一的单一 `.sheet(item: $activeThemeTarget)` 替换原先在同一容器上挂载的两个 `.sheet(isPresented:)`，彻底杜绝 macOS SwiftUI 内部的 Sheet 协调器竞争缺陷。
+- **根因修复外观设置、主题选择器与全界面亮色模式适配**：
+  - 全界面深浅模式动态同步：为主窗口与设置窗口场景双向绑定 `.preferredColorScheme(settings.isDarkMode ? .dark : .light)`，侧边栏、Tab 栏、未连接状态与状态栏组件完全自适应浅色模式，文字由白变黑、图标精准变深灰，彻底杜绝浅色米白底色上白字不可见的问题。
+  - 模态呈现层级根因修复：将 `.sheet(item: $activeThemeTarget)` 提升至 `SettingsView` 根视图（`TabView` 外层），彻底解决 macOS AppKit `NSTabViewController` 容器子视图层级隔离导致的模态展示挂起问题，点击即可秒级原生呼出。
+  - 主题选择器深浅配色与尺寸适配：将 `ThemePickerView` 尺寸优化为 480×380，完美契合偏好设置窗口并避免溢出；弹窗深浅模式自适应当前所选的深色/浅色目标。
+  - 胶囊视觉高光彻底消除灰脏块：重构 `RaisedCapsule` 组件，浅色模式下采用原生精致纯白浮起胶囊配合柔和微投影，彻底清除深色玻璃滤镜在米白背景上产生的暗沉脏灰色块；深色模式维持通透单层玻璃质感。
   - 交互优化：将暗色模式与浅色模式主题选择项的热区扩大为整行点击（`.contentShape(Rectangle())`），带来丝滑的原生系统设置操作手感。
+- **依赖项更新**：
+  - 更新依赖项 SSH2Kit 至版本 1.3.28，MactermKit 至版本 1.0.26。
 
 ---
 

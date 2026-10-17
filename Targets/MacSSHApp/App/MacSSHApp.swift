@@ -17,6 +17,7 @@ struct MacSSHApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(model: model, settings: settings)
+                .preferredColorScheme(settings.isDarkMode ? .dark : .light)
                 .onAppear {
                     NotificationService.shared.configure(settings: settings)
                     GhosttyRuntime.shared.onTerminalEvent = { event in
@@ -136,6 +137,7 @@ struct MacSSHApp: App {
 
         Settings {
             SettingsView(settings: settings, model: model)
+                .preferredColorScheme(settings.isDarkMode ? .dark : .light)
         }
     }
 }

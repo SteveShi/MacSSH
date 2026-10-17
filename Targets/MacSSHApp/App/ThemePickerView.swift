@@ -99,7 +99,7 @@ struct ThemePickerView: View {
                 .padding(.vertical, 8)
                 .padding(.horizontal, 12)
             }
-            .frame(minHeight: 380, maxHeight: 520)
+            .frame(maxHeight: .infinity)
 
             Divider()
 
@@ -116,7 +116,8 @@ struct ThemePickerView: View {
             }
             .padding(12)
         }
-        .frame(width: 580)
+        .frame(width: 480, height: 380)
+        .preferredColorScheme(isDarkTarget == true ? .dark : (isDarkTarget == false ? .light : nil))
         .onAppear {
             if let isDarkTarget {
                 filterMode = isDarkTarget ? .dark : .light

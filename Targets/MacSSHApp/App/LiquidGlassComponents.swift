@@ -13,12 +13,17 @@ struct PressableIconStyle: ButtonStyle {
 
 // MARK: - Raised Capsule (Single Layer Clean Glass)
 
-/// 浮起材质胶囊:单层通透玻璃，绝不叠厚重黑底
+/// 浮起材质胶囊: 浅色模式为纯白浮起胶囊(带柔和微投影)，深色模式为单层通透玻璃
 struct RaisedCapsule: View {
+    var isDark: Bool? = nil
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var effectiveIsDark: Bool {
+        isDark ?? (colorScheme == .dark)
+    }
+
     var body: some View {
-        if #available(macOS 26.0, *) {
-            Color.clear.glassEffect(.regular, in: .capsule)
-        } else {
+        if effectiveIsDark {
             Capsule()
                 .fill(Color.white.opacity(0.12))
                 .overlay(
@@ -30,6 +35,10 @@ struct RaisedCapsule: View {
                         lineWidth: 0.5
                     )
                 )
+        } else {
+            Capsule()
+                .fill(Color.white)
+                .shadow(color: Color.black.opacity(0.08), radius: 2, x: 0, y: 1)
         }
     }
 }
