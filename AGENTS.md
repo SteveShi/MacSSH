@@ -194,6 +194,16 @@ User preferences in `AppSettings.swift`:
 - Stored in UserDefaults with `@AppStorage` property wrappers or `@Observable` AppSettings
 - **Settings Integrity**: Strictly prohibit placeholder or non-functional settings items; every exposed setting option must connect to real, verifiable functional logic (设置项不许出现无功能空项目，所有设置项都必须接入对应功能).
 
+## Window Size & Frame Persistence Guardrails
+
+Main window geometry is persisted under the stable `UserDefaults` key `MacSSHMainWindowFrame` via `WindowFrameStore` and `WindowAccessorView` (`Targets/MacSSHApp/App/ContentView.swift` & `Targets/MacSSHApp/App/MacSSHApp.swift`). Full root-cause analysis and design details are documented in [`docs/window-size-persistence.md`](./docs/window-size-persistence.md).
+
+When modifying `MacSSHApp.swift`, `ContentView.swift`, `NavigationSplitView`, or `.inspector`:
+- **Never rely on `NSWindow.setFrameAutosaveName`**: SwiftUI's `WindowGroup` overwrites manual autosave names after `viewDidMoveToWindow()`. Always keep `window.isRestorable = false` and `window.setFrameAutosaveName("")`.
+- **Keep Scene Identity & `.defaultSize` Intact**: Always keep `WindowGroup(id: "MacSSHMainWindow")` and `.defaultSize(width: WindowFrameStore.initialDefaultSize.width, height: WindowFrameStore.initialDefaultSize.height)` in `MacSSHApp.swift`, and never introduce `private` nested types on `ContentView` stored properties (which embed ASLR addresses in SwiftUI's mangled scene type name).
+- **Snapshot Before Observing & Lock Persistence During Launch**: In `WindowAccessorView.viewDidMoveToWindow()`, always snapshot `targetRestoredFrame` from `UserDefaults` and set `isRestoringFrame = true` *before* mutating window style/toolbar or registering `NotificationCenter` observers so initial `didMoveNotification` / `didResizeNotification` events during launch never clobber the saved frame.
+- **Preserve Full Lifecycle & Close-Freeze Observers**: Keep observers for `didResizeNotification`, `didEndLiveResizeNotification`, `didMoveNotification`, `didExitFullScreenNotification`, `didResignActiveNotification`, `willCloseNotification`, and `willTerminateNotification`, and freeze writes (`isWindowClosingOrTerminating = true`) once close/termination starts.
+
 <!-- BEGIN brain.md -->
 ## Project Brain
 

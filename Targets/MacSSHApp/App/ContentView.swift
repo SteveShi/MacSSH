@@ -5,7 +5,7 @@ import MactermKit
 
 // MARK: - Sidebar Tab Enum
 
-private enum SidebarTab: String, CaseIterable {
+enum SidebarTab: String, CaseIterable {
     case local
     case remote
 }
@@ -645,7 +645,29 @@ private struct EmptyStateView: View {
     }
 }
 
-// MARK: - Window Accessor
+// MARK: - Window Frame Store & Accessor
+
+enum WindowFrameStore {
+    static let frameKey = "MacSSHMainWindowFrame"
+    static let minWindowWidth: CGFloat = 850
+    static let minWindowHeight: CGFloat = 560
+    static let defaultWindowWidth: CGFloat = 1120
+    static let defaultWindowHeight: CGFloat = 720
+
+    /// Provides the persisted window size to SwiftUI's `WindowGroup.defaultSize`
+    /// so SwiftUI's own scene-sizing engine creates the window at the saved size from frame 0.
+    static var initialDefaultSize: CGSize {
+        guard let frameString = UserDefaults.standard.string(forKey: frameKey),
+              !frameString.isEmpty else {
+            return CGSize(width: defaultWindowWidth, height: defaultWindowHeight)
+        }
+        let rawRect = NSRectFromString(frameString)
+        guard rawRect.width >= minWindowWidth, rawRect.height >= minWindowHeight else {
+            return CGSize(width: defaultWindowWidth, height: defaultWindowHeight)
+        }
+        return CGSize(width: rawRect.width, height: rawRect.height)
+    }
+}
 
 private struct WindowAccessor: NSViewRepresentable {
     let settings: AppSettings
@@ -662,11 +684,32 @@ private struct WindowAccessor: NSViewRepresentable {
     }
 }
 
-/// A lightweight NSView that configures its host window's appearance and
-/// persists/restores the window frame under a stable UserDefaults key.
+/// Configures the host NSWindow's appearance and deterministically persists/restores
+/// the window frame under a stable UserDefaults key.
+///
+/// Guardrails against SwiftUI/AppKit window-sizing races:
+/// 1. Snapshot the saved frame from UserDefaults BEFORE mutating window style/toolbar
+///    or registering NotificationCenter observers.
+/// 2. Lock out persistence (`isRestoringFrame = true`) during the initial launch and
+///    SwiftUI NavigationSplitView / .inspector layout passes so initial placement
+///    notifications (`didMoveNotification` / `didResizeNotification`) never clobber
+///    the saved frame in UserDefaults.
+/// 3. Apply the restored frame synchronously in `viewDidMoveToWindow()` and re-assert
+///    it across initial layout checkpoints if SwiftUI resets the window geometry.
+/// 4. Observe all resize/move/lifecycle notifications (`didResize`, `didEndLiveResize`,
+///    `didMove`, `didExitFullScreen`, `didResignActive`, `willClose`, `willTerminate`)
+///    and freeze persistence once close/termination starts.
 private final class WindowAccessorView: NSView {
-    private static let frameKey = "MacSSHMainWindowFrame"
-    private var didConfigure = false
+    private static let frameKey = WindowFrameStore.frameKey
+    private static let minWindowWidth: CGFloat = WindowFrameStore.minWindowWidth
+    private static let minWindowHeight: CGFloat = WindowFrameStore.minWindowHeight
+
+    private weak var configuredWindow: NSWindow?
+    private var targetRestoredFrame: NSRect?
+    private var isRestoringFrame = false
+    private var hasCompletedInitialRestore = false
+    private var isApplyingProgrammaticFrame = false
+    private var isWindowClosingOrTerminating = false
     var settings: AppSettings?
 
     func applyAppearance() {
@@ -686,22 +729,45 @@ private final class WindowAccessorView: NSView {
 
     override func viewDidMoveToWindow() {
         super.viewDidMoveToWindow()
-        guard !didConfigure, let window else {
+        guard let window else { return }
+        if configuredWindow === window {
             applyAppearance()
             return
         }
-        didConfigure = true
 
+        NotificationCenter.default.removeObserver(self)
+        DistributedNotificationCenter.default().removeObserver(self)
+        configuredWindow = window
+
+        Self.purgeLegacySwiftUIWindowFrameKeys()
+
+        // 1. Snapshot the saved frame BEFORE any window style mutation or observer registration.
+        targetRestoredFrame = Self.loadValidatedSavedFrame(for: window)
+        isRestoringFrame = true
+        hasCompletedInitialRestore = false
+        isWindowClosingOrTerminating = false
+
+        // 2. Configure window chrome and appearance.
         window.titlebarAppearsTransparent = true
         window.titlebarSeparatorStyle = .none
         window.styleMask.insert(.fullSizeContentView)
         window.titleVisibility = .hidden
         window.toolbarStyle = .unified
         window.isMovableByWindowBackground = true
+        window.minSize = NSSize(width: Self.minWindowWidth, height: Self.minWindowHeight)
+        window.isRestorable = false
+        window.setFrameAutosaveName("")
 
         applyAppearance()
 
-        NotificationCenter.default.addObserver(
+        // 3. Apply the saved frame synchronously before the window is ordered on screen.
+        if let target = targetRestoredFrame {
+            applyFrameIfNeeded(target, to: window, display: false)
+        }
+
+        // 4. Register appearance and geometry/lifecycle observers.
+        let center = NotificationCenter.default
+        center.addObserver(
             self, selector: #selector(handleAppearanceChange),
             name: .terminalAppearanceDidChange, object: nil
         )
@@ -710,23 +776,54 @@ private final class WindowAccessorView: NSView {
             name: Notification.Name("AppleInterfaceThemeChangedNotification"), object: nil
         )
 
-        // Restore the previously-saved frame. Deferred via perform(afterDelay:)
-        // (no closure capture) so we apply it after SwiftUI's initial window
-        // layout, which would otherwise overwrite our frame.
-        if UserDefaults.standard.string(forKey: Self.frameKey) != nil {
-            perform(#selector(restoreSavedFrame), with: nil, afterDelay: 0)
-        }
-
-        // Persist on every move/resize end.
-        let center = NotificationCenter.default
         center.addObserver(
-            self, selector: #selector(persistFrame),
+            self, selector: #selector(handleWillStartLiveResize),
+            name: NSWindow.willStartLiveResizeNotification, object: window
+        )
+        center.addObserver(
+            self, selector: #selector(handleWindowGeometryChange),
+            name: NSWindow.didResizeNotification, object: window
+        )
+        center.addObserver(
+            self, selector: #selector(handleWindowGeometryChange),
             name: NSWindow.didEndLiveResizeNotification, object: window
         )
         center.addObserver(
-            self, selector: #selector(persistFrame),
+            self, selector: #selector(handleWindowGeometryChange),
             name: NSWindow.didMoveNotification, object: window
         )
+        center.addObserver(
+            self, selector: #selector(handleWindowGeometryChange),
+            name: NSWindow.didExitFullScreenNotification, object: window
+        )
+        center.addObserver(
+            self, selector: #selector(handleWindowDidBecomeKey),
+            name: NSWindow.didBecomeKeyNotification, object: window
+        )
+        center.addObserver(
+            self, selector: #selector(handleAppDidResignActive),
+            name: NSApplication.didResignActiveNotification, object: nil
+        )
+        center.addObserver(
+            self, selector: #selector(handleWindowWillCloseOrTerminate),
+            name: NSWindow.willCloseNotification, object: window
+        )
+        center.addObserver(
+            self, selector: #selector(handleWindowWillCloseOrTerminate),
+            name: NSApplication.willTerminateNotification, object: nil
+        )
+
+        // 5. Re-assert restored frame across SwiftUI's multi-pass launch layout
+        // (WindowGroup presentation, onAppear tab restoration, NavigationSplitView
+        // and .inspector column attachment), then unlock persistence.
+        for delay in [0.0, 0.05, 0.15, 0.30] {
+            DispatchQueue.main.asyncAfter(deadline: .now() + delay) { [weak self] in
+                self?.reassertRestoredFrame()
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.60) { [weak self] in
+            self?.completeInitialRestoration()
+        }
     }
 
     @objc private func handleAppearanceChange() {
@@ -740,16 +837,171 @@ private final class WindowAccessorView: NSView {
         DistributedNotificationCenter.default().removeObserver(self)
     }
 
-    @objc private func restoreSavedFrame() {
-        guard let frameString = UserDefaults.standard.string(forKey: Self.frameKey) else { return }
-        window?.setFrame(NSRectFromString(frameString), display: true)
+    // MARK: - Frame Restoration & Persistence
+
+    private func isUserInteractingWithWindow(_ window: NSWindow) -> Bool {
+        window.inLiveResize || (window.isVisible && window.isKeyWindow && NSEvent.pressedMouseButtons != 0)
     }
 
-    @objc private func persistFrame(_ notification: Notification) {
-        guard let window = notification.object as? NSWindow else { return }
-        UserDefaults.standard.set(
-            NSStringFromRect(window.frame),
-            forKey: Self.frameKey
-        )
+    private func unlockRestorationForUserInteraction() {
+        guard isRestoringFrame else { return }
+        isRestoringFrame = false
+        hasCompletedInitialRestore = true
+        targetRestoredFrame = nil
+    }
+
+    private func reassertRestoredFrame() {
+        guard isRestoringFrame, !isWindowClosingOrTerminating, let window = configuredWindow else { return }
+        window.setFrameAutosaveName("")
+        if isUserInteractingWithWindow(window) {
+            unlockRestorationForUserInteraction()
+            persistCurrentFrame(of: window)
+            return
+        }
+        if let target = targetRestoredFrame {
+            applyFrameIfNeeded(target, to: window, display: window.isVisible)
+        }
+    }
+
+    private func completeInitialRestoration() {
+        guard isRestoringFrame, !isWindowClosingOrTerminating else { return }
+        if let window = configuredWindow {
+            window.setFrameAutosaveName("")
+            if !isUserInteractingWithWindow(window), let target = targetRestoredFrame {
+                applyFrameIfNeeded(target, to: window, display: window.isVisible)
+            }
+        }
+        isRestoringFrame = false
+        hasCompletedInitialRestore = true
+        targetRestoredFrame = nil
+        if let window = configuredWindow {
+            persistCurrentFrame(of: window)
+        }
+    }
+
+    @objc private func handleWillStartLiveResize(_ notification: Notification) {
+        // User manually grabbed the window edge/corner: release restoration lock immediately.
+        unlockRestorationForUserInteraction()
+    }
+
+    @objc private func handleWindowDidBecomeKey(_ notification: Notification) {
+        guard isRestoringFrame, !isWindowClosingOrTerminating, let window = configuredWindow else { return }
+        window.setFrameAutosaveName("")
+        if let target = targetRestoredFrame, !window.inLiveResize {
+            applyFrameIfNeeded(target, to: window, display: true)
+        }
+    }
+
+    @objc private func handleWindowGeometryChange(_ notification: Notification) {
+        guard !isApplyingProgrammaticFrame, !isWindowClosingOrTerminating, let window = configuredWindow else { return }
+
+        if isRestoringFrame {
+            if isUserInteractingWithWindow(window) {
+                unlockRestorationForUserInteraction()
+                persistCurrentFrame(of: window)
+                return
+            }
+            // Counteract SwiftUI's initial layout pass if it resets window geometry,
+            // and never overwrite UserDefaults with transient launch frames.
+            if let target = targetRestoredFrame {
+                applyFrameIfNeeded(target, to: window, display: window.isVisible)
+            }
+            return
+        }
+
+        guard hasCompletedInitialRestore else { return }
+        persistCurrentFrame(of: window)
+    }
+
+    @objc private func handleAppDidResignActive(_ notification: Notification) {
+        guard hasCompletedInitialRestore, !isRestoringFrame, !isWindowClosingOrTerminating,
+              let window = configuredWindow else { return }
+        persistCurrentFrame(of: window)
+    }
+
+    @objc private func handleWindowWillCloseOrTerminate(_ notification: Notification) {
+        guard !isWindowClosingOrTerminating else { return }
+        if hasCompletedInitialRestore, !isRestoringFrame, let window = configuredWindow {
+            persistCurrentFrame(of: window)
+        }
+        // Freeze further writes so view/inspector teardown during close cannot clobber the frame.
+        isWindowClosingOrTerminating = true
+    }
+
+    private func applyFrameIfNeeded(_ target: NSRect, to window: NSWindow, display: Bool) {
+        let clamped = Self.clampFrameToVisibleScreen(target, fallbackWindow: window)
+        guard !Self.framesMatch(window.frame, clamped) else { return }
+        isApplyingProgrammaticFrame = true
+        window.setFrame(clamped, display: display)
+        isApplyingProgrammaticFrame = false
+    }
+
+    private func persistCurrentFrame(of window: NSWindow) {
+        guard hasCompletedInitialRestore, !isRestoringFrame, !isWindowClosingOrTerminating, !isApplyingProgrammaticFrame else { return }
+        guard window.isVisible, !window.isMiniaturized else { return }
+        guard !window.styleMask.contains(.fullScreen) else { return }
+
+        let frame = window.frame
+        guard frame.width >= Self.minWindowWidth, frame.height >= Self.minWindowHeight else { return }
+
+        UserDefaults.standard.set(NSStringFromRect(frame), forKey: Self.frameKey)
+    }
+
+    private static func loadValidatedSavedFrame(for window: NSWindow) -> NSRect? {
+        guard let frameString = UserDefaults.standard.string(forKey: frameKey), !frameString.isEmpty else {
+            return nil
+        }
+        let rawRect = NSRectFromString(frameString)
+        guard rawRect.width >= minWindowWidth, rawRect.height >= minWindowHeight else {
+            return nil
+        }
+        return clampFrameToVisibleScreen(rawRect, fallbackWindow: window)
+    }
+
+    private static func clampFrameToVisibleScreen(_ rect: NSRect, fallbackWindow: NSWindow?) -> NSRect {
+        let screens = NSScreen.screens
+        let bestScreen = screens.max { a, b in
+            let areaA = a.frame.intersection(rect)
+            let areaB = b.frame.intersection(rect)
+            let scoreA = areaA.isNull ? 0 : areaA.width * areaA.height
+            let scoreB = areaB.isNull ? 0 : areaB.width * areaB.height
+            return scoreA < scoreB
+        }
+
+        let targetScreen: NSScreen?
+        if let bestScreen, !bestScreen.frame.intersection(rect).isNull {
+            targetScreen = bestScreen
+        } else {
+            targetScreen = fallbackWindow?.screen ?? NSScreen.main ?? screens.first
+        }
+
+        guard let visible = targetScreen?.visibleFrame else {
+            return NSRect(
+                x: rect.origin.x,
+                y: rect.origin.y,
+                width: max(rect.width, minWindowWidth),
+                height: max(rect.height, minWindowHeight)
+            )
+        }
+
+        let width = min(max(rect.width, minWindowWidth), visible.width)
+        let height = min(max(rect.height, minWindowHeight), visible.height)
+        let x = min(max(rect.origin.x, visible.minX), visible.maxX - width)
+        let y = min(max(rect.origin.y, visible.minY), visible.maxY - height)
+        return NSRect(x: x, y: y, width: width, height: height)
+    }
+
+    private static func framesMatch(_ a: NSRect, _ b: NSRect, tolerance: CGFloat = 0.5) -> Bool {
+        abs(a.origin.x - b.origin.x) <= tolerance &&
+        abs(a.origin.y - b.origin.y) <= tolerance &&
+        abs(a.size.width - b.size.width) <= tolerance &&
+        abs(a.size.height - b.size.height) <= tolerance
+    }
+
+    private static func purgeLegacySwiftUIWindowFrameKeys() {
+        let defaults = UserDefaults.standard
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("NSWindow Frame SwiftUI.") {
+            defaults.removeObject(forKey: key)
+        }
     }
 }

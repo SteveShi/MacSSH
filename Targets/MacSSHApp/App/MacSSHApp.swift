@@ -15,7 +15,7 @@ struct MacSSHApp: App {
     }
 
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "MacSSHMainWindow") {
             ContentView(model: model, settings: settings)
                 .preferredColorScheme(settings.isDarkMode ? .dark : .light)
                 .onAppear {
@@ -56,6 +56,10 @@ struct MacSSHApp: App {
                     }
                 }
         }
+        .defaultSize(
+            width: WindowFrameStore.initialDefaultSize.width,
+            height: WindowFrameStore.initialDefaultSize.height
+        )
         .commands {
             CommandGroup(after: .appInfo) {
                 Button(String(localized: "Check for Updates...")) {

@@ -58,3 +58,4 @@ ThirdParty/include/
 .gemini/
 /.workbuddy
 Derived/
+docs/window-size-persistence.md
