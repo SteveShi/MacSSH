@@ -1,3 +1,30 @@
+## [2.2.4] - 2026-10-23
+
+### Fixed
+- **Root-Cause Remediation for Terminal PTY I/O Latency, Slow History Restore, and Sluggish Screen Clear**:
+  - Eliminated the severe VSYNC throttling bottleneck in `MactermKit`: background `ghostty_wakeup_callback` now immediately dispatches and triggers `runtime.appTick()` on the main runloop, unlocking true real-time PTY I/O throughput (from dial-up speed to hundreds of MB/s native throughput).
+  - Terminal session scrollback restoration is now virtually instantaneous instead of rendering line-by-line like a sluggish typewriter.
+  - Shell `clear` commands now execute and clear the screen immediately without hanging across display link refresh frames.
+  - Added native `Cmd+K` ("Clear Terminal") shortcut and menu action to wipe the terminal screen and scrollback buffer instantly via Ghostty's native `clear_screen` action while automatically clearing persisted session history.
+  - Added safe history replay line-capping protection in `AppModel.prepareHistoryRestoreCommand` to keep launch times snappy.
+- **Dependency Updates**:
+  - Upgraded `MactermKit` to version 1.0.27.
+
+---
+
+### Chinese
+### 修复
+- **根因修复终端 PTY I/O 延迟、历史记录恢复慢与清屏迟钝问题**：
+  - 彻底清除 `MactermKit` 中限制 PTY I/O 消费的 60Hz 帧率节流严重缺陷：后台 `ghostty_wakeup_callback` 唤醒回调现在直接在主队列调度执行 `runtime.appTick()`，消除了将 I/O 消费延期至下一个 VSYNC 帧和多重异步 Task 调度的瓶颈，PTY 吞吐量恢复至数百 MB/s 原生级别。
+  - 本地终端会话启动与历史记录回放达到秒级瞬间加载，彻底告别旧版逐行打字机式的卡顿慢速滚动。
+  - 终端中执行 `clear` 命令时，清屏控制序列能够被瞬间读取消费，屏幕即刻刷空无迟滞。
+  - 新增 macOS 原生 `Cmd+K`（“清除终端”）快捷键与菜单命令，直调 Ghostty 原生 `clear_screen` 动作瞬间清空屏幕与回滚缓冲区，并自动同步清除当前会话的本地持久化历史。
+  - 在 `AppModel.prepareHistoryRestoreCommand` 中增加单次回放最大行数保护，保证会话恢复始终极速轻盈。
+- **依赖项更新**：
+  - 升级 `MactermKit` 至版本 1.0.27。
+
+---
+
 ## [2.2.3] - 2026-10-18
 
 ### Fixed
