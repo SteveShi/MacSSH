@@ -427,6 +427,20 @@ final class AppModel {
         persistTabs()
     }
 
+    /// Clears the active terminal view's screen and scrollback buffer, and removes persistent history.
+    func clearCurrentTerminal() {
+        if sidebarSelection?.isLocalTerminal == true,
+           let id = selectedLocalTabID,
+           let tab = localTabs.first(where: { $0.id == id }) {
+            tab.surfaceView.clearScreen()
+            tab.splitSurface?.clearScreen()
+            SessionHistoryStore.shared.remove(tabID: tab.id)
+        } else if let selectedID = selectedTabID,
+                  let tab = openTabs.first(where: { $0.id == selectedID }) {
+            tab.cachedSurface?.clearScreen()
+        }
+    }
+
     /// Moves an open SSH tab from one position to another (for drag-and-drop reordering).
     func moveOpenTab(fromID: UUID, toID: UUID) {
         guard fromID != toID,
@@ -718,6 +732,10 @@ final class AppModel {
         let cleaned = sanitizeHistoryText(historyText)
         guard !cleaned.isEmpty else { return nil }
 
+        let rawLines = cleaned.components(separatedBy: "\n")
+        let cappedLines = rawLines.count > 1500 ? Array(rawLines.suffix(1500)) : rawLines
+        let contentToRestore = cappedLines.joined(separator: "\n")
+
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "MM/dd HH:mm"
         let quitStr = dateFormatter.string(from: quittedAt)
@@ -727,7 +745,7 @@ final class AppModel {
         let dividerRestore = "\u{1B}[90m─── >_* Restored at \(restoreStr) ───\u{1B}[0m"
 
         let combined = """
-        \(cleaned)
+        \(contentToRestore)
 
         \(dividerQuit)
 
