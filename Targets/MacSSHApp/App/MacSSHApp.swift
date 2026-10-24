@@ -5,19 +5,22 @@ import MactermKit
 struct MacSSHApp: App {
     @StateObject private var updater = Updater()
     @State private var model = AppModel()
-    @State private var settings = AppSettings()
+    @State private var settings: AppSettings
 
     init() {
         // Ensure Ghostty is initialized on the main thread immediately
         _ = GhosttyRuntime.shared
         // Purge any plaintext password / expect files leaked by a prior crash.
         GhosttyTerminalView.cleanupStaleAuthFiles()
+        // Apply the persisted appearance app-wide before any window is created.
+        let initialSettings = AppSettings()
+        AppearanceController.shared.apply(initialSettings.theme)
+        _settings = State(initialValue: initialSettings)
     }
 
     var body: some Scene {
         WindowGroup(id: "MacSSHMainWindow") {
             ContentView(model: model, settings: settings)
-                .preferredColorScheme(settings.isDarkMode ? .dark : .light)
                 .onAppear {
                     NotificationService.shared.configure(settings: settings)
                     GhosttyRuntime.shared.onTerminalEvent = { event in
@@ -49,11 +52,6 @@ struct MacSSHApp: App {
                 }
                 .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in
                     model.saveLocalSessionsHistory(settings: settings)
-                }
-                .onReceive(DistributedNotificationCenter.default().publisher(for: Notification.Name("AppleInterfaceThemeChangedNotification"))) { _ in
-                    if settings.theme == .system {
-                        model.applyTerminalSettingsToAllSurfaces(settings: settings)
-                    }
                 }
         }
         .defaultSize(
@@ -149,7 +147,6 @@ struct MacSSHApp: App {
 
         Settings {
             SettingsView(settings: settings, model: model)
-                .preferredColorScheme(settings.isDarkMode ? .dark : .light)
         }
     }
 }

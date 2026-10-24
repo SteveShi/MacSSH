@@ -100,7 +100,6 @@ struct SettingsView: View {
                 .tag(Tab.about)
         }
         .frame(width: 500, height: 400)
-        .preferredColorScheme(settings.isDarkMode ? .dark : .light)
         .sheet(item: $activeThemeTarget) { target in
             switch target {
             case .dark:

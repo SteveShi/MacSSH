@@ -216,15 +216,18 @@ struct GhosttyTerminalView: NSViewRepresentable {
         let currentVibrancy = settings.vibrancyEnabled
         let currentDark = settings.selectedDarkThemeName
         let currentLight = settings.selectedLightThemeName
+        let currentIsDark = settings.isDarkMode
         guard coordinator.lastFontName != settings.fontName
                 || coordinator.lastFontSize != settings.fontSize
                 || coordinator.lastTheme != currentTheme
+                || coordinator.lastIsDark != currentIsDark
                 || coordinator.lastDarkTheme != currentDark
                 || coordinator.lastLightTheme != currentLight
                 || coordinator.lastVibrancyEnabled != currentVibrancy else { return }
         coordinator.lastFontName = settings.fontName
         coordinator.lastFontSize = settings.fontSize
         coordinator.lastTheme = currentTheme
+        coordinator.lastIsDark = currentIsDark
         coordinator.lastDarkTheme = currentDark
         coordinator.lastLightTheme = currentLight
         coordinator.lastVibrancyEnabled = currentVibrancy
@@ -242,6 +245,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         var lastFontName: String?
         var lastFontSize: Double?
         var lastTheme: AppSettings.TerminalTheme?
+        var lastIsDark: Bool?
         var lastDarkTheme: String?
         var lastLightTheme: String?
         var lastVibrancyEnabled: Bool?
@@ -308,7 +312,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         case .light:
             isDark = false
         case .system:
-            isDark = NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            isDark = AppearanceController.shared.isDark
         }
 
         let currentSettings = appSettings ?? AppSettings()

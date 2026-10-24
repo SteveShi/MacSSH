@@ -39,6 +39,7 @@ final class AppSettings {
     }
 
     /// Resolves whether the current appearance should be dark or light (beige).
+    @MainActor
     public var isDarkMode: Bool {
         switch theme {
         case .dark:
@@ -46,7 +47,9 @@ final class AppSettings {
         case .light:
             return false
         case .system:
-            return NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            // Observable: SwiftUI views and terminal configs re-resolve when the
+            // system appearance flips.
+            return AppearanceController.shared.isDark
         }
     }
 
@@ -108,6 +111,11 @@ final class AppSettings {
     var theme: TerminalTheme {
         didSet {
             save()
+            // Theme is only mutated from UI (Settings) on the main thread.
+            let newTheme = theme
+            MainActor.assumeIsolated {
+                AppearanceController.shared.apply(newTheme)
+            }
             NotificationCenter.default.post(name: .terminalAppearanceDidChange, object: self)
         }
     }

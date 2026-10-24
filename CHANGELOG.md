@@ -1,13 +1,27 @@
-## [2.2.5] - 2026-10-24
+## [2.2.5] - 2026-10-25
 
-### Changed
-- Automatically bumped dependencies to SSH2Kit version 1.3.29 and MactermKit version 1.0.27.
+### Fixed
+- **Root-Cause Remediation for System Theme Following & Appearance Mode Switching**:
+  - Resolved severe appearance synchronization defects when switching from dark mode to light mode with "Follow System" enabled, eliminating residual dark block artifacts and unreadable white-on-light terminal text.
+  - Eliminated contradictory `.preferredColorScheme` modifiers and per-window `NSAppearance` overrides that pinned `NSApp.effectiveAppearance` and broke system appearance propagation.
+  - Introduced `AppearanceController` as the application-wide single source of truth for appearance state: directly manages `NSApp.appearance` and observes `NSApp.effectiveAppearance` via KVO, providing reactive `@MainActor` state to SwiftUI and terminal configuration pipelines.
+  - Replaced premature `AppleInterfaceThemeChangedNotification` hooks with reliable KVO-backed notifications, guaranteeing `effectiveAppearance` is fully settled before re-resolving terminal palettes.
+  - Enhanced `GhosttyTerminalView` update coordinator to track dark/light transitions across view refreshes, immediately triggering terminal configuration rebuilds and full surface redraws upon system theme flips.
+- **Dependency Updates**:
+  - Automatically bumped dependencies to SSH2Kit version 1.3.29 and MactermKit version 1.0.27.
 
 ---
 
 ### Chinese
-### 变更
-- 自动更新依赖项 SSH2Kit 至版本 1.3.29，MactermKit 至版本 1.0.27。
+### 修复
+- **根因修复外观跟随系统与深浅模式无缝切换**：
+  - 彻底解决主题选择“跟随系统”时从深色模式切换至浅色模式出现的严重显示缺陷，消除残余深色黑块以及终端文字保持白色导致浅色模式下完全不可读的问题。
+  - 彻底清除主窗口与设置窗口写死的 `.preferredColorScheme` 修饰符以及窗口级 `appearance` 强制覆盖，解除对 `NSApp.effectiveAppearance` 的锁定，让系统外观切换通知与渲染管道畅通无阻。
+  - 引入统一的 `AppearanceController` 作为全局外观唯一定义中心：主导 `NSApp.appearance`，并通过 KVO 严格监听已完全生效的 `NSApp.effectiveAppearance`，为 SwiftUI 及终端配置流程提供响应式 `@MainActor` 外观状态源。
+  - 移除先于系统实际生效触发的 `AppleInterfaceThemeChangedNotification` 分布式通知竞态，杜绝根据未更新的外观读取到过时深色状态。
+  - 完善 `GhosttyTerminalView` 协调器对 `isDarkMode` 外观翻转的差异对比，确保在系统深浅色切换时立即构建并应用新主题配置、同步全量重绘终端画布。
+- **依赖项更新**：
+  - 自动更新依赖项 SSH2Kit 至版本 1.3.29，MactermKit 至版本 1.0.27。
 
 ---
 ## [2.2.4] - 2026-10-23

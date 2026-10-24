@@ -5,7 +5,7 @@ category: decision
 status: active
 tags: [terminal, themes, toast, shell-integration]
 created: "2026-10-17T17:42:38"
-updated: "2026-10-17T18:11:05"
+updated: "2026-10-25T05:06:31"
 ---
 
 <!-- compiled_truth -->
@@ -47,4 +47,9 @@ Specifically:
 - time: 2026-10-17T18:11:05
   kind: decision
   summary: "Release version 2.2.0 with curated color themes, native HUD, dual-channel resilience, and updated documentation"
+  affects: [terminal-themes-hud-shell-integration]
+
+- time: 2026-10-25T05:06:31
+  kind: decision
+  summary: "Appearance single source of truth: AppearanceController applies theme to NSApp.appearance (nil for Follow System) and tracks NSApp.effectiveAppearance via KVO; AppSettings.isDarkMode reads it (observable). Never use .preferredColorScheme or per-window appearance overrides (they pin effectiveAppearance and freeze system-follow), and never resolve dark/light from AppleInterfaceThemeChangedNotification (fires before effectiveAppearance updates)."
   affects: [terminal-themes-hud-shell-integration]

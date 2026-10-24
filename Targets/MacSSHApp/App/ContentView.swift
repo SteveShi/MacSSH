@@ -714,17 +714,11 @@ private final class WindowAccessorView: NSView {
 
     func applyAppearance() {
         guard let window else { return }
-        let isDark = settings?.isDarkMode ?? true
+        let isDark = settings?.isDarkMode ?? AppearanceController.shared.isDark
         window.backgroundColor = ThemeColors.terminalBackgroundNSColor(isDark: isDark)
-
-        switch settings?.theme {
-        case .dark:
-            window.appearance = NSAppearance(named: .darkAqua)
-        case .light:
-            window.appearance = NSAppearance(named: .aqua)
-        case .system, nil:
-            window.appearance = nil
-        }
+        // Inherit from NSApp.appearance (driven by AppearanceController); a
+        // per-window override would desync from the app-wide resolved appearance.
+        window.appearance = nil
     }
 
     override func viewDidMoveToWindow() {
@@ -736,7 +730,6 @@ private final class WindowAccessorView: NSView {
         }
 
         NotificationCenter.default.removeObserver(self)
-        DistributedNotificationCenter.default().removeObserver(self)
         configuredWindow = window
 
         Self.purgeLegacySwiftUIWindowFrameKeys()
@@ -770,10 +763,6 @@ private final class WindowAccessorView: NSView {
         center.addObserver(
             self, selector: #selector(handleAppearanceChange),
             name: .terminalAppearanceDidChange, object: nil
-        )
-        DistributedNotificationCenter.default().addObserver(
-            self, selector: #selector(handleAppearanceChange),
-            name: Notification.Name("AppleInterfaceThemeChangedNotification"), object: nil
         )
 
         center.addObserver(
@@ -834,7 +823,6 @@ private final class WindowAccessorView: NSView {
 
     deinit {
         NotificationCenter.default.removeObserver(self)
-        DistributedNotificationCenter.default().removeObserver(self)
     }
 
     // MARK: - Frame Restoration & Persistence
