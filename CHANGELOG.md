@@ -1,4 +1,4 @@
-## [2.2.5] - 2026-10-25
+## [2.2.6] - 2026-10-25
 
 ### Fixed
 - **Root-Cause Remediation for System Theme Following & Appearance Mode Switching**:
@@ -7,8 +7,6 @@
   - Introduced `AppearanceController` as the application-wide single source of truth for appearance state: directly manages `NSApp.appearance` and observes `NSApp.effectiveAppearance` via KVO, providing reactive `@MainActor` state to SwiftUI and terminal configuration pipelines.
   - Replaced premature `AppleInterfaceThemeChangedNotification` hooks with reliable KVO-backed notifications, guaranteeing `effectiveAppearance` is fully settled before re-resolving terminal palettes.
   - Enhanced `GhosttyTerminalView` update coordinator to track dark/light transitions across view refreshes, immediately triggering terminal configuration rebuilds and full surface redraws upon system theme flips.
-- **Dependency Updates**:
-  - Automatically bumped dependencies to SSH2Kit version 1.3.29 and MactermKit version 1.0.27.
 
 ---
 
@@ -20,8 +18,19 @@
   - 引入统一的 `AppearanceController` 作为全局外观唯一定义中心：主导 `NSApp.appearance`，并通过 KVO 严格监听已完全生效的 `NSApp.effectiveAppearance`，为 SwiftUI 及终端配置流程提供响应式 `@MainActor` 外观状态源。
   - 移除先于系统实际生效触发的 `AppleInterfaceThemeChangedNotification` 分布式通知竞态，杜绝根据未更新的外观读取到过时深色状态。
   - 完善 `GhosttyTerminalView` 协调器对 `isDarkMode` 外观翻转的差异对比，确保在系统深浅色切换时立即构建并应用新主题配置、同步全量重绘终端画布。
-- **依赖项更新**：
-  - 自动更新依赖项 SSH2Kit 至版本 1.3.29，MactermKit 至版本 1.0.27。
+
+---
+
+## [2.2.5] - 2026-10-24
+
+### Changed
+- Automatically bumped dependencies to SSH2Kit version 1.3.29 and MactermKit version 1.0.27.
+
+---
+
+### Chinese
+### 变更
+- 自动更新依赖项 SSH2Kit 至版本 1.3.29，MactermKit 至版本 1.0.27。
 
 ---
 ## [2.2.4] - 2026-10-23

@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SteveShi/SSH2Kit.git",
       "state" : {
-        "revision" : "866bb52a945d3ff3133f030ba075bc279874258b",
-        "version" : "1.3.28"
+        "revision" : "ad011a7d964e85d3645a808f2a4f37a9cbb6ce26",
+        "version" : "1.3.29"
       }
     }
   ],
