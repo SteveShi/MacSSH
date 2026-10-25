@@ -29,6 +29,7 @@ enum ImportMode: Sendable {
 @MainActor
 final class AppModel {
     private var isRestoring: Bool = true
+    private var lastLocalHistorySaveTime: Date = .distantPast
 
     var connections: [SSHConnection]
     var sidebarSelection: SidebarItem? {
@@ -660,20 +661,25 @@ final class AppModel {
 
     /// Saves the scrollback history for all active local terminal tabs.
     @MainActor
-    func saveLocalSessionsHistory(settings: AppSettings = AppSettings()) {
+    func saveLocalSessionsHistory(settings: AppSettings = AppSettings(), force: Bool = false) {
         guard !isRestoring else { return }
         guard settings.restoreLocalTerminalHistory else { return }
         guard !localTabs.isEmpty else { return }
+        if !force {
+            let now = Date()
+            guard now.timeIntervalSince(lastLocalHistorySaveTime) >= 3.0 else { return }
+            lastLocalHistorySaveTime = now
+        }
         let store = SessionHistoryStore.shared
 
         for tab in localTabs {
-            let limit = settings.scrollbackHistoryLimit
+            let limit = min(settings.scrollbackHistoryLimit, 300)
             if let text = tab.surfaceView.readFullVTText(maxLines: limit) ?? tab.surfaceView.readFullText(maxLines: limit) {
                 let cleaned = Self.sanitizeHistoryText(text)
                 let lines = cleaned.components(separatedBy: "\n").filter { !Self.stripANSI($0).trimmingCharacters(in: .whitespaces).isEmpty }
                 
-                // If the terminal has been cleared (only 1 prompt line or empty), clear persisted history
-                guard lines.count > 1 else {
+                // If the terminal has been cleared (only 1-3 prompt lines or empty), clear persisted history
+                guard lines.count > 3 else {
                     store.remove(tabID: tab.id)
                     continue
                 }
@@ -721,7 +727,9 @@ final class AppModel {
         "'" + string.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
-    /// Generates a restore bootstrap script for a local terminal tab if history is present.
+    /// Generates a restore bootstrap inline command for a local terminal tab if history is present.
+    /// Uses an atomic inline shell pipeline instead of a secondary script to avoid double-spawning
+    /// login shells and loading user shell configuration twice.
     @MainActor
     private static func prepareHistoryRestoreCommand(
         tabID: UUID,
@@ -733,7 +741,9 @@ final class AppModel {
         guard !cleaned.isEmpty else { return nil }
 
         let rawLines = cleaned.components(separatedBy: "\n")
-        let cappedLines = rawLines.count > 1500 ? Array(rawLines.suffix(1500)) : rawLines
+        // Cap restore history to the most recent 250 lines for instant replay without pty backpressure
+        let cappedLines = rawLines.count > 250 ? Array(rawLines.suffix(250)) : rawLines
+        guard cappedLines.count > 3 else { return nil }
         let contentToRestore = cappedLines.joined(separator: "\n")
 
         let dateFormatter = DateFormatter()
@@ -754,7 +764,6 @@ final class AppModel {
         """
 
         let tmpTxtPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).txt"
-        let tmpShPath = NSTemporaryDirectory() + "macssh_restore_\(tabID.uuidString).sh"
 
         do {
             try combined.write(toFile: tmpTxtPath, atomically: true, encoding: .utf8)
@@ -766,29 +775,14 @@ final class AppModel {
 
         let userShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
         let escapedTxtPath = shellQuoted(tmpTxtPath)
-        let escapedShPath = shellQuoted(tmpShPath)
         let escapedShell = shellQuoted(userShell)
 
-        let bootstrapScript = """
-        #!\(userShell)
-        if [ -f \(escapedTxtPath) ]; then
-            cat \(escapedTxtPath)
-            rm -f \(escapedTxtPath)
-        fi
-        rm -f \(escapedShPath)
-        exec \(escapedShell)
-        """
+        // Native fast inline restore command:
+        // Echoes previous session buffer via cat, cleans up temp file, then execs the login shell once.
+        let inlineCommand = "/bin/sh -c \"if [ -f \(escapedTxtPath) ]; then /bin/cat \(escapedTxtPath); /bin/rm -f \(escapedTxtPath); fi; exec \(escapedShell) -l\""
 
-        do {
-            try bootstrapScript.write(toFile: tmpShPath, atomically: true, encoding: .utf8)
-            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: tmpShPath)
-        } catch {
-            NSLog("[MacSSH] Failed to write restore bootstrap script: \(error)")
-            return nil
-        }
-
-        NSLog("[MacSSH] History restore prepared successfully for tab \(tabID), script: \(tmpShPath)")
-        return tmpShPath
+        NSLog("[MacSSH] History restore prepared successfully for tab \(tabID)")
+        return inlineCommand
     }
 
     @MainActor

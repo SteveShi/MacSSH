@@ -48,7 +48,7 @@ struct MacSSHApp: App {
                     model.saveLocalSessionsHistory(settings: settings)
                 }
                 .onReceive(NotificationCenter.default.publisher(for: NSApplication.willTerminateNotification)) { _ in
-                    model.saveLocalSessionsHistory(settings: settings)
+                    model.saveLocalSessionsHistory(settings: settings, force: true)
                 }
                 .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification)) { _ in
                     model.saveLocalSessionsHistory(settings: settings)

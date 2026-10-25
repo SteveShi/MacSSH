@@ -210,35 +210,75 @@ struct LocalTerminalStatusBar: View {
     }
 
     private var shellName: String {
-        // Locate the tab's shell either by the surface-reported PTY pid
-        // (MactermKit ghostty_surface_pid) or by start-time matching, then
-        // walk down to the foreground command (e.g. zsh -> bash -> vim).
-        if let name = Self.foregroundProcessName(ptyPid: tab.surfaceView.ptyPID, tab: tab) {
-            return name
-        }
-        // Last resort: the user's default shell.
-        let envShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
-        return (envShell as NSString).lastPathComponent
+        LocalProcessMonitor.shared.processName(for: tab)
     }
 
-    private struct ProcEntry {
+    private func durationString(from start: Date, to now: Date) -> String {
+        let seconds = max(0, Int(now.timeIntervalSince(start)))
+        let hours = seconds / 3600
+        let minutes = (seconds % 3600) / 60
+        let secs = seconds % 60
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, secs)
+        }
+        return String(format: "%d:%02d", minutes, secs)
+    }
+}
+
+// MARK: - Asynchronous Local Process Monitor
+
+/// Monitors the foreground process of local terminal tabs on a background thread.
+/// Caches resolved names so the main thread (and SwiftUI TimelineView) is NEVER blocked
+/// by `sysctl(KERN_PROC_ALL)` during keystrokes, command executions, or screen clears.
+@MainActor
+final class LocalProcessMonitor {
+    static let shared = LocalProcessMonitor()
+
+    private var cache: [UUID: String] = [:]
+    private var lastQueryTime: [UUID: Date] = [:]
+    private var inFlightQueries: Set<UUID> = []
+
+    func processName(for tab: LocalTerminalTab) -> String {
+        let id = tab.id
+        let now = Date()
+
+        // Return cached value if query was performed within the last 2 seconds.
+        if let cached = cache[id], let lastTime = lastQueryTime[id], now.timeIntervalSince(lastTime) < 2.0 {
+            return cached
+        }
+
+        // Trigger an asynchronous background query if not already in-flight.
+        if !inFlightQueries.contains(id) {
+            inFlightQueries.insert(id)
+            let ptyPid = tab.surfaceView.ptyPID
+            let connectedAt = tab.connectedAt
+            let defaultShell = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh").lastPathComponent
+
+            Task.detached(priority: .utility) {
+                let resolved = Self.resolveForegroundProcess(ptyPid: ptyPid, connectedAt: connectedAt) ?? defaultShell
+                await MainActor.run {
+                    self.cache[id] = resolved
+                    self.lastQueryTime[id] = Date()
+                    self.inFlightQueries.remove(id)
+                }
+            }
+        }
+
+        if let cached = cache[id] {
+            return cached
+        }
+        let envShell = ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh"
+        return URL(fileURLWithPath: envShell).lastPathComponent
+    }
+
+    private struct ProcEntry: Sendable {
         let pid: pid_t
         let ppid: pid_t
         let start: TimeInterval
         let name: String?
     }
 
-    /// Resolves the foreground command for a tab.
-    /// - If `ptyPid` is known, the walk starts there (exact, no guessing).
-    /// - Otherwise the direct child of this app whose start time is closest
-    ///   to the tab's `connectedAt` is used (each tab spawns exactly one PTY
-    ///   child).
-    ///
-    /// Child enumeration uses a sysctl KERN_PROC_ALL snapshot: newer macOS
-    /// releases no longer report other processes' children through
-    /// `proc_listchildpids` (it returns an empty list even for live direct
-    /// children of the caller), so the targeted libproc walk silently broke.
-    private static func foregroundProcessName(ptyPid: pid_t?, tab: LocalTerminalTab) -> String? {
+    private nonisolated static func resolveForegroundProcess(ptyPid: pid_t?, connectedAt: Date) -> String? {
         let procs = allProcesses()
         guard !procs.isEmpty else { return nil }
 
@@ -246,9 +286,10 @@ struct LocalTerminalStatusBar: View {
         if let ptyPid, ptyPid > 0, let node = procs.first(where: { $0.pid == ptyPid }) {
             current = node
         } else {
-            let tabStartTime = tab.connectedAt.timeIntervalSince1970
+            let tabStartTime = connectedAt.timeIntervalSince1970
+            let myPid = getpid()
             current = procs
-                .filter { $0.ppid == getpid() }
+                .filter { $0.ppid == myPid }
                 .min { abs($0.start - tabStartTime) < abs($1.start - tabStartTime) }
         }
         guard current != nil else { return nil }
@@ -265,17 +306,12 @@ struct LocalTerminalStatusBar: View {
         return name
     }
 
-    /// One sysctl snapshot of every process on the system with parent pid,
-    /// start time and command name. This is what the working pre-2.1.0
-    /// detection used; libproc's child-listing API is a no-op on macOS 27.
-    private static func allProcesses() -> [ProcEntry] {
+    private nonisolated static func allProcesses() -> [ProcEntry] {
         var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_ALL]
         var size = 0
         guard sysctl(&mib, 3, nil, &size, nil, 0) == 0, size > 0 else { return [] }
         let stride = MemoryLayout<kinfo_proc>.stride
         var count = size / stride + 16
-        // Retry a few times: processes may appear between the size query and
-        // the data query, which makes sysctl fail with ENOMEM.
         for _ in 0..<4 {
             var buffer = [kinfo_proc](repeating: kinfo_proc(), count: count)
             var newSize = count * stride
@@ -297,16 +333,5 @@ struct LocalTerminalStatusBar: View {
             count = actual + 16
         }
         return []
-    }
-
-    private func durationString(from start: Date, to now: Date) -> String {
-        let seconds = max(0, Int(now.timeIntervalSince(start)))
-        let hours = seconds / 3600
-        let minutes = (seconds % 3600) / 60
-        let secs = seconds % 60
-        if hours > 0 {
-            return String(format: "%d:%02d:%02d", hours, minutes, secs)
-        }
-        return String(format: "%d:%02d", minutes, secs)
     }
 }

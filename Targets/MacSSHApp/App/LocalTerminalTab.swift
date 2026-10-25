@@ -95,6 +95,15 @@ final class LocalTerminalTab: Identifiable {
             }
 
         case .commandFinished(let exitCode, let durationNs):
+            // If the terminal has been cleared (e.g. user ran 'clear'), purge persisted history immediately
+            if let text = surfaceView.readFullText(maxLines: 10) {
+                let cleaned = AppModel.sanitizeHistoryText(text)
+                let lines = cleaned.components(separatedBy: "\n").filter { !AppModel.stripANSI($0).trimmingCharacters(in: .whitespaces).isEmpty }
+                if lines.count <= 3 {
+                    SessionHistoryStore.shared.remove(tabID: self.id)
+                }
+            }
+
             guard settings.commandCompletionNotification else { return }
             let durationSeconds = Double(durationNs) / 1_000_000_000.0
             guard durationSeconds >= 5.0 else { return }

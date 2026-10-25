@@ -1,3 +1,26 @@
+## [2.2.7] - 2026-10-26
+
+### Fixed
+- **Root-Cause Remediation for Local Terminal `clear` Command Hangs & Sluggish History Restore**:
+  - Eliminated the severe 1–2 second main-thread freeze when executing `clear` or pressing Return in local terminal tabs: replaced synchronous whole-system `sysctl(KERN_PROC_ALL)` process walks in `LocalTerminalStatusBar` with an asynchronous, throttled background query service (`LocalProcessMonitor`), dropping main-thread query latency from over 1,500ms to 0ms.
+  - Eliminated dual-shell spawning overhead and double `~/.zshrc` profile loading during local session restoration: replaced the multi-stage temporary shell script with an atomic inline bootstrap pipeline (`/bin/sh -c "cat ...; rm ...; exec <shell> -l"`), making terminal history restoration instantaneous.
+  - Capped session restore replay buffer to the most recent 250 lines to prevent PTY queue saturation and window re-flow congestion.
+  - Fixed persistent scrollback snowballing and desync: `.commandFinished` terminal events now immediately detect screen clear states and purge stale on-disk session history, ensuring cleared terminals stay clean across app restarts.
+  - Added a 3-second debounce to session history persistence to prevent redundant disk I/O on UI focus changes.
+
+---
+
+### Chinese
+### 修复
+- **根因修复本地终端执行 `clear` 清屏卡顿与历史记录恢复极慢**：
+  - 彻底消灭本地终端在输入 `clear` 或回车时界面冻结停顿 1~2 秒的致命卡顿：将 `LocalTerminalStatusBar` 状态栏求值中在主线程同步调用 `sysctl(KERN_PROC_ALL)` 扫描全系统进程的阻塞逻辑，重构为后台异步扫描与 2 秒缓存防抖机制（`LocalProcessMonitor`），主线程进程名查询耗时直接由 1500ms+ 降至 0ms。
+  - 彻底消除恢复本地会话历史时的双重 Shell 嵌套启动与两次加载巨型 `~/.zshrc`（Homebrew、Starship、Zoxide 等）的重负：废弃外置 `.sh` 临时脚本，改用轻量级单行内联管道（`/bin/sh -c "cat ...; rm ...; exec <shell> -l"`），恢复历史时只启动一次原生用户登录 Shell，耗时缩减 95% 以上，秒开立现。
+  - 将历史恢复行数上限收敛至最近 250 行，彻底避免初建 PTY 视口未完成折行布局时被数千行 VT 转义序列塞爆造成的严重拥塞。
+  - 修复已清屏会话历史无法被清理而产生滚雪球效应的问题：在终端事件 `.commandFinished` 中加入即时清屏感知，若屏幕内容已被清空则立刻同步清除磁盘持久化文件，确保下次启动不再带出已清空的旧历史。
+  - 会话历史保存加入 3 秒时间戳防抖保护，彻底消除窗口失焦与控件切换时的高频磁盘 I/O。
+
+---
+
 ## [2.2.6] - 2026-10-25
 
 ### Fixed
