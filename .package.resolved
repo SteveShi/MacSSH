@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SteveShi/MactermKit.git",
       "state" : {
-        "revision" : "f6498aca1c313732bfb2949a099b99a87e454053",
-        "version" : "1.0.30"
+        "revision" : "3d9bbae38d9085757c00d4efd43e1f25d0acdc93",
+        "version" : "1.0.31"
       }
     },
     {
