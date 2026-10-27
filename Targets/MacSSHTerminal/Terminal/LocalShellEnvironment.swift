@@ -20,7 +20,7 @@ enum LocalShellEnvironment {
         var env = ProcessInfo.processInfo.environment
         env["TERM"] = fallbackTerm
         env["TERM_PROGRAM"] = "ghostty"
-        env["TERM_PROGRAM_VERSION"] = "1.1.2"
+        env["TERM_PROGRAM_VERSION"] = "1.4.0"
         if env["LANG"] == nil || env["LANG"]?.isEmpty == true {
             env["LANG"] = "en_US.UTF-8"
         }

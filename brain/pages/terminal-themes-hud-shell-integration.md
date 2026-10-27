@@ -5,7 +5,7 @@ category: decision
 status: active
 tags: [terminal, themes, toast, shell-integration]
 created: "2026-10-17T17:42:38"
-updated: "2026-10-25T05:06:31"
+updated: "2026-10-28T03:15:14"
 ---
 
 <!-- compiled_truth -->
@@ -52,4 +52,9 @@ Specifically:
 - time: 2026-10-25T05:06:31
   kind: decision
   summary: "Appearance single source of truth: AppearanceController applies theme to NSApp.appearance (nil for Follow System) and tracks NSApp.effectiveAppearance via KVO; AppSettings.isDarkMode reads it (observable). Never use .preferredColorScheme or per-window appearance overrides (they pin effectiveAppearance and freeze system-follow), and never resolve dark/light from AppleInterfaceThemeChangedNotification (fires before effectiveAppearance updates)."
+  affects: [terminal-themes-hud-shell-integration]
+
+- time: 2026-10-28T03:15:14
+  kind: decision
+  summary: "Integrated MactermKit 1.0.28 (Ghostty 1.4.0): added TerminalProgramStatusStore for OSC 7501 multi-instance program status & OSC 9;4 progress, sidebar/titlebar badges, status bar OSC 8 hover link preview, background tab GPU resource release via setOccluded, fast foregroundProcessID resolution, scrollback-compression, and Mode 2031 color scheme sync."
   affects: [terminal-themes-hud-shell-integration]

@@ -11,10 +11,12 @@ final class SurfaceHostContainerView: NSView {
     var hostedSurface: GhosttySurfaceView? {
         didSet {
             guard hostedSurface !== oldValue else { return }
+            oldValue?.setOccluded(true)
             oldValue?.removeFromSuperview()
             if let hostedSurface {
                 hostedSurface.translatesAutoresizingMaskIntoConstraints = false
                 addSubview(hostedSurface)
+                hostedSurface.setOccluded(false)
                 NSLayoutConstraint.activate([
                     hostedSurface.leadingAnchor.constraint(equalTo: leadingAnchor),
                     hostedSurface.trailingAnchor.constraint(equalTo: trailingAnchor),
@@ -26,6 +28,11 @@ final class SurfaceHostContainerView: NSView {
                 }
             }
         }
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        hostedSurface?.setOccluded(window == nil)
     }
 }
 
@@ -65,7 +72,7 @@ struct GhosttyTerminalView: NSViewRepresentable {
         var env = ProcessInfo.processInfo.environment
         env["TERM"] = "xterm-256color"
         env["TERM_PROGRAM"] = "ghostty"
-        env["TERM_PROGRAM_VERSION"] = "1.1.2"
+        env["TERM_PROGRAM_VERSION"] = "1.4.0"
         if env["LANG"] == nil || env["LANG"]?.isEmpty == true {
             env["LANG"] = "en_US.UTF-8"
         }
@@ -279,7 +286,8 @@ struct GhosttyTerminalView: NSViewRepresentable {
             "font-family = \"\(fontName)\"",
             "window-padding-x = 10",
             "window-padding-y = 8",
-            "window-padding-balance = true"
+            "window-padding-balance = true",
+            "scrollback-compression = true"
         ]
         
         let fallbackFonts = [
@@ -368,6 +376,8 @@ struct GhosttyTerminalView: NSViewRepresentable {
                 ghostty_config_finalize(nextConfig)
                 if let rawSurface = surface.rawSurface {
                     ghostty_surface_update_config(rawSurface, nextConfig)
+                    surface.setColorScheme(isDark: isDark)
+                    GhosttyRuntime.shared.setColorScheme(isDark: isDark)
                     surface.needsDisplay = true
                     GhosttyRuntime.shared.setPendingTick()
                     GhosttyRuntime.shared.appTick()

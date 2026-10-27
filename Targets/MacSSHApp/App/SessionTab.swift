@@ -28,6 +28,7 @@ final class SessionTab: Identifiable {
     let id: UUID
     var connection: SSHConnection
     let terminalModel: TerminalSessionViewModel
+    let programStatusStore = TerminalProgramStatusStore()
     var showInspector: Bool = UserDefaults.standard.object(forKey: "showRemoteInspector") as? Bool ?? true {
         didSet {
             UserDefaults.standard.set(showInspector, forKey: "showRemoteInspector")
@@ -133,6 +134,7 @@ final class SessionTab: Identifiable {
             }
 
         case .commandFinished(let exitCode, let durationNs):
+            self.programStatusStore.clearWorkingOnCommandFinished()
             guard settings.commandCompletionNotification else { return }
             let durationSeconds = Double(durationNs) / 1_000_000_000.0
             guard durationSeconds >= 5.0 else { return }
@@ -151,7 +153,35 @@ final class SessionTab: Identifiable {
             break
 
         case .childExited:
+            self.programStatusStore.reset()
             self.isProcessExited = true
+
+        case .programStatus(let report):
+            if let transition = self.programStatusStore.apply(report) {
+                let defaultName = self.customTitle ?? self.connection.name
+                let appLabel = !transition.report.app.isEmpty ? transition.report.app : (!transition.report.title.isEmpty ? transition.report.title : defaultName)
+                if transition.report.state == .blocked {
+                    ToastManager.shared.show(
+                        String(localized: "\(appLabel) needs input"),
+                        message: transition.report.message.isEmpty ? nil : transition.report.message,
+                        preset: .warning,
+                        duration: 4.0
+                    )
+                } else if transition.report.state == .error && !transition.report.message.isEmpty {
+                    ToastManager.shared.show(
+                        String(localized: "\(appLabel) error"),
+                        message: transition.report.message,
+                        preset: .error,
+                        duration: 4.0
+                    )
+                }
+            }
+
+        case .progressReport(let report):
+            self.programStatusStore.applyProgress(report)
+
+        case .hoverLink(let url):
+            self.programStatusStore.hoveredLink = url
         }
     }
 

@@ -144,7 +144,9 @@ macssh send 1 key C-c
 
 ## ✨ Core Features
 
-- ⚡ **Metal-Accelerated VT**: Powered by the Ghostty terminal core, offering 120Hz VSYNC-synchronized rendering, sub-millisecond latency, and full ANSI TrueColor / 256-color support.
+- ⚡ **Metal-Accelerated VT (Ghostty 1.4.0)**: Powered by Ghostty v1.4.0 with 120Hz VSYNC-synchronized rendering, sub-millisecond latency, lossless scrollback compression, Mode 2031 color scheme synchronization, and OSC 8 link hover previews.
+- 🚦 **Program Status Protocol (OSC 7501 & OSC 9;4)**: Real-time sidebar badges, progress indicators, and native Toast alerts when CLI tools or AI coding agents finish, error, or wait for input.
+- 🧊 **Background Tab GPU Resource Release**: Inactive terminal tabs automatically release Metal textures and framebuffers via `setOccluded`, restoring rendering in under 1ms when switched back.
 - 🛡️ **Client–Daemon Session Persistence (`macsshd`)**: Local terminal sessions run in the background. App quit or Sparkle update detaches sessions without killing processes; reattach restores full 256 KiB screen state.
 - 💻 **Automation CLI (`macssh`)**: Comprehensive command-line control for listing, capturing headless terminal output, sending keystrokes, and spawning sessions.
 - 📦 **Background Sessions UI**: One-click "Detach Tab to Background" (`Cmd+Shift+D`), toolbar "Background Sessions" menu with live process badges, and instant reattachment.

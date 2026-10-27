@@ -12,10 +12,10 @@ struct WhatsNewSheetView: View {
                     .foregroundStyle(.tint)
                     .padding(.top, 8)
 
-                Text(String(localized: "What's New in MacSSH 2.3"))
+                Text(String(localized: "What's New in MacSSH 2.4"))
                     .font(.title2.bold())
 
-                Text(String(localized: "Persistent terminal daemon (macsshd), native CLI tooling, background session detach & reattach, and instant VT screen replay."))
+                Text(String(localized: "Ghostty 1.4.0 terminal engine, OSC 7501 Program Status & AI agent tracking, and background tab GPU memory optimization."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -25,24 +25,24 @@ struct WhatsNewSheetView: View {
             // Feature Highlights
             VStack(alignment: .leading, spacing: 18) {
                 featureRow(
-                    icon: "bolt.shield.fill",
-                    iconColor: .purple,
-                    title: String(localized: "Persistent Terminal Daemon (macsshd)"),
-                    subtitle: String(localized: "Local terminal sessions run detached in the background. Quitting the app or updating via Sparkle never kills your dev servers, builds, or scripts.")
-                )
-
-                featureRow(
-                    icon: "terminal.fill",
-                    iconColor: .green,
-                    title: String(localized: "Native CLI & Automation (macssh)"),
-                    subtitle: String(localized: "Control MacSSH from scripts, Raycast, and terminal via macssh list, capture, send, new, and kill with tmux-compatible key vocabulary.")
-                )
-
-                featureRow(
-                    icon: "square.stack.3d.up.fill",
+                    icon: "exclamationmark.bubble.fill",
                     iconColor: .orange,
-                    title: String(localized: "Background Sessions & Instant Replay"),
-                    subtitle: String(localized: "Detach active local tabs into the background (Cmd+Shift+D) and reattach anytime with full 256 KiB VT screen state restoration.")
+                    title: String(localized: "Program Status Protocol (OSC 7501 & OSC 9;4)"),
+                    subtitle: String(localized: "Real-time sidebar badges, progress indicators, and native Toast alerts when CLI tools or AI coding agents finish, error, or wait for input.")
+                )
+
+                featureRow(
+                    icon: "bolt.horizontal.fill",
+                    iconColor: .cyan,
+                    title: String(localized: "Ghostty 1.4.0 Engine & Scrollback Compression"),
+                    subtitle: String(localized: "Upgraded to Ghostty 1.4.0 with lossless scrollback compression, OSC 8 hover link previews, and Kitty multi-MIME clipboard support.")
+                )
+
+                featureRow(
+                    icon: "memorychip.fill",
+                    iconColor: .green,
+                    title: String(localized: "Background Tab GPU Resource Release"),
+                    subtitle: String(localized: "Inactive terminal tabs automatically release Metal textures and framebuffers, restoring rendering in under 1ms when switched back.")
                 )
             }
             .padding(.horizontal, 16)

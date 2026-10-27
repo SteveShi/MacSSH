@@ -39,13 +39,23 @@ struct ContentView: View {
         } message: {
             Text("Are you sure you want to delete the selected connection?", comment: "Delete connection confirmation message")
         }
-        .onChange(of: model.sidebarSelection) { _, newValue in
+        .onChange(of: model.sidebarSelection) { oldValue, newValue in
             triggerInputSourceSwitch()
+            if oldValue != newValue, case .connection(let oldId) = oldValue {
+                let oldTab = model.openTabs.first(where: { $0.connection.id == oldId })
+                oldTab?.cachedSurface?.setOccluded(true)
+                oldTab?.splitSurface?.setOccluded(true)
+            }
             switch newValue {
-            case .localTab:
+            case .localTab(let id):
                 if sidebarTab != .local { sidebarTab = .local }
-            case .connection:
+                model.localTabs.first(where: { $0.id == id })?.programStatusStore.acknowledgeDoneStatuses()
+            case .connection(let id):
                 if sidebarTab != .remote { sidebarTab = .remote }
+                let openTab = model.openTabs.first(where: { $0.connection.id == id })
+                openTab?.cachedSurface?.setOccluded(false)
+                openTab?.splitSurface?.setOccluded(false)
+                openTab?.programStatusStore.acknowledgeDoneStatuses()
             case nil:
                 break
             }
@@ -87,9 +97,9 @@ struct ContentView: View {
                     model.sidebarSelection = .connection(firstConn.id)
                 }
             }
-            if lastSeenWhatsNewVersion != "2.2.0" {
+            if lastSeenWhatsNewVersion != "2.4.0" {
                 model.showingWhatsNew = true
-                lastSeenWhatsNewVersion = "2.2.0"
+                lastSeenWhatsNewVersion = "2.4.0"
             }
             triggerInputSourceSwitch()
         }
@@ -367,15 +377,17 @@ struct ContentView: View {
                 .padding(.top, 24)
         } else {
             ForEach(model.filteredConnections) { connection in
-                let isConnected = model.openTabs.first(where: { $0.connection.id == connection.id })?.terminalModel.status == .connected
+                let openTab = model.openTabs.first(where: { $0.connection.id == connection.id })
+                let isConnected = openTab?.terminalModel.status == .connected
                 let isSelected = model.sidebarSelection == .connection(connection.id)
                 BerthHostRow(
                     connection: connection,
                     isSelected: isSelected,
                     isConnected: isConnected,
+                    programStatusStore: openTab?.programStatusStore,
                     onSelect: {
                         model.sidebarSelection = .connection(connection.id)
-                        if let openTab = model.openTabs.first(where: { $0.connection.id == connection.id }) {
+                        if let openTab {
                             model.selectedTabID = openTab.id
                         }
                     }
@@ -522,6 +534,7 @@ private struct BerthHostRow: View {
     let connection: SSHConnection
     let isSelected: Bool
     var isConnected: Bool = false
+    var programStatusStore: TerminalProgramStatusStore? = nil
     var onSelect: () -> Void
     @State private var hovering = false
 
@@ -554,6 +567,10 @@ private struct BerthHostRow: View {
             }
 
             Spacer(minLength: 4)
+
+            if let store = programStatusStore {
+                ProgramStatusBadgeView(store: store)
+            }
         }
         .padding(.vertical, 5)
         .padding(.horizontal, 8)
@@ -598,6 +615,8 @@ private struct BerthLocalTabRow: View {
                 .lineLimit(1)
 
             Spacer()
+
+            ProgramStatusBadgeView(store: tab.programStatusStore)
 
             if hovering && canClose {
                 Button(action: onClose) {

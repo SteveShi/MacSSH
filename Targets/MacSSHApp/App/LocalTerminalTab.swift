@@ -22,6 +22,7 @@ final class LocalTerminalTab: Identifiable {
     }
     /// The actual NSView is owned here so it survives SwiftUI navigation.
     let surfaceView: GhosttySurfaceView
+    let programStatusStore = TerminalProgramStatusStore()
     var isRenaming: Bool = false
     var hasCustomUserTitle: Bool = false
     var currentDirectoryPath: String? = NSHomeDirectory()
@@ -141,6 +142,7 @@ final class LocalTerminalTab: Identifiable {
             }
 
         case .commandFinished(let exitCode, let durationNs):
+            self.programStatusStore.clearWorkingOnCommandFinished()
             // If the terminal has been cleared (e.g. user ran 'clear'), purge persisted history immediately
             if let text = surfaceView.readFullText(maxLines: 10) {
                 let cleaned = AppModel.sanitizeHistoryText(text)
@@ -164,8 +166,37 @@ final class LocalTerminalTab: Identifiable {
                 : String(localized: "Command failed with code \(exitCode) (\(formattedDuration))")
             ToastManager.shared.show(message, preset: exitCode == 0 ? .done : .error)
 
-        case .bell, .desktopNotification, .childExited:
+        case .bell, .desktopNotification:
             break
+
+        case .childExited:
+            self.programStatusStore.reset()
+
+        case .programStatus(let report):
+            if let transition = self.programStatusStore.apply(report) {
+                let appLabel = !transition.report.app.isEmpty ? transition.report.app : (!transition.report.title.isEmpty ? transition.report.title : self.name)
+                if transition.report.state == .blocked {
+                    ToastManager.shared.show(
+                        String(localized: "\(appLabel) needs input"),
+                        message: transition.report.message.isEmpty ? nil : transition.report.message,
+                        preset: .warning,
+                        duration: 4.0
+                    )
+                } else if transition.report.state == .error && !transition.report.message.isEmpty {
+                    ToastManager.shared.show(
+                        String(localized: "\(appLabel) error"),
+                        message: transition.report.message,
+                        preset: .error,
+                        duration: 4.0
+                    )
+                }
+            }
+
+        case .progressReport(let report):
+            self.programStatusStore.applyProgress(report)
+
+        case .hoverLink(let url):
+            self.programStatusStore.hoveredLink = url
         }
     }
 }

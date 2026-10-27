@@ -5746,6 +5746,294 @@
           }
         }
       }
+    },
+    "%@ needs input": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ needs input"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 需要输入"
+          }
+        }
+      }
+    },
+    "%@ error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ error"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ 错误"
+          }
+        }
+      }
+    },
+    "Waiting for Input": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Waiting for Input"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "等待输入"
+          }
+        }
+      }
+    },
+    "Error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "错误"
+          }
+        }
+      }
+    },
+    "Running": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Running"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "运行中"
+          }
+        }
+      }
+    },
+    "Completed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已完成"
+          }
+        }
+      }
+    },
+    "App": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "应用"
+          }
+        }
+      }
+    },
+    "Title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标题"
+          }
+        }
+      }
+    },
+    "Message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "消息"
+          }
+        }
+      }
+    },
+    "Progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "进度"
+          }
+        }
+      }
+    },
+    "What's New in MacSSH 2.4": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's New in MacSSH 2.4"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MacSSH 2.4 新功能"
+          }
+        }
+      }
+    },
+    "Ghostty 1.4.0 terminal engine, OSC 7501 Program Status & AI agent tracking, and background tab GPU memory optimization.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghostty 1.4.0 terminal engine, OSC 7501 Program Status & AI agent tracking, and background tab GPU memory optimization."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghostty 1.4.0 终端引擎、OSC 7501 程序状态与 AI 代理跟踪，以及后台标签页 GPU 显存深度优化。"
+          }
+        }
+      }
+    },
+    "Program Status Protocol (OSC 7501 & OSC 9;4)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Program Status Protocol (OSC 7501 & OSC 9;4)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "程序状态协议 (OSC 7501 & OSC 9;4)"
+          }
+        }
+      }
+    },
+    "Real-time sidebar badges, progress indicators, and native Toast alerts when CLI tools or AI coding agents finish, error, or wait for input.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Real-time sidebar badges, progress indicators, and native Toast alerts when CLI tools or AI coding agents finish, error, or wait for input."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "实时侧边栏徽章、进度指示器，并在 CLI 工具或 AI 编码代理执行完成、发生错误或等待输入时弹出原生 Toast 提示。"
+          }
+        }
+      }
+    },
+    "Ghostty 1.4.0 Engine & Scrollback Compression": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghostty 1.4.0 Engine & Scrollback Compression"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ghostty 1.4.0 引擎与滚动缓冲压缩"
+          }
+        }
+      }
+    },
+    "Upgraded to Ghostty 1.4.0 with lossless scrollback compression, OSC 8 hover link previews, and Kitty multi-MIME clipboard support.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgraded to Ghostty 1.4.0 with lossless scrollback compression, OSC 8 hover link previews, and Kitty multi-MIME clipboard support."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全面升级至 Ghostty 1.4.0，支持无损滚动缓冲压缩、OSC 8 链接悬浮预览及 Kitty 多 MIME 格式剪贴板。"
+          }
+        }
+      }
+    },
+    "Background Tab GPU Resource Release": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Tab GPU Resource Release"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台标签页 GPU 资源释放"
+          }
+        }
+      }
+    },
+    "Inactive terminal tabs automatically release Metal textures and framebuffers, restoring rendering in under 1ms when switched back.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inactive terminal tabs automatically release Metal textures and framebuffers, restoring rendering in under 1ms when switched back."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "非活跃终端标签页自动释放 Metal 纹理与帧缓冲区，切回时 1ms 内瞬间恢复渲染。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

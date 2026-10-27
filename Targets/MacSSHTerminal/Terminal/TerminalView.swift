@@ -45,10 +45,20 @@ struct TerminalView: View {
                 metrics: model.metrics,
                 connectedAt: tab.connectedAt,
                 isDarkMode: settings.isDarkMode,
-                isTerminalRunning: tab.isTerminalActive
+                isTerminalRunning: tab.isTerminalActive,
+                programStatusStore: tab.programStatusStore
             )
         }
         .background(ThemeColors.terminalBackground(isDark: settings.isDarkMode))
+        .onAppear {
+            tab.cachedSurface?.setOccluded(false)
+            tab.splitSurface?.setOccluded(false)
+            tab.programStatusStore.acknowledgeDoneStatuses()
+        }
+        .onDisappear {
+            tab.cachedSurface?.setOccluded(true)
+            tab.splitSurface?.setOccluded(true)
+        }
         .navigationTitle("")
         .inspector(isPresented: $tab.showInspector) {
             InspectorContentView(tab: tab, appModel: appModel)

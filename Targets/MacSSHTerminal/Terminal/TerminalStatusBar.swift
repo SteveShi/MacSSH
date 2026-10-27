@@ -10,6 +10,7 @@ struct TerminalStatusBar: View {
     let connectedAt: Date?
     var isDarkMode: Bool = true
     var isTerminalRunning: Bool = false
+    var programStatusStore: TerminalProgramStatusStore? = nil
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 1.0)) { context in
@@ -28,6 +29,11 @@ struct TerminalStatusBar: View {
                 }
 
                 Spacer()
+
+                if let store = programStatusStore, store.hasVisibleStatusBarContent {
+                    ProgramStatusBarItemView(store: store)
+                    Spacer()
+                }
 
                 // Right: CPU / Mem / Disk / Clock
                 if status == .connected {
@@ -188,6 +194,11 @@ struct LocalTerminalStatusBar: View {
 
                 Spacer()
 
+                if tab.programStatusStore.hasVisibleStatusBarContent {
+                    ProgramStatusBarItemView(store: tab.programStatusStore)
+                    Spacer()
+                }
+
                 // Right: Clock
                 Text(context.date.formatted(date: .omitted, time: .standard))
                     .foregroundStyle(.secondary)
@@ -258,12 +269,18 @@ final class LocalProcessMonitor {
         if !inFlightQueries.contains(id) {
             inFlightQueries.insert(id)
             let ptyPid = tab.surfaceView.ptyPID
+            let fgPid = tab.surfaceView.foregroundProcessID
             let connectedAt = tab.connectedAt
             let sessionKey = tab.id.uuidString
             let defaultShell = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh").lastPathComponent
 
             Task.detached(priority: .utility) {
-                let resolved = Self.resolveForegroundProcess(ptyPid: ptyPid, connectedAt: connectedAt, sessionKey: sessionKey) ?? defaultShell
+                let resolved = Self.resolveForegroundProcess(
+                    ptyPid: ptyPid,
+                    foregroundPid: fgPid,
+                    connectedAt: connectedAt,
+                    sessionKey: sessionKey
+                ) ?? defaultShell
                 await MainActor.run {
                     self.cache[id] = resolved
                     self.lastQueryTime[id] = Date()
@@ -286,9 +303,20 @@ final class LocalProcessMonitor {
         let name: String?
     }
 
-    private nonisolated static func resolveForegroundProcess(ptyPid: pid_t?, connectedAt: Date, sessionKey: String? = nil) -> String? {
+    private nonisolated static func resolveForegroundProcess(
+        ptyPid: pid_t?,
+        foregroundPid: pid_t?,
+        connectedAt: Date,
+        sessionKey: String? = nil
+    ) -> String? {
         let procs = allProcesses()
         guard !procs.isEmpty else { return nil }
+
+        if let foregroundPid, foregroundPid > 0,
+           let fgNode = procs.first(where: { $0.pid == foregroundPid }),
+           let fgName = fgNode.name, !fgName.isEmpty, fgName != "macssh-cli" {
+            return fgName
+        }
 
         var current: ProcEntry?
         if let ptyPid, ptyPid > 0, let node = procs.first(where: { $0.pid == ptyPid }) {

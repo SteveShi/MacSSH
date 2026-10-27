@@ -70,10 +70,10 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
         case .desktopNotification(let title, let body):
             guard settings.notifyTerminalEvents else { return }
             send(title: title.isEmpty ? String(localized: "Terminal") : title, body: body)
-        case .childExited(let exitCode):
+        case .childExited:
             guard settings.notifyTerminalEvents else { return }
             send(title: String(localized: "Process Exited"),
-                 body: String(localized: "Exited with code \(String(exitCode))"))
+                 body: String(localized: "Process has exited"))
         case .bell:
             guard settings.notifyTerminalBell else { return }
             NSSound.beep()
@@ -99,7 +99,7 @@ final class NotificationService: NSObject, UNUserNotificationCenterDelegate {
                     body: String(localized: "Exit code \(exitCode) after \(formattedDuration)")
                 )
             }
-        case .currentDirectoryChanged, .titleChanged, .tabTitleChanged:
+        case .currentDirectoryChanged, .titleChanged, .tabTitleChanged, .programStatus, .progressReport, .hoverLink:
             break
         }
     }

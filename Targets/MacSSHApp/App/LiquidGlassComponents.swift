@@ -104,6 +104,7 @@ struct TitlebarSessionTabBar: View {
                         isSelected: isSelected,
                         isConnected: true,
                         canClose: model.localTabs.count > 1,
+                        programStatusStore: tab.programStatusStore,
                         onSelect: {
                             model.selectedLocalTabID = tab.id
                             model.sidebarSelection = .localTab(tab.id)
@@ -140,6 +141,7 @@ struct TitlebarSessionTabBar: View {
                             isSelected: isSelected,
                             isConnected: isConnected,
                             canClose: true,
+                            programStatusStore: tab.programStatusStore,
                             onSelect: {
                                 model.selectedTabID = tab.id
                                 model.sidebarSelection = .connection(tab.connection.id)
@@ -181,6 +183,7 @@ struct TitlebarSessionTabBar: View {
         isSelected: Bool,
         isConnected: Bool,
         canClose: Bool,
+        programStatusStore: TerminalProgramStatusStore? = nil,
         onSelect: @escaping () -> Void,
         onClose: @escaping () -> Void,
         onReorder: @escaping (UUID) -> Void
@@ -196,6 +199,10 @@ struct TitlebarSessionTabBar: View {
             Text(title)
                 .font(.system(size: 12, weight: isSelected ? .medium : .regular))
                 .lineLimit(1)
+
+            if let store = programStatusStore {
+                ProgramStatusBadgeView(store: store)
+            }
 
             if canClose && (isSelected || isHovered) {
                 Button(action: onClose) {

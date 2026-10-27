@@ -1,3 +1,66 @@
+## [2.4.0] - 2026-10-28
+
+### Added
+- **Program Status Protocol (OSC 7501 & ConEmu OSC 9;4)**:
+  - Added native multi-instance program status tracking (`TerminalProgramStatusStore`) conforming to the OSC 7501 specification.
+  - Interactive status badges in sidebar host rows, local terminal rows, and title bar session tabs displaying real-time task state (`blocked`, `error`, `working`, `done`).
+  - Intelligent status inheritance resolving application identities from hierarchical URI paths (`build/step1` -> `build`).
+  - Native Toast alerts triggered when long-running background tasks or AI coding agents require human input (`needs input`) or encounter errors.
+  - Interactive status bar item with OSC 8 hover link previews and program state summaries.
+- **Ghostty 1.4.0 Terminal Engine Upgrade**:
+  - Upgraded core terminal emulation to Ghostty v1.4.0 with Zig 0.17 build pipeline.
+  - Enabled lossless `scrollback-compression` for minimal memory footprint during heavy terminal throughput.
+  - Mode 2031 color scheme synchronization ensuring instant runtime terminal palette parity with macOS appearance.
+  - Kitty Clipboard Protocol (OSC 5522) rich paste listing, MIME content reading (`text/plain`, `text/html`, `image/png`), and multi-format clipboard writes.
+  - Direct foreground process resolution via `foregroundProcessID`, accelerating status bar process detection to sub-millisecond execution without tree walks.
+- **Background Tab GPU Resource Release (`setOccluded`)**:
+  - Automatically triggers `setOccluded(true)` on inactive or occluded terminal tabs, freeing Metal textures and GPU framebuffers.
+  - Restores active GPU rendering in under 1ms upon tab selection (`setOccluded(false)`).
+
+### Security
+- **LaunchServices & URL Scheme Hardening (`GHOSTTY_ACTION_OPEN_URL`)**:
+  - Always intercepts URL actions to prevent fallback to unsafe OS openers.
+  - Strict scheme whitelist (`http`, `https`, `mailto`), stripping control characters and blocking URLs with embedded credentials.
+  - Restricted `file://` URLs exclusively to auto-detected plain-text links, opening with the system default text editor rather than generic execution handlers.
+- **Multi-MIME Clipboard Write Isolation & 16 MiB Size Bounds**:
+  - Isolated `text/html` from general text writes, bounded individual clipboard payloads to 16 MiB, and enforced strict confirmation gating before modifying pasteboards.
+- **OSC 7501 DoS Mitigation & Rate Limiting**:
+  - Capped active status table size to 64 records with automatic eviction of idle and done states.
+  - Sanitized all inbound strings against ASCII control characters and enforced a 1.5-second cooldown on Toast notifications to prevent alert storms.
+
+---
+
+### Chinese
+### 新增
+- **程序状态协议支持（OSC 7501 & ConEmu OSC 9;4）**：
+  - 原生支持 OSC 7501 多实例程序状态协议（`TerminalProgramStatusStore`），实时追踪命令与 AI 代理运行状态。
+  - 侧边栏主机行、本地标签页行及顶栏会话标签栏中集成动态状态徽章，直观展示 `blocked`（等待输入）、`error`（错误）、`working`（运行中）与 `done`（完成）。
+  - 智能 URI 路径继承，自动从分层路径中推导所属应用（如 `deploy/test` 继承 `deploy`）。
+  - 原生 Toast 提醒：当 CLI 工具或 AI 编码代理阻断需要输入或报错时，自动弹出轻量 HUD 提示。
+  - 底部状态栏集成 OSC 8 悬浮超链接实时预览与程序状态摘要。
+- **Ghostty 1.4.0 终端引擎全面升级**：
+  - 升级至 Ghostty v1.4.0 渲染核心（基于 Zig 0.17 构建管线）。
+  - 开启无损滚动缓冲压缩（`scrollback-compression`），高频日志输出下显存占用显著下降。
+  - Mode 2031 外观配色同步机制，深浅色外观热切换瞬间生效。
+  - 完整支持 Kitty 剪贴板协议（OSC 5522），支持富文本列表查询、多 MIME 内容读取（`text/plain`、`text/html`、`image/png`）与写入。
+  - 接入 `foregroundProcessID` 原生内省接口，状态栏前台进程获取进入亚毫秒时代，无需遍历系统进程树。
+- **后台标签页 GPU 显存自动释放 (`setOccluded`)**：
+  - 离开标签页或切入后台时自动触发 `setOccluded(true)`，释放 Metal 纹理与帧缓冲区。
+  - 切换回活跃终端时 1ms 内瞬时恢复渲染（`setOccluded(false)`）。
+
+### 安全加固
+- **URL 跳转安全加固与 LaunchServices 隔离 (`GHOSTTY_ACTION_OPEN_URL`)**：
+  - 全面拦截 URL 操作，禁止回退至非安全底层系统执行器。
+  - 严格限制合法 Scheme（`http`、`https`、`mailto`），剔除控制字符并禁止嵌入凭证的恶意 URL。
+  - 严格限制 `file://` 仅在纯文本检测下以系统默认文本编辑器安全打开，杜绝二进制与脚本被 LaunchServices 意外执行。
+- **多 MIME 剪贴板写入物理隔离与 16 MiB 尺寸限制**：
+  - 修复 `text/html` 与纯文本识别混叠，单项剪贴板尺寸硬性限制为 16 MiB，并对确认模式下的富文本写入施加严格拦截。
+- **OSC 7501 DoS 防御与 Toast 频率限制**：
+  - 状态字典硬性上限为 64 项并自动修剪空闲与完成记录，防止内存溢出。
+  - 全面清洗控制字符，对 Toast 提醒施加 1.5 秒冷却时间，防止恶意脚本产生弹窗风暴。
+
+---
+
 ## [2.3.0] - 2026-10-27
 
 ### Added
