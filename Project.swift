@@ -12,26 +12,77 @@ let project = Project(
             "MACOSX_DEPLOYMENT_TARGET": "26.0",
             "SWIFT_VERSION": "6.0",
             "PRODUCT_NAME": "MacSSH",
-            "MARKETING_VERSION": "2.2.7",
-            "CURRENT_PROJECT_VERSION": "20207",
+            "MARKETING_VERSION": "2.3.0",
+            "CURRENT_PROJECT_VERSION": "20300",
             "ARCHS": "arm64",
             "ONLY_ACTIVE_ARCH": "NO"
         ]
     ),
     targets: [
         .target(
+            name: "macsshd",
+            destinations: .macOS,
+            product: .commandLineTool,
+            bundleId: "com.steveshi.macssh.daemon",
+            deploymentTargets: .macOS("26.0"),
+            sources: [
+                "Targets/MacSSHDaemonShared/**",
+                "Targets/MacSSHDaemon/**"
+            ],
+            settings: .settings(
+                base: [
+                    "PRODUCT_NAME": "macsshd"
+                ]
+            )
+        ),
+        .target(
+            name: "macssh-cli",
+            destinations: .macOS,
+            product: .commandLineTool,
+            bundleId: "com.steveshi.macssh.cli",
+            deploymentTargets: .macOS("26.0"),
+            sources: [
+                "Targets/MacSSHDaemonShared/**",
+                "Targets/MacSSHCLI/**"
+            ],
+            settings: .settings(
+                base: [
+                    "PRODUCT_NAME": "macssh-cli"
+                ]
+            )
+        ),
+        .target(
             name: "MacSSH",
             destinations: .macOS,
             product: .app,
             bundleId: "com.steveshi.macssh",
             deploymentTargets: .macOS("26.0"),
-            sources: ["Targets/**"],
+            sources: [
+                "Targets/MacSSHApp/**",
+                "Targets/MacSSHCore/**",
+                "Targets/MacSSHTerminal/**",
+                "Targets/MacSSHDaemonShared/**"
+            ],
             resources: [
                 "Targets/MacSSHApp/App/Assets.xcassets",
                 "Targets/MacSSHApp/App/Localizable.xcstrings",
                 "Targets/MacSSHApp/App/Themes.json"
             ],
+            scripts: [
+                .post(
+                    script: """
+                    mkdir -p "$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH"
+                    cp -f "$BUILT_PRODUCTS_DIR/macsshd" "$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/macsshd"
+                    cp -f "$BUILT_PRODUCTS_DIR/macssh-cli" "$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/macssh-cli"
+                    chmod 755 "$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/macsshd" "$TARGET_BUILD_DIR/$EXECUTABLE_FOLDER_PATH/macssh-cli"
+                    """,
+                    name: "Embed Helper Executables",
+                    basedOnDependencyAnalysis: false
+                )
+            ],
             dependencies: [
+                .target(name: "macsshd"),
+                .target(name: "macssh-cli"),
                 .package(product: "Sparkle"),
                 .package(product: "MactermKit"),
                 .package(product: "SSH2Kit")

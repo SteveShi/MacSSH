@@ -1,3 +1,60 @@
+## [2.3.0] - 2026-10-27
+
+### Added
+- **Client–Daemon Persistent Terminal Architecture (`macsshd`)**:
+  - Decoupled local terminal execution from the GUI lifecycle: introduced `macsshd`, an on-demand background helper daemon that manages native POSIX pseudo-terminals (`forkpty` + `execve`) and holds session states independently of `MacSSH.app`.
+  - **Zero-Interrupt Detach & Reattach**: Quitting MacSSH (`Cmd+Q`) or relaunching for Sparkle updates now performs a non-destructive detach. Running build jobs, development servers (`npm run dev`, `cargo watch`), Docker tasks, and REPLs continue executing uninterrupted in the background.
+  - **256 KiB Raw VT Replay Ring Buffer**: Maintained in memory for every active session. When MacSSH relaunches or reattaches to an existing session, the raw VT output stream is replayed directly into Ghostty's parser to instantly reconstruct screen content, ANSI palettes, and scrollback, paired with `redrawForeground()` (`kill(-pgrp, SIGWINCH)`) to force TUI applications (Vim, Htop, Claude Code, etc.) to refresh immediately.
+  - **Anti-Truncation Paste Queue**: Added `pendingInput` buffered dispatch writes (`DispatchSourceWrite`) to prevent chunked bracketed pastes from being dropped when XNU kernel PTY input queues (`TTYHOG` ~1022 bytes) return `EAGAIN`.
+  - **Asynchronous Child Reaping**: Implemented non-blocking `waitpid(pid, &status, WNOHANG)` polling on a dedicated dispatch queue to eliminate control queue freezes during process termination.
+  - **On-Demand Lifecycle & Security**: Communicates over a private Unix domain socket (`~/Library/Application Support/MacSSH/run/macsshd.sock`, mode `0600`, directory `0700`) with peer UID verification (`getpeereid`). Automatically spawns in a detached process session (`POSIX_SPAWN_SETSID`) on demand, and gracefully shuts down after 30 seconds of idle time only when no sessions exist and no clients are connected.
+
+- **Native Command-Line Interface & PTY Bridge (`macssh` / `macssh-cli`)**:
+  - Embedded `macssh-cli` binary inside `MacSSH.app/Contents/MacOS/`, with one-click symlink installation to `/usr/local/bin/macssh` (or `~/.local/bin/macssh`) available in Settings → Terminal.
+  - **`macssh list` (`ls`)**: Displays all active and detached sessions with ID, name, foreground process, PID, dimensions, state, and current working directory.
+  - **`macssh capture <target> [--full] [--last]`**: Headless VT screen capture engine (`ScreenRenderer`) parsing raw VT streams into clean plaintext screens, full scrollback, or last command output (via OSC 133 semantic marks) without requiring a GUI window.
+  - **`macssh send <target> (text <string> | key <name>)...`**: Injects text or keys into live sessions using standard `tmux send-keys` vocabulary (`Enter`, `Escape`, `Tab`, `Up/Down/Left/Right`, `Home/End`, `PgUp/PgDn`, `F1-F12`, `C-<key>`, `M-<key>`).
+  - **`macssh new [--name <title>] [--cwd <dir>] [-- <command> [args...]]`**: Programmatically starts a persistent background session that can be viewed or attached from both CLI and MacSSH GUI.
+  - **`macssh kill <target>` & `macssh detach <target>`**: Terminates or detaches live sessions from the command line.
+  - **`macssh status` & `macssh ssh <host>`**: Inspects daemon health or opens/focuses SSH connections in MacSSH.
+  - **Transparent PTY Bridge (`bridge`)**: Spawns inside `GhosttySurfaceView` in `cfmakeraw` mode to seamlessly stream I/O and forward `SIGWINCH` resize events to `macsshd` while maintaining 100% compatibility with Ghostty Metal rendering, Nerd Fonts, and CJK IME.
+
+- **Background Sessions Management & GUI Integration**:
+  - Added **"Background Sessions"** toolbar menu in local terminal views showing detached session counts, running processes, and working directories with one-click "Reattach" and "Terminate" controls.
+  - Added **"Detach Tab to Background"** (`Cmd+Shift+D`) shortcut in Session menu and tab context menus to hide busy tabs without killing their jobs.
+  - Transparent process telemetry in status bar: `LocalProcessMonitor` penetrates the PTY bridge to report real underlying foreground processes (`zsh`, `vim`, `cargo`) alongside a persistent session shield indicator.
+  - Added dedicated **"Terminal Helper & CLI"** section in Settings → Terminal with live daemon status monitoring and one-click CLI tool installation.
+
+---
+
+### Chinese
+### 新增
+- **Client–Daemon 架构常驻终端助手守护进程 (`macsshd`)**：
+  - 本地终端执行与 GUI 生命周期彻底解耦：引入后台终端助手守护进程 `macsshd`，由其直接持有并管理原生 POSIX 伪终端（`forkpty` + `execve`），使终端会话独立于 `MacSSH.app` 运行。
+  - **零中断挂起与无损恢复 (Detach & Reattach)**：用户退出 MacSSH (`Cmd+Q`) 或通过 Sparkle 自动更新重启时仅执行无损解绑；正在运行的开发服务器 (`npm run dev`、`cargo watch`)、长时间编译打包、Docker 构建及交互式脚本在后台保持无中断运行。
+  - **256 KiB 原始 VT 环形回放缓冲区**：为每个活跃会话维护内存回放队列。重新启动 MacSSH 或重新附着会话时，原始 VT 字节流瞬间重灌入 Ghostty 解析器恢复色彩、屏幕布局与历史滚动行，并触发 `redrawForeground()` (`kill(-pgrp, SIGWINCH)`) 强制 TUI 程序（Vim、Htop、Claude Code 等）即时刷新全屏。
+  - **防粘贴截断输入队列**：加入 `pendingInput` 缓冲式派发写入 (`DispatchSourceWrite`)，彻底解决批量文本与 Bracketed Paste 在 macOS XNU 内核 PTY 队列 (`TTYHOG` 约 1022 字节) 满载返回 `EAGAIN` 时导致丢字的问题。
+  - **非阻塞式子进程回收**：在专用派发队列上使用 `waitpid(pid, &status, WNOHANG)` 轮询回收退出进程，彻底杜绝主控制队列与监听套接字卡死。
+  - **按需无感生命周期与安全机制**：基于专属 Unix Domain Socket (`~/Library/Application Support/MacSSH/run/macsshd.sock`，权限 `0600`，目录 `0700`) 与对端 UID 校验 (`getpeereid`) 通信。按需以独立会话组 (`POSIX_SPAWN_SETSID`) 静默拉起，并在无会话且无连接满 30 秒后自动优雅退出，零系统弹窗打扰。
+
+- **原生命令行自动化工具与透明 PTY 桥接器 (`macssh` / `macssh-cli`)**：
+  - 内置 `macssh-cli` 二进制文件，支持在“设置 → 终端”中一键安装符号链接至 `/usr/local/bin/macssh`（或 `~/.local/bin/macssh`）。
+  - **`macssh list` (`ls`)**：以格式化表格列出所有存活及后台挂起会话（短 ID、名称、前台进程、PID、终端尺寸、状态与工作目录）。
+  - **`macssh capture <target> [--full] [--last]`**：内置无头 VT 状态机引擎 (`ScreenRenderer`)，无需窗口即可将原始 VT 流解析为干净的纯文本屏幕快照、完整滚动历史或上一条命令输出（基于 OSC 133 标记）。
+  - **`macssh send <target> (text <string> | key <name>)...`**：向指定会话静默注入文本或按键，原生兼容 `tmux send-keys` 语法（`Enter`、`Escape`、`Tab`、方向键、`F1-F12`、`C-<key>`、`M-<key>`）。
+  - **`macssh new [--name <title>] [--cwd <dir>] [-- <command> [args...]]`**：命令行无头创建常驻后台会话，GUI 与 CLI 随时可查可连。
+  - **`macssh kill <target>` 与 `macssh detach <target>`**：命令行优雅终止或挂起指定会话。
+  - **`macssh status` 与 `macssh ssh <host>`**：检查守护进程健康状态或一键在 MacSSH 中唤起 SSH 连接。
+  - **透明 PTY 桥接器 (`bridge`)**：在 `GhosttySurfaceView` 内部以 `cfmakeraw` 模式运行，透明转发字节流与 `SIGWINCH` 尺寸事件，100% 保留 Ghostty Metal 渲染加速、Nerd Fonts 图标及中日文输入法体验。
+
+- **后台会话可视化管理与 GUI 深度集成**：
+  - 本地终端工具栏新增 **“后台会话 (Background Sessions)”** 快捷菜单，直观呈现挂起会话数、进程名与工作目录，支持一键恢复与终止。
+  - 会话菜单与标签右键菜单新增 **“将标签页转入后台 (`Cmd+Shift+D`)”**，随时隐蔽正在执行的任务。
+  - 状态栏透明穿透进程监控：`LocalProcessMonitor` 穿透 PTY 桥接器精准感知 `macsshd` 中的真实前台任务（`zsh`、`vim`、`cargo` 等），并显示保活护盾标识。
+  - “设置 → 终端”新增 **“终端助手与命令行 (Terminal Helper & CLI)”** 分组，支持查看守护进程运行状态与一键安装 CLI 工具。
+
+---
+
 ## [2.2.7] - 2026-10-26
 
 ### Fixed

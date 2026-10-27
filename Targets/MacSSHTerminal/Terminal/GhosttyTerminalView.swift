@@ -487,6 +487,12 @@ func setupMenuBuilder(for surface: GhosttySurfaceView, sshTab: SessionTab? = nil
         changeTabTitle.target = handler
         menu.addItem(changeTabTitle)
         
+        if handler.localTab != nil && AppSettings().keepLocalSessionsAlive {
+            let detachItem = NSMenuItem(title: String(localized: "Detach to Background"), action: #selector(TerminalMenuHandler.detachToBackgroundAction(_:)), keyEquivalent: "")
+            detachItem.target = handler
+            menu.addItem(detachItem)
+        }
+        
         menu.addItem(NSMenuItem.separator())
         
         // SSH-only: AutoFill
@@ -581,6 +587,11 @@ final class TerminalMenuHandler: NSObject {
                 localTab?.hasCustomUserTitle = true
             }
         }
+    }
+    
+    @objc func detachToBackgroundAction(_ sender: Any) {
+        guard let localTab else { return }
+        AppModel.shared?.detachLocalTab(localTab.id)
     }
     
     @objc func fillUsernameAction(_ sender: Any) {

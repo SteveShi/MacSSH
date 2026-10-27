@@ -29,6 +29,9 @@ struct LocalTerminalView: View {
                     addTab()
                 }
             }
+            Task {
+                await appModel.refreshDaemonSessions()
+            }
         }
         .sheet(item: renamingTab) { tab in
             RenameTabSheet(tab: tab, appModel: appModel)
@@ -56,6 +59,61 @@ struct LocalTerminalView: View {
 
     @ViewBuilder
     private var toolbarActionButtons: some View {
+        Menu {
+            if let selected = selectedTab {
+                Button {
+                    appModel.detachLocalTab(selected.id)
+                } label: {
+                    Label(String(localized: "Detach Current Tab to Background"), systemImage: "tray.and.arrow.down")
+                }
+                Divider()
+            }
+
+            if appModel.detachedDaemonSessions.isEmpty {
+                Text(String(localized: "No Background Sessions"))
+            } else {
+                ForEach(appModel.detachedDaemonSessions) { session in
+                    let sessionTitle = session.attributes["title"] ?? session.title
+                    Menu {
+                        if let cwd = session.currentDirectory, !cwd.isEmpty {
+                            Text(cwd)
+                            Divider()
+                        }
+                        Button {
+                            appModel.reattachDaemonSession(session, settings: settings)
+                        } label: {
+                            Label(String(localized: "Reattach"), systemImage: "arrow.uturn.backward.square")
+                        }
+                        Divider()
+                        Button(role: .destructive) {
+                            appModel.killDetachedDaemonSession(session.sessionKey)
+                        } label: {
+                            Label(String(localized: "Terminate Session"), systemImage: "xmark.circle")
+                        }
+                    } label: {
+                        let proc = session.foregroundProcessName.isEmpty ? "zsh" : session.foregroundProcessName
+                        Label("\(sessionTitle) (\(proc))", systemImage: "terminal")
+                    }
+                }
+            }
+
+            Divider()
+
+            Button {
+                Task {
+                    await appModel.refreshDaemonSessions()
+                }
+            } label: {
+                Label(String(localized: "Refresh Background Sessions"), systemImage: "arrow.clockwise")
+            }
+        } label: {
+            Label(
+                String(localized: "Background Sessions"),
+                systemImage: "square.stack.3d.up"
+            )
+        }
+        .help(String(localized: "Background Sessions"))
+
         if let selected = selectedTab {
             Menu {
                 Button {

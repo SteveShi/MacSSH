@@ -2,38 +2,6 @@
   "sourceLanguage": "en",
   "strings": {
     "": {},
-    "Clear Terminal": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clear Terminal"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "清除终端"
-          }
-        }
-      }
-    },
-    "Drop files to upload": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Drop files to upload"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "拖放文件至此以上传"
-          }
-        }
-      }
-    },
     "·": {},
     "[disconnected]": {
       "extractionState": "stale",
@@ -114,6 +82,16 @@
         }
       }
     },
+    "%@ (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ (%2$@)"
+          }
+        }
+      }
+    },
     "%@ (%lld cores)": {
       "localizations": {
         "en": {
@@ -126,6 +104,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ (%2$lld 核)"
+          }
+        }
+      }
+    },
+    "%@ (%lld)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ (%2$lld)"
           }
         }
       }
@@ -143,6 +131,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ / %2$@"
+          }
+        }
+      }
+    },
+    "%@ %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@ %2$@"
           }
         }
       }
@@ -180,6 +178,16 @@
         }
       }
     },
+    "%@@%@:%lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@@%2$@:%3$lld"
+          }
+        }
+      }
+    },
     "%@/s": {
       "extractionState": "stale",
       "localizations": {
@@ -207,6 +215,16 @@
         }
       }
     },
+    "%lld %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$lld %2$@"
+          }
+        }
+      }
+    },
     "© 2026 Steve": {
       "localizations": {
         "zh-Hans": {
@@ -219,6 +237,23 @@
     },
     "↑ %@/s": {},
     "↓ %@/s": {},
+    "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全新设计的终端体验，融入现代 Liquid Glass 设计语言与高效生产力工作流。"
+          }
+        }
+      }
+    },
     "A modern SSH client for macOS.": {
       "localizations": {
         "zh-Hans": {
@@ -229,6 +264,7 @@
         }
       }
     },
+    "Aa": {},
     "About": {
       "localizations": {
         "zh-Hans": {
@@ -255,6 +291,22 @@
         }
       }
     },
+    "Active": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "活跃"
+          }
+        }
+      }
+    },
     "Add a new terminal tab to get started.": {},
     "Add Connection": {
       "localizations": {
@@ -272,6 +324,24 @@
         }
       }
     },
+    "Adjust the terminal color scheme and semi-transparent background blur.": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adjust the terminal color scheme and semi-transparent background blur."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "调节终端配色方案及半透明背景模糊效果。"
+          }
+        }
+      }
+    },
+    "All": {},
     "App Behavior": {
       "localizations": {
         "zh-Hans": {
@@ -298,6 +368,38 @@
         }
       }
     },
+    "Appearance & Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance & Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观与主题"
+          }
+        }
+      }
+    },
+    "Appearance Mode": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance Mode"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观模式"
+          }
+        }
+      }
+    },
     "Application behavior and general preferences.": {
       "localizations": {
         "zh-Hans": {
@@ -315,6 +417,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "确定要删除选中的连接吗？"
+          }
+        }
+      }
+    },
+    "Are you sure you want to disconnect from %@?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to disconnect from %@?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要断开与 %@ 的连接吗？"
+          }
+        }
+      }
+    },
+    "Are you sure you want to disconnect?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are you sure you want to disconnect?"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "确定要断开连接吗？"
           }
         }
       }
@@ -423,6 +557,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "应用激活时自动切换到选定的输入法。"
+          }
+        }
+      }
+    },
+    "Background Sessions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Sessions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "后台会话"
           }
         }
       }
@@ -578,6 +728,23 @@
         }
       }
     },
+    "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "极简双层会话标签栏，与 Ghostty 终端暗黑背景及透明标题栏浑然一体。"
+          }
+        }
+      }
+    },
     "Clear Saved History": {
       "localizations": {
         "en": {
@@ -590,6 +757,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "清空已保存的历史记录"
+          }
+        }
+      }
+    },
+    "Clear Terminal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear Terminal"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "清除终端"
           }
         }
       }
@@ -628,6 +811,7 @@
       }
     },
     "Close Session Tab": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -686,6 +870,23 @@
         }
       }
     },
+    "Code Snippets Library": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code Snippets Library"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "代码片段库"
+          }
+        }
+      }
+    },
     "Command": {
       "extractionState": "manual",
       "localizations": {
@@ -699,6 +900,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "命令"
+          }
+        }
+      }
+    },
+    "Command Completed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command Completed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令已完成"
+          }
+        }
+      }
+    },
+    "Command completed (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command completed (%@)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令已完成 (%@)"
+          }
+        }
+      }
+    },
+    "Command Failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command Failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令执行失败"
+          }
+        }
+      }
+    },
+    "Command failed with code %d (%@)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command failed with code %d (%@)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令执行失败，退出码 %d (%@)"
+          }
+        }
+      }
+    },
+    "Command Line Tool (macssh)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command Line Tool (macssh)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "命令行工具 (macssh)"
+          }
+        }
+      }
+    },
+    "Completed in %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completed in %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "耗时 %@ 完成"
           }
         }
       }
@@ -873,6 +1170,7 @@
       }
     },
     "Connection is not open.": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -882,6 +1180,7 @@
         }
       }
     },
+    "Connection saved": {},
     "Connection Settings": {
       "localizations": {
         "zh-Hans": {
@@ -969,6 +1268,22 @@
         }
       }
     },
+    "Could not locate macssh-cli inside the application bundle.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not locate macssh-cli inside the application bundle."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在应用程序包中找不到 macssh-cli 可执行文件。"
+          }
+        }
+      }
+    },
     "CPU": {},
     "CPU %@": {},
     "Create a new SSH connection profile": {
@@ -1005,6 +1320,38 @@
         }
       }
     },
+    "Curated Color Schemes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curated Color Schemes"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "甄选终端配色方案"
+          }
+        }
+      }
+    },
+    "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "精心甄选的终端色彩主题库、原生 Shell 深度集成 HUD 与更稳固的双通道连接架构。"
+          }
+        }
+      }
+    },
     "Current Operation": {
       "localizations": {
         "en": {
@@ -1021,6 +1368,22 @@
         }
       }
     },
+    "Custom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Custom"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "自定义"
+          }
+        }
+      }
+    },
     "Dark": {
       "localizations": {
         "en": {
@@ -1033,6 +1396,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "深色"
+          }
+        }
+      }
+    },
+    "Dark Mode Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark Mode Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深色模式主题"
           }
         }
       }
@@ -1111,6 +1490,54 @@
         }
       }
     },
+    "Detach Current Tab to Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detach Current Tab to Background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将当前标签页转入后台"
+          }
+        }
+      }
+    },
+    "Detach Tab to Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detach Tab to Background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "将标签页转入后台"
+          }
+        }
+      }
+    },
+    "Detach to Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detach to Background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "转入后台"
+          }
+        }
+      }
+    },
     "Disconnect": {
       "localizations": {
         "en": {
@@ -1123,6 +1550,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "断开连接"
+          }
+        }
+      }
+    },
+    "Disconnect Session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disconnect Session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "断开会话连接"
           }
         }
       }
@@ -1160,6 +1603,22 @@
         }
       }
     },
+    "Done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        }
+      }
+    },
     "Download": {
       "localizations": {
         "en": {
@@ -1192,6 +1651,22 @@
         }
       }
     },
+    "Drop files to upload": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drop files to upload"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "拖放文件至此以上传"
+          }
+        }
+      }
+    },
     "Dropbox": {
       "localizations": {
         "en": {
@@ -1220,6 +1695,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Dropbox 同步失败："
+          }
+        }
+      }
+    },
+    "Dual-Channel SSH Architecture": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dual-Channel SSH Architecture"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "双通道 SSH 稳态架构"
           }
         }
       }
@@ -1340,7 +1831,24 @@
         }
       }
     },
+    "Enable Shell Integration (OSC 7 / OSC 133)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable Shell Integration (OSC 7 / OSC 133)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用 Shell 集成 (OSC 7 / OSC 133)"
+          }
+        }
+      }
+    },
     "Enable Terminal Text Glow": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1351,6 +1859,7 @@
       }
     },
     "Enable these effects for a more modern, state-of-the-art macOS experience.": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1366,6 +1875,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "启用“生动感”（玻璃效果）"
+          }
+        }
+      }
+    },
+    "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用工作目录自动同步至 SFTP、智能标签页标题以及后台耗时命令完成提醒。"
           }
         }
       }
@@ -1403,6 +1928,7 @@
       }
     },
     "Engine": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -1462,6 +1988,22 @@
         }
       }
     },
+    "Exit code %d after %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exit code %d after %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "耗时 %@，退出码 %d"
+          }
+        }
+      }
+    },
     "Exited with code %@": {
       "localizations": {
         "en": {
@@ -1474,6 +2016,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "退出码 %@"
+          }
+        }
+      }
+    },
+    "Exited with code %lld": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exited with code %lld"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已退出，退出码 %lld"
           }
         }
       }
@@ -1557,6 +2116,23 @@
     },
     "Failed to convert encrypted data to Data": {},
     "Failed to decode connections": {},
+    "Failed to generate random salt": {},
+    "File already exists. Overwrite is disabled in Settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File already exists. Overwrite is disabled in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文件已存在。设置中已禁用覆盖已有文件。"
+          }
+        }
+      }
+    },
     "Fill Password": {
       "localizations": {
         "en": {
@@ -1625,6 +2201,23 @@
         }
       }
     },
+    "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全宽胶囊进度条呈现内存、磁盘与负载监控，本地 Shell 专属悬浮状态栏与实时计时。"
+          }
+        }
+      }
+    },
     "General": {
       "localizations": {
         "en": {
@@ -1647,6 +2240,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "一般信息"
+          }
+        }
+      }
+    },
+    "Get Started": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Started"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "开始使用"
           }
         }
       }
@@ -1786,7 +2396,6 @@
       }
     },
     "Idle": {
-      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -1834,6 +2443,38 @@
         }
       }
     },
+    "Import failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入失败"
+          }
+        }
+      }
+    },
+    "Import...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Import..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "导入..."
+          }
+        }
+      }
+    },
     "Input Method": {
       "localizations": {
         "en": {
@@ -1863,6 +2504,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "插入到终端"
+          }
+        }
+      }
+    },
+    "Install": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安装"
           }
         }
       }
@@ -1897,6 +2554,55 @@
           "stringUnit": {
             "state": "translated",
             "value": "无效的 UTF-8 解密数据。"
+          }
+        }
+      }
+    },
+    "Keep Local Sessions Alive in Background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Local Sessions Alive in Background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在后台保持本地终端会话存活"
+          }
+        }
+      }
+    },
+    "Keeps local terminal sessions alive when tabs or windows are closed. Sessions can be resumed anytime.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps local terminal sessions alive when tabs or windows are closed. Sessions can be resumed anytime."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当标签页或窗口关闭时，在后台保持本地终端会话存活，可随时重新接入。"
+          }
+        }
+      }
+    },
+    "Kill Session": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kill Session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终止会话"
           }
         }
       }
@@ -1962,6 +2668,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "浅色"
+          }
+        }
+      }
+    },
+    "Light Mode Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light Mode Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浅色模式主题"
+          }
+        }
+      }
+    },
+    "Liquid Glass Titlebar & Tabs": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liquid Glass Titlebar & Tabs"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liquid Glass 标题栏与标签"
           }
         }
       }
@@ -2063,6 +2802,22 @@
         }
       }
     },
+    "macssh CLI installed successfully": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macssh CLI installed successfully"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macssh 命令行工具已成功安装"
+          }
+        }
+      }
+    },
     "MacSSH ready.": {
       "extractionState": "stale",
       "localizations": {
@@ -2076,6 +2831,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "MacSSH 已就绪。"
+          }
+        }
+      }
+    },
+    "macsshd Status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macsshd Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macsshd 状态"
           }
         }
       }
@@ -2164,6 +2935,23 @@
           "stringUnit": {
             "state": "translated",
             "value": "合并（推荐）"
+          }
+        }
+      }
+    },
+    "Modern Metrics & Local Status": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modern Metrics & Local Status"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "现代监控与本地状态"
           }
         }
       }
@@ -2270,6 +3058,22 @@
         }
       }
     },
+    "Native Shell Integration & HUD": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Native Shell Integration & HUD"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "原生 Shell 集成与智能 HUD"
+          }
+        }
+      }
+    },
     "Never": {
       "localizations": {
         "en": {
@@ -2327,6 +3131,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "下一个标签页"
+          }
+        }
+      }
+    },
+    "No Background Sessions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Background Sessions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无后台会话"
           }
         }
       }
@@ -2413,6 +3233,22 @@
         }
       }
     },
+    "Not Installed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not Installed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未安装"
+          }
+        }
+      }
+    },
     "Notifications": {
       "localizations": {
         "en": {
@@ -2425,6 +3261,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "通知"
+          }
+        }
+      }
+    },
+    "Notify on Long Command Completion": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notify on Long Command Completion"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "长耗时命令完成时提醒"
           }
         }
       }
@@ -2467,6 +3319,7 @@
       }
     },
     "Open Connection": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -2492,7 +3345,22 @@
         }
       }
     },
-    "Open SSH Session": {},
+    "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production)."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "可选为该主机指定独立的配色方案（如生产环境使用红色警示主题）。"
+          }
+        }
+      }
+    },
     "OS": {
       "localizations": {
         "en": {
@@ -2505,6 +3373,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "操作系统"
+          }
+        }
+      }
+    },
+    "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OSC 7 远端目录自动同步 SFTP、动态标签标题，以及长耗时命令完成时的轻量浮动状态气泡。"
           }
         }
       }
@@ -2568,6 +3452,22 @@
         }
       }
     },
+    "Persistent session managed by macsshd": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Persistent session managed by macsshd"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由 macsshd 管理的持久会话"
+          }
+        }
+      }
+    },
     "Personal Access Token": {
       "localizations": {
         "en": {
@@ -2595,6 +3495,7 @@
       }
     },
     "Premium Effects": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -2721,6 +3622,23 @@
         }
       }
     },
+    "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在右侧检查器侧边栏中快捷管理与运行常用 Shell 脚本与运维命令，支持一键直达执行。"
+          }
+        }
+      }
+    },
     "Real-time Monitor": {
       "localizations": {
         "en": {
@@ -2733,6 +3651,39 @@
           "stringUnit": {
             "state": "translated",
             "value": "实时监控"
+          }
+        }
+      }
+    },
+    "Reattach": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reattach"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新连接"
+          }
+        }
+      }
+    },
+    "Reattach Session": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reattach Session"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新连接会话"
           }
         }
       }
@@ -2803,6 +3754,22 @@
         }
       }
     },
+    "Refresh Background Sessions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh Background Sessions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新后台会话"
+          }
+        }
+      }
+    },
     "Refresh Specs": {
       "localizations": {
         "en": {
@@ -2815,6 +3782,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "刷新规格"
+          }
+        }
+      }
+    },
+    "Reinstall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reinstall"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重新安装"
           }
         }
       }
@@ -2849,6 +3832,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "远程"
+          }
+        }
+      }
+    },
+    "Remote file already exists. Overwrite is disabled in Settings.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remote file already exists. Overwrite is disabled in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "远程文件已存在。设置中已禁用覆盖已有文件。"
           }
         }
       }
@@ -2956,6 +3955,22 @@
         }
       }
     },
+    "Reset to Global Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset to Global Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复使用全局主题"
+          }
+        }
+      }
+    },
     "Restart Terminal Session": {
       "extractionState": "manual",
       "localizations": {
@@ -2986,6 +4001,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "恢复本地终端历史记录"
+          }
+        }
+      }
+    },
+    "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "集成丰富的主流经典主题（Tokyo Night、Catppuccin、Nord、Dracula 等），所有会话支持毫秒级无感热切换。"
           }
         }
       }
@@ -3067,6 +4098,22 @@
         }
       }
     },
+    "Search themes...": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search themes..."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "搜索主题..."
+          }
+        }
+      }
+    },
     "Search with Google": {
       "localizations": {
         "en": {
@@ -3113,6 +4160,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "从侧边栏选择一个服务器开始会话，或者添加一个新服务器。"
+          }
+        }
+      }
+    },
+    "Select distinct color schemes for dark and light modes, and adjust background blur.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select distinct color schemes for dark and light modes, and adjust background blur."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "为深色和浅色模式选择独立的配色方案，并调整背景模糊效果。"
           }
         }
       }
@@ -3235,6 +4298,22 @@
         }
       }
     },
+    "Session moved to background": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session moved to background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "会话已转入后台"
+          }
+        }
+      }
+    },
     "Settings": {
       "extractionState": "stale",
       "localizations": {
@@ -3274,6 +4353,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "SFTP 传输事件"
+          }
+        }
+      }
+    },
+    "Shell Integration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell Integration"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell 集成"
           }
         }
       }
@@ -3339,6 +4434,7 @@
       }
     },
     "Show Subtle Grid": {
+      "extractionState": "stale",
       "localizations": {
         "zh-Hans": {
           "stringUnit": {
@@ -3806,6 +4902,22 @@
         }
       }
     },
+    "Terminal Helper & CLI": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal Helper & CLI"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "终端后台服务与 CLI 工具"
+          }
+        }
+      }
+    },
     "Terminal Read-only": {
       "localizations": {
         "en": {
@@ -3822,8 +4934,8 @@
         }
       }
     },
+    "Terminal Theme": {},
     "Terminate Session": {
-      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3894,6 +5006,7 @@
       }
     },
     "Theme": {
+      "extractionState": "stale",
       "localizations": {
         "en": {
           "stringUnit": {
@@ -3905,6 +5018,70 @@
           "stringUnit": {
             "state": "translated",
             "value": "主题"
+          }
+        }
+      }
+    },
+    "Theme & Style": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme & Style"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题与风格"
+          }
+        }
+      }
+    },
+    "Theme applied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme applied"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已应用主题"
+          }
+        }
+      }
+    },
+    "Theme imported": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Theme imported"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "主题已导入"
+          }
+        }
+      }
+    },
+    "themes available": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "themes available"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "个可用主题"
           }
         }
       }
@@ -3953,6 +5130,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "传输失败"
+          }
+        }
+      }
+    },
+    "Transferred with %lld skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transferred with %lld skipped"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "传输完成，已跳过 %lld 个已存在文件"
           }
         }
       }
@@ -4086,6 +5279,22 @@
         }
       }
     },
+    "Uploaded with %lld skipped": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uploaded with %lld skipped"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传完成，已跳过 %lld 个已存在文件"
+          }
+        }
+      }
+    },
     "Uptime": {
       "localizations": {
         "en": {
@@ -4098,6 +5307,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "运行时间"
+          }
+        }
+      }
+    },
+    "Use Global Theme": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use Global Theme"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用全局主题"
           }
         }
       }
@@ -4212,202 +5437,19 @@
         }
       }
     },
-    "仅远程连接支持": {
+    "What's New in MacSSH": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Available for Remote SSH only"
+            "value": "What's New in MacSSH"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "仅远程连接支持"
-          }
-        }
-      }
-    },
-    "内存": {},
-    "内存 %@": {},
-    "已连接": {},
-    "已连接 %@": {},
-    "未连接": {},
-    "没有匹配的主机": {},
-    "没有匹配的代码片段": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No matching snippets"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "没有匹配的代码片段"
-          }
-        }
-      }
-    },
-    "磁盘 /": {},
-    "磁盘 %@": {},
-    "网络": {},
-    "负载": {},
-    "进程": {},
-    "连接中…": {},
-    "连接失败: %@": {},
-    "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A completely redesigned terminal experience with modern Liquid Glass UI and productivity workflows."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "全新设计的终端体验，融入现代 Liquid Glass 设计语言与高效生产力工作流。"
-          }
-        }
-      }
-    },
-    "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clean 2-layer session tabs aligned seamlessly with Ghostty terminal background and transparent titlebar."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "极简双层会话标签栏，与 Ghostty 终端暗黑背景及透明标题栏浑然一体。"
-          }
-        }
-      }
-    },
-    "Code Snippets Library": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code Snippets Library"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "代码片段库"
-          }
-        }
-      }
-    },
-    "Exited with code %lld": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exited with code %lld"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已退出，退出码 %lld"
-          }
-        }
-      }
-    },
-    "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Full-width capsule progress rows for memory, disk, and load monitoring, plus floating status bar for local shell sessions."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "全宽胶囊进度条呈现内存、磁盘与负载监控，本地 Shell 专属悬浮状态栏与实时计时。"
-          }
-        }
-      }
-    },
-    "Get Started": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Get Started"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "开始使用"
-          }
-        }
-      }
-    },
-    "Liquid Glass Titlebar & Tabs": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Liquid Glass Titlebar & Tabs"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Liquid Glass 标题栏与标签"
-          }
-        }
-      }
-    },
-    "Modern Metrics & Local Status": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modern Metrics & Local Status"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "现代监控与本地状态"
-          }
-        }
-      }
-    },
-    "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quickly manage and run frequent shell commands directly from the right Inspector sidebar with single-click execution."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在右侧检查器侧边栏中快捷管理与运行常用 Shell 脚本与运维命令，支持一键直达执行。"
+            "value": "MacSSH 新功能介绍"
           }
         }
       }
@@ -4429,596 +5471,72 @@
         }
       }
     },
-    "连接失败": {
+    "What's New in MacSSH 2.2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What's New in MacSSH 2.2"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "MacSSH 2.2 新功能"
+          }
+        }
+      }
+    },
+    "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "彻底隔离终端交互式 PTY 与后台 SFTP / 系统指标遥测通道，互不冲突且状态精准呈现。"
+          }
+        }
+      }
+    },
+    "仅远程连接支持": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Connection Failed"
+            "value": "Available for Remote SSH only"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "连接失败"
+            "value": "仅远程连接支持"
           }
         }
       }
     },
-    "Disconnect Session": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disconnect Session"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "断开会话连接"
-          }
-        }
-      }
-    },
-    "What's New in MacSSH": {
+    "内存": {},
+    "已连接": {},
+    "未连接": {},
+    "没有匹配的主机": {},
+    "没有匹配的代码片段": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What's New in MacSSH"
+            "value": "No matching snippets"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "MacSSH 新功能介绍"
-          }
-        }
-      }
-    },
-    "Theme & Style": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Theme & Style"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "主题与风格"
-          }
-        }
-      }
-    },
-    "Adjust the terminal color scheme and semi-transparent background blur.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adjust the terminal color scheme and semi-transparent background blur."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "调节终端配色方案及半透明背景模糊效果。"
-          }
-        }
-      }
-    },
-    "Are you sure you want to disconnect from %@?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Are you sure you want to disconnect from %@?"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确定要断开与 %@ 的连接吗？"
-          }
-        }
-      }
-    },
-    "Are you sure you want to disconnect?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Are you sure you want to disconnect?"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "确定要断开连接吗？"
-          }
-        }
-      }
-    },
-    "File already exists. Overwrite is disabled in Settings.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File already exists. Overwrite is disabled in Settings."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "文件已存在。设置中已禁用覆盖已有文件。"
-          }
-        }
-      }
-    },
-    "Remote file already exists. Overwrite is disabled in Settings.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remote file already exists. Overwrite is disabled in Settings."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "远程文件已存在。设置中已禁用覆盖已有文件。"
-          }
-        }
-      }
-    },
-    "Transferred with %lld skipped": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Transferred with %lld skipped"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "传输完成，已跳过 %lld 个已存在文件"
-          }
-        }
-      }
-    },
-    "Uploaded with %lld skipped": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uploaded with %lld skipped"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上传完成，已跳过 %lld 个已存在文件"
-          }
-        }
-      }
-    },
-    "Search themes...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search themes..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "搜索主题..."
-          }
-        }
-      }
-    },
-    "themes available": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "themes available"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "个可用主题"
-          }
-        }
-      }
-    },
-    "Theme applied": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Theme applied"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "已应用主题"
-          }
-        }
-      }
-    },
-    "Theme imported": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Theme imported"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "主题已导入"
-          }
-        }
-      }
-    },
-    "Import failed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Import failed"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "导入失败"
-          }
-        }
-      }
-    },
-    "Custom": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Custom"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "自定义"
-          }
-        }
-      }
-    },
-    "Appearance Mode": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appearance Mode"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "外观模式"
-          }
-        }
-      }
-    },
-    "Dark Mode Theme": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dark Mode Theme"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "深色模式主题"
-          }
-        }
-      }
-    },
-    "Light Mode Theme": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Light Mode Theme"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "浅色模式主题"
-          }
-        }
-      }
-    },
-    "Select distinct color schemes for dark and light modes, and adjust background blur.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select distinct color schemes for dark and light modes, and adjust background blur."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "为深色和浅色模式选择独立的配色方案，并调整背景模糊效果。"
-          }
-        }
-      }
-    },
-    "Enable Shell Integration (OSC 7 / OSC 133)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable Shell Integration (OSC 7 / OSC 133)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "启用 Shell 集成 (OSC 7 / OSC 133)"
-          }
-        }
-      }
-    },
-    "Notify on Long Command Completion": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Notify on Long Command Completion"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "长耗时命令完成时提醒"
-          }
-        }
-      }
-    },
-    "Shell Integration": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shell Integration"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shell 集成"
-          }
-        }
-      }
-    },
-    "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "启用工作目录自动同步至 SFTP、智能标签页标题以及后台耗时命令完成提醒。"
-          }
-        }
-      }
-    },
-    "Command completed (%@)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Command completed (%@)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "命令已完成 (%@)"
-          }
-        }
-      }
-    },
-    "Command failed with code %d (%@)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Command failed with code %d (%@)"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "命令执行失败，退出码 %d (%@)"
-          }
-        }
-      }
-    },
-    "Command Completed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Command Completed"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "命令已完成"
-          }
-        }
-      }
-    },
-    "Command Failed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Command Failed"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "命令执行失败"
-          }
-        }
-      }
-    },
-    "Completed in %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Completed in %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "耗时 %@ 完成"
-          }
-        }
-      }
-    },
-    "Exit code %d after %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exit code %d after %@"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "耗时 %@，退出码 %d"
-          }
-        }
-      }
-    },
-    "Use Global Theme": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use Global Theme"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用全局主题"
-          }
-        }
-      }
-    },
-    "Reset to Global Theme": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reset to Global Theme"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "恢复使用全局主题"
-          }
-        }
-      }
-    },
-    "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production).": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Optionally assign a distinctive color scheme for this host (e.g. Red/Alert for Production)."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "可选为该主机指定独立的配色方案（如生产环境使用红色警示主题）。"
-          }
-        }
-      }
-    },
-    "Appearance & Theme": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Appearance & Theme"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "外观与主题"
-          }
-        }
-      }
-    },
-    "Import...": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Import..."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "导入..."
-          }
-        }
-      }
-    },
-    "Done": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Done"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "完成"
+            "value": "没有匹配的代码片段"
           }
         }
       }
@@ -5055,6 +5573,7 @@
         }
       }
     },
+    "磁盘 /": {},
     "终端已连接": {
       "localizations": {
         "en": {
@@ -5071,130 +5590,159 @@
         }
       }
     },
-    "What's New in MacSSH 2.2": {
+    "网络": {},
+    "负载": {},
+    "进程": {},
+    "连接中…": {},
+    "连接失败": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What's New in MacSSH 2.2"
+            "value": "Connection Failed"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "MacSSH 2.2 新功能"
+            "value": "连接失败"
           }
         }
       }
     },
-    "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience.": {
+    "What's New in MacSSH 2.3": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience."
+            "value": "What's New in MacSSH 2.3"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "精心甄选的终端色彩主题库、原生 Shell 深度集成 HUD 与更稳固的双通道连接架构。"
+            "value": "MacSSH 2.3 新特性"
           }
         }
       }
     },
-    "Curated Color Schemes": {
+    "Persistent terminal daemon (macsshd), native CLI tooling, background session detach & reattach, and instant VT screen replay.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Curated Color Schemes"
+            "value": "Persistent terminal daemon (macsshd), native CLI tooling, background session detach & reattach, and instant VT screen replay."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "甄选终端配色方案"
+            "value": "常驻终端助手守护进程 (macsshd)、原生 CLI 命令行工具、后台会话挂起恢复与即时 VT 屏幕回放。"
           }
         }
       }
     },
-    "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions.": {
+    "Persistent Terminal Daemon (macsshd)": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions."
+            "value": "Persistent Terminal Daemon (macsshd)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "集成丰富的主流经典主题（Tokyo Night、Catppuccin、Nord、Dracula 等），所有会话支持毫秒级无感热切换。"
+            "value": "常驻终端助手守护进程 (macsshd)"
           }
         }
       }
     },
-    "Native Shell Integration & HUD": {
+    "Local terminal sessions run detached in the background. Quitting the app or updating via Sparkle never kills your dev servers, builds, or scripts.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Native Shell Integration & HUD"
+            "value": "Local terminal sessions run detached in the background. Quitting the app or updating via Sparkle never kills your dev servers, builds, or scripts."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "原生 Shell 集成与智能 HUD"
+            "value": "本地终端会话在后台解耦运行。退出 App 或通过 Sparkle 自动更新重启绝不会掐断正在运行的开发服务器、编译任务或脚本。"
           }
         }
       }
     },
-    "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands.": {
+    "Native CLI & Automation (macssh)": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands."
+            "value": "Native CLI & Automation (macssh)"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "OSC 7 远端目录自动同步 SFTP、动态标签标题，以及长耗时命令完成时的轻量浮动状态气泡。"
+            "value": "原生 CLI 自动化工具 (macssh)"
           }
         }
       }
     },
-    "Dual-Channel SSH Architecture": {
+    "Control MacSSH from scripts, Raycast, and terminal via macssh list, capture, send, new, and kill with tmux-compatible key vocabulary.": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dual-Channel SSH Architecture"
+            "value": "Control MacSSH from scripts, Raycast, and terminal via macssh list, capture, send, new, and kill with tmux-compatible key vocabulary."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "双通道 SSH 稳态架构"
+            "value": "通过 macssh list、capture、send、new 与 kill 等命令从脚本、Raycast 及终端轻松编排 MacSSH，兼容 tmux 按键词汇。"
           }
         }
       }
     },
-    "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry.": {
+    "Background Sessions & Instant Replay": {
+      "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry."
+            "value": "Background Sessions & Instant Replay"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "彻底隔离终端交互式 PTY 与后台 SFTP / 系统指标遥测通道，互不冲突且状态精准呈现。"
+            "value": "后台会话与即时屏幕回放"
+          }
+        }
+      }
+    },
+    "Detach active local tabs into the background (Cmd+Shift+D) and reattach anytime with full 256 KiB VT screen state restoration.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Detach active local tabs into the background (Cmd+Shift+D) and reattach anytime with full 256 KiB VT screen state restoration."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "随时将当前活跃本地标签页转入后台挂起 (Cmd+Shift+D)，并可随时无损找回并瞬间恢复 256 KiB 屏幕画面与历史。"
           }
         }
       }

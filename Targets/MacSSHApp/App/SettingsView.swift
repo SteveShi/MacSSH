@@ -201,6 +201,8 @@ struct SettingsView: View {
                 Text(String(localized: "Enables current working directory reporting for SFTP sync, smart tab titles, and background command completion alerts."))
             }
 
+            TerminalHelperSection(settings: settings)
+
             Section {
                 Toggle(String(localized: "Load Previous Terminal History"), isOn: $settings.restoreLocalTerminalHistory)
                 if settings.restoreLocalTerminalHistory {
@@ -631,6 +633,91 @@ private struct AppearanceSettingsTab: View {
         }
         .onChange(of: settings.fontSize) { _, _ in
             model.applyTerminalSettingsToAllSurfaces(settings: settings)
+        }
+    }
+}
+
+// MARK: - Terminal Helper & CLI Section
+
+private struct TerminalHelperSection: View {
+    @Bindable var settings: AppSettings
+    @State private var daemonStatus: (pid: Int32, activeSessionCount: Int)?
+    @State private var installedCLIPath: String?
+
+    var body: some View {
+        Section {
+            Toggle(String(localized: "Keep Local Sessions Alive in Background"), isOn: $settings.keepLocalSessionsAlive)
+
+            HStack {
+                Text(String(localized: "macsshd Status"))
+                Spacer()
+                if let status = daemonStatus {
+                    if status.activeSessionCount > 0 {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(Color.green)
+                                .frame(width: 7, height: 7)
+                            Text("\(String(localized: "Active")) (\(status.activeSessionCount))")
+                                .foregroundStyle(.secondary)
+                        }
+                    } else {
+                        HStack(spacing: 6) {
+                            Circle()
+                                .fill(Color.orange)
+                                .frame(width: 7, height: 7)
+                            Text(String(localized: "Idle"))
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                } else {
+                    HStack(spacing: 6) {
+                        Circle()
+                            .fill(Color.secondary.opacity(0.5))
+                            .frame(width: 7, height: 7)
+                        Text(String(localized: "Idle"))
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
+
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(String(localized: "Command Line Tool (macssh)"))
+                    if let path = installedCLIPath {
+                        Text(path)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    } else {
+                        Text(String(localized: "Not Installed"))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                Spacer()
+                Button(installedCLIPath != nil ? String(localized: "Reinstall") : String(localized: "Install")) {
+                    switch DaemonClient.shared.installCLISymlink() {
+                    case .success(let path):
+                        installedCLIPath = path
+                        ToastManager.shared.show(String(localized: "macssh CLI installed successfully"), preset: .done)
+                    case .failure(let error):
+                        ToastManager.shared.show(error.localizedDescription, preset: .error)
+                    }
+                }
+            }
+        } header: {
+            Text(String(localized: "Terminal Helper & CLI"))
+        } footer: {
+            Text(String(localized: "Keeps local terminal sessions alive when tabs or windows are closed. Sessions can be resumed anytime."))
+        }
+        .onAppear {
+            refresh()
+        }
+    }
+
+    private func refresh() {
+        installedCLIPath = DaemonClient.shared.installedCLISymlinkPath()
+        Task {
+            daemonStatus = await DaemonClient.shared.ping()
         }
     }
 }

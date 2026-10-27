@@ -7,7 +7,19 @@ import MactermKit
 @MainActor
 final class LocalTerminalTab: Identifiable {
     let id: UUID
-    var name: String
+    var name: String {
+        didSet {
+            guard name != oldValue else { return }
+            let sessionKey = id.uuidString
+            let updatedTitle = name
+            Task {
+                await DaemonClient.shared.setAttributes(
+                    target: sessionKey,
+                    attributes: ["title": updatedTitle]
+                )
+            }
+        }
+    }
     /// The actual NSView is owned here so it survives SwiftUI navigation.
     let surfaceView: GhosttySurfaceView
     var isRenaming: Bool = false
@@ -25,6 +37,32 @@ final class LocalTerminalTab: Identifiable {
     var isSplit: Bool = false
     var splitDirection: SessionTab.SplitDirection = .right
     var splitSurface: GhosttySurfaceView?
+
+    var splitSessionKey: String { "\(id.uuidString)-split" }
+
+    static func makeSurfaceConfig(
+        sessionKey: String,
+        title: String,
+        workingDirectory: String?,
+        fallbackCommand: String? = nil,
+        settings: AppSettings
+    ) -> GhosttySurfaceConfiguration {
+        var config = GhosttySurfaceConfiguration()
+        config.fontSize = Float(settings.fontSize)
+        config.environmentVariables = LocalShellEnvironment.make()
+        let resolvedCwd = workingDirectory ?? NSHomeDirectory()
+        config.workingDirectory = resolvedCwd
+        if settings.keepLocalSessionsAlive {
+            config.command = DaemonClient.bridgeCommand(
+                sessionKey: sessionKey,
+                title: title,
+                workingDirectory: resolvedCwd
+            ) ?? fallbackCommand
+        } else {
+            config.command = fallbackCommand
+        }
+        return config
+    }
 
     init(number: Int, surfaceView: GhosttySurfaceView) {
         self.id = UUID()
@@ -48,11 +86,13 @@ final class LocalTerminalTab: Identifiable {
 
     func split(direction: SessionTab.SplitDirection) {
         let settings = AppSettings()
-        var config = GhosttySurfaceConfiguration()
-        config.fontSize = Float(settings.fontSize)
-        config.environmentVariables = LocalShellEnvironment.make()
-        config.workingDirectory = currentDirectoryPath ?? NSHomeDirectory()
-        
+        let config = Self.makeSurfaceConfig(
+            sessionKey: splitSessionKey,
+            title: "\(name) (Split)",
+            workingDirectory: currentDirectoryPath,
+            settings: settings
+        )
+
         let surface = GhosttySurfaceView(config: config)
         GhosttyTerminalView.applyFontConfig(to: surface, fontName: settings.fontName, fontSize: settings.fontSize)
         setupMenuBuilder(for: surface, localTab: self)
@@ -62,9 +102,15 @@ final class LocalTerminalTab: Identifiable {
         self.isSplit = true
     }
 
-    func closeSplit() {
+    func closeSplit(killDaemonSession: Bool = true) {
         self.isSplit = false
         self.splitSurface = nil
+        if killDaemonSession {
+            let targetKey = splitSessionKey
+            Task {
+                await DaemonClient.shared.closeSession(target: targetKey)
+            }
+        }
     }
 
     // MARK: - Shell Integration Events

@@ -28,6 +28,8 @@ enum ImportMode: Sendable {
 @Observable
 @MainActor
 final class AppModel {
+    static weak var shared: AppModel?
+
     private var isRestoring: Bool = true
     private var lastLocalHistorySaveTime: Date = .distantPast
 
@@ -47,6 +49,7 @@ final class AppModel {
 
     // Local terminal tab pool — lives at app scope so PTYs survive SwiftUI navigation
     var localTabs: [LocalTerminalTab] = []
+    var detachedDaemonSessions: [DaemonSessionSummary] = []
     var selectedLocalTabID: UUID? {
         get {
             if case .localTab(let id) = sidebarSelection { return id }
@@ -147,6 +150,7 @@ final class AppModel {
         }
         sidebarSelection = nil
         snippets = SnippetStore.load()
+        Self.shared = self
         restoreTabs()
         restoreLocalTabs(settings: settings)
         if localTabs.isEmpty {
@@ -157,6 +161,10 @@ final class AppModel {
             addLocalTab(config: config)
         }
         isRestoring = false
+
+        Task { [weak self] in
+            await self?.refreshDaemonSessions()
+        }
 
         NotificationCenter.default.addObserver(
             forName: .terminalAppearanceDidChange,
@@ -341,8 +349,22 @@ final class AppModel {
     @MainActor
     func addLocalTab(config: GhosttySurfaceConfiguration) {
         let nextNumber = nextAvailableLocalTabNumber()
-        let surface = GhosttySurfaceView(config: config)
-        let tab = LocalTerminalTab(number: nextNumber, surfaceView: surface)
+        let tabID = UUID()
+        let title = "Terminal \(nextNumber)"
+        let settings = AppSettings()
+        var effectiveConfig = LocalTerminalTab.makeSurfaceConfig(
+            sessionKey: tabID.uuidString,
+            title: title,
+            workingDirectory: config.workingDirectory,
+            fallbackCommand: config.command,
+            settings: settings
+        )
+        effectiveConfig.fontSize = config.fontSize
+        if !config.environmentVariables.isEmpty {
+            effectiveConfig.environmentVariables = config.environmentVariables
+        }
+        let surface = GhosttySurfaceView(config: effectiveConfig)
+        let tab = LocalTerminalTab(id: tabID, name: title, surfaceView: surface)
         localTabs.append(tab)
         sidebarSelection = .localTab(tab.id)
         persistTabs()
@@ -361,7 +383,89 @@ final class AppModel {
         return n
     }
 
-    /// Removes a local terminal tab by ID.
+    /// Refreshes the list of background `macsshd` sessions that are not currently attached to an open tab.
+    @MainActor
+    func refreshDaemonSessions() async {
+        let allSessions = await DaemonClient.shared.listSessions(autostart: false)
+        var openKeys = Set<String>()
+        for tab in localTabs {
+            openKeys.insert(tab.id.uuidString)
+            openKeys.insert(tab.splitSessionKey)
+        }
+        self.detachedDaemonSessions = allSessions.filter { !openKeys.contains($0.sessionKey) }
+    }
+
+    /// Detaches a local terminal tab to `macsshd` background without terminating its shell process.
+    @MainActor
+    func detachLocalTab(_ id: UUID) {
+        guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
+        let tab = localTabs[index]
+        let wasSplit = tab.isSplit
+        let splitKey = tab.splitSessionKey
+        if wasSplit {
+            tab.closeSplit(killDaemonSession: false)
+        }
+        let wasSelected = (selectedLocalTabID == id)
+        localTabs.remove(at: index)
+        if wasSelected {
+            if !localTabs.isEmpty {
+                let nextIndex = min(index, localTabs.count - 1)
+                sidebarSelection = .localTab(localTabs[nextIndex].id)
+            } else {
+                sidebarSelection = nil
+            }
+        }
+        persistTabs()
+        ToastManager.shared.show(String(localized: "Session moved to background"), preset: .info)
+
+        let sessionKey = id.uuidString
+        Task { [weak self] in
+            await DaemonClient.shared.detachSession(target: sessionKey)
+            if wasSplit {
+                await DaemonClient.shared.detachSession(target: splitKey)
+            }
+            await self?.refreshDaemonSessions()
+        }
+    }
+
+    /// Reattaches a detached background `macsshd` session as a local terminal tab.
+    @MainActor
+    func reattachDaemonSession(_ summary: DaemonSessionSummary, settings: AppSettings = AppSettings()) {
+        let tabID = UUID(uuidString: summary.sessionKey) ?? UUID()
+        if let existing = localTabs.first(where: { $0.id == tabID }) {
+            sidebarSelection = .localTab(existing.id)
+            return
+        }
+        let resolvedTitle = summary.attributes["title"] ?? summary.title
+        let config = LocalTerminalTab.makeSurfaceConfig(
+            sessionKey: summary.sessionKey,
+            title: resolvedTitle,
+            workingDirectory: summary.currentDirectory,
+            settings: settings
+        )
+        let surface = GhosttySurfaceView(config: config)
+        let restoredTab = LocalTerminalTab(id: tabID, name: resolvedTitle, surfaceView: surface)
+        restoredTab.currentDirectoryPath = summary.currentDirectory ?? NSHomeDirectory()
+        localTabs.append(restoredTab)
+        sidebarSelection = .localTab(restoredTab.id)
+        detachedDaemonSessions.removeAll { $0.sessionKey == summary.sessionKey }
+        persistTabs()
+        Task { [weak self] in
+            await self?.refreshDaemonSessions()
+        }
+    }
+
+    /// Terminates a detached background `macsshd` session.
+    @MainActor
+    func killDetachedDaemonSession(_ sessionKey: String) {
+        detachedDaemonSessions.removeAll { $0.sessionKey == sessionKey }
+        Task { [weak self] in
+            await DaemonClient.shared.closeSession(target: sessionKey)
+            await self?.refreshDaemonSessions()
+        }
+    }
+
+    /// Removes a local terminal tab by ID and terminates its backing `macsshd` session.
     func removeLocalTab(_ id: UUID) {
         guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
         SessionHistoryStore.shared.remove(tabID: id)
@@ -378,30 +482,53 @@ final class AppModel {
             }
         }
         persistTabs()
+        let sessionKey = id.uuidString
+        let splitKey = "\(id.uuidString)-split"
+        Task { [weak self] in
+            await DaemonClient.shared.closeSession(target: sessionKey)
+            await DaemonClient.shared.closeSession(target: splitKey)
+            await self?.refreshDaemonSessions()
+        }
     }
 
     /// Closes all local tabs except the specified one.
     func closeOtherLocalTabs(_ keepID: UUID) {
         guard localTabs.contains(where: { $0.id == keepID }) else { return }
-        for tab in localTabs where tab.id != keepID {
-            SessionHistoryStore.shared.remove(tabID: tab.id)
+        let removedIDs = localTabs.filter { $0.id != keepID }.map { $0.id }
+        for tabID in removedIDs {
+            SessionHistoryStore.shared.remove(tabID: tabID)
         }
         localTabs.removeAll { $0.id != keepID }
         sidebarSelection = .localTab(keepID)
         persistTabs()
+        Task { [weak self] in
+            for tabID in removedIDs {
+                await DaemonClient.shared.closeSession(target: tabID.uuidString)
+                await DaemonClient.shared.closeSession(target: "\(tabID.uuidString)-split")
+            }
+            await self?.refreshDaemonSessions()
+        }
     }
 
     /// Closes all local tabs positioned below the specified one.
     func closeLocalTabsBelow(_ id: UUID) {
         guard let index = localTabs.firstIndex(where: { $0.id == id }) else { return }
-        for tab in localTabs.suffix(from: index + 1) {
-            SessionHistoryStore.shared.remove(tabID: tab.id)
+        let removedIDs = localTabs.suffix(from: index + 1).map { $0.id }
+        for tabID in removedIDs {
+            SessionHistoryStore.shared.remove(tabID: tabID)
         }
         localTabs = Array(localTabs.prefix(index + 1))
         if let currentSelected = selectedLocalTabID, !localTabs.contains(where: { $0.id == currentSelected }) {
             sidebarSelection = .localTab(id)
         }
         persistTabs()
+        Task { [weak self] in
+            for tabID in removedIDs {
+                await DaemonClient.shared.closeSession(target: tabID.uuidString)
+                await DaemonClient.shared.closeSession(target: "\(tabID.uuidString)-split")
+            }
+            await self?.refreshDaemonSessions()
+        }
     }
 
     /// Moves the specified local tab up by one position.
@@ -456,13 +583,17 @@ final class AppModel {
     @MainActor
     func duplicateLocalTab(_ id: UUID, settings: AppSettings) {
         guard let sourceTab = localTabs.first(where: { $0.id == id }) else { return }
-        var config = GhosttySurfaceConfiguration()
-        config.fontSize = Float(settings.fontSize)
-        config.environmentVariables = LocalShellEnvironment.make()
-        config.workingDirectory = NSHomeDirectory()
+        let newID = UUID()
+        let newName = "\(sourceTab.name) (Copy)"
+        let config = LocalTerminalTab.makeSurfaceConfig(
+            sessionKey: newID.uuidString,
+            title: newName,
+            workingDirectory: sourceTab.currentDirectoryPath ?? NSHomeDirectory(),
+            settings: settings
+        )
 
         let surface = GhosttySurfaceView(config: config)
-        let newTab = LocalTerminalTab(id: UUID(), name: "\(sourceTab.name) (Copy)", surfaceView: surface)
+        let newTab = LocalTerminalTab(id: newID, name: newName, surfaceView: surface)
         if let index = localTabs.firstIndex(where: { $0.id == id }) {
             localTabs.insert(newTab, at: index + 1)
         } else {
@@ -820,8 +951,6 @@ final class AppModel {
             return
         }
         
-        let env = LocalShellEnvironment.make()
-
         for tabDict in savedTabs {
             guard let idString = tabDict["id"],
                   let uuid = UUID(uuidString: idString),
@@ -833,21 +962,24 @@ final class AppModel {
                 continue
             }
 
-            var config = GhosttySurfaceConfiguration()
-            config.fontSize = Float(settings.fontSize)
-            config.environmentVariables = env
-            config.workingDirectory = NSHomeDirectory()
-            
+            var restoreCmd: String? = nil
             if settings.restoreLocalTerminalHistory,
-               let (historyText, meta) = SessionHistoryStore.shared.load(tabID: uuid),
-               let restoreCmd = Self.prepareHistoryRestoreCommand(
-                   tabID: uuid,
-                   historyText: historyText,
-                   quittedAt: meta.quittedAt
-               ) {
-                config.command = restoreCmd
+               let (historyText, meta) = SessionHistoryStore.shared.load(tabID: uuid) {
+                restoreCmd = Self.prepareHistoryRestoreCommand(
+                    tabID: uuid,
+                    historyText: historyText,
+                    quittedAt: meta.quittedAt
+                )
             }
-            
+
+            let config = LocalTerminalTab.makeSurfaceConfig(
+                sessionKey: uuid.uuidString,
+                title: name,
+                workingDirectory: NSHomeDirectory(),
+                fallbackCommand: restoreCmd,
+                settings: settings
+            )
+
             let surface = GhosttySurfaceView(config: config)
             let restoredTab = LocalTerminalTab(id: uuid, name: name, surfaceView: surface)
             localTabs.append(restoredTab)

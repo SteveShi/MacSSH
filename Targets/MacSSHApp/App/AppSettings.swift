@@ -82,6 +82,7 @@ final class AppSettings {
         static let syncLastStatus = "syncLastStatus"
         static let restoreLocalTerminalHistory = "restoreLocalTerminalHistory"
         static let scrollbackHistoryLimit = "scrollbackHistoryLimit"
+        static let keepLocalSessionsAlive = "keepLocalSessionsAlive"
         static let showLocalInspector = "showLocalInspector"
         static let showRemoteInspector = "showRemoteInspector"
     }
@@ -262,6 +263,10 @@ final class AppSettings {
         didSet { save() }
     }
 
+    var keepLocalSessionsAlive: Bool {
+        didSet { save() }
+    }
+
     init() {
         let defaults = UserDefaults.standard
         let savedSize = defaults.double(forKey: Keys.fontSize)
@@ -285,6 +290,7 @@ final class AppSettings {
         restoreLocalTerminalHistory = defaults.object(forKey: Keys.restoreLocalTerminalHistory) as? Bool ?? true
         let savedLimit = defaults.integer(forKey: Keys.scrollbackHistoryLimit)
         scrollbackHistoryLimit = savedLimit == 0 ? 10000 : savedLimit
+        keepLocalSessionsAlive = defaults.object(forKey: Keys.keepLocalSessionsAlive) as? Bool ?? true
         notificationsEnabled = defaults.object(forKey: Keys.notificationsEnabled) as? Bool ?? true
         notifyConnectionEvents = defaults.object(forKey: Keys.notifyConnectionEvents) as? Bool ?? true
         notifySFTPEvents = defaults.object(forKey: Keys.notifySFTPEvents) as? Bool ?? true
@@ -397,6 +403,7 @@ final class AppSettings {
         defaults.set(syncLastStatus, forKey: Keys.syncLastStatus)
         defaults.set(restoreLocalTerminalHistory, forKey: Keys.restoreLocalTerminalHistory)
         defaults.set(scrollbackHistoryLimit, forKey: Keys.scrollbackHistoryLimit)
+        defaults.set(keepLocalSessionsAlive, forKey: Keys.keepLocalSessionsAlive)
         defaults.set(showLocalInspector, forKey: Keys.showLocalInspector)
         defaults.set(showRemoteInspector, forKey: Keys.showRemoteInspector)
     }

@@ -175,6 +175,13 @@ struct LocalTerminalStatusBar: View {
                     Text(shellName)
                         .foregroundStyle(Color.secondary)
 
+                    if AppSettings().keepLocalSessionsAlive {
+                        Image(systemName: "bolt.horizontal.circle.fill")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.tertiary)
+                            .help(String(localized: "Persistent session managed by macsshd"))
+                    }
+
                     Text("\(String(localized: "已连接")) \(durationString(from: tab.connectedAt, to: context.date))")
                         .foregroundStyle(.tertiary)
                 }
@@ -252,10 +259,11 @@ final class LocalProcessMonitor {
             inFlightQueries.insert(id)
             let ptyPid = tab.surfaceView.ptyPID
             let connectedAt = tab.connectedAt
+            let sessionKey = tab.id.uuidString
             let defaultShell = URL(fileURLWithPath: ProcessInfo.processInfo.environment["SHELL"] ?? "/bin/zsh").lastPathComponent
 
             Task.detached(priority: .utility) {
-                let resolved = Self.resolveForegroundProcess(ptyPid: ptyPid, connectedAt: connectedAt) ?? defaultShell
+                let resolved = Self.resolveForegroundProcess(ptyPid: ptyPid, connectedAt: connectedAt, sessionKey: sessionKey) ?? defaultShell
                 await MainActor.run {
                     self.cache[id] = resolved
                     self.lastQueryTime[id] = Date()
@@ -278,7 +286,7 @@ final class LocalProcessMonitor {
         let name: String?
     }
 
-    private nonisolated static func resolveForegroundProcess(ptyPid: pid_t?, connectedAt: Date) -> String? {
+    private nonisolated static func resolveForegroundProcess(ptyPid: pid_t?, connectedAt: Date, sessionKey: String? = nil) -> String? {
         let procs = allProcesses()
         guard !procs.isEmpty else { return nil }
 
@@ -303,6 +311,16 @@ final class LocalProcessMonitor {
             depth += 1
         }
         guard let name = current?.name, !name.isEmpty else { return nil }
+
+        if name == "macssh-cli", let sessionKey {
+            if let response = try? UnixSocketWire.sendOneShotRequest(.listSessions, autostart: false),
+               case .sessionList(let sessions) = response,
+               let target = sessions.first(where: { $0.sessionKey == sessionKey }),
+               !target.foregroundProcessName.isEmpty {
+                return target.foregroundProcessName
+            }
+        }
+
         return name
     }
 

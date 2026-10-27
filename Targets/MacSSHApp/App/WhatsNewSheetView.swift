@@ -12,10 +12,10 @@ struct WhatsNewSheetView: View {
                     .foregroundStyle(.tint)
                     .padding(.top, 8)
 
-                Text(String(localized: "What's New in MacSSH 2.2"))
+                Text(String(localized: "What's New in MacSSH 2.3"))
                     .font(.title2.bold())
 
-                Text(String(localized: "Curated terminal color schemes, native shell integration HUD, and enhanced connection resilience."))
+                Text(String(localized: "Persistent terminal daemon (macsshd), native CLI tooling, background session detach & reattach, and instant VT screen replay."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -25,24 +25,24 @@ struct WhatsNewSheetView: View {
             // Feature Highlights
             VStack(alignment: .leading, spacing: 18) {
                 featureRow(
-                    icon: "paintpalette.fill",
+                    icon: "bolt.shield.fill",
                     iconColor: .purple,
-                    title: String(localized: "Curated Color Schemes"),
-                    subtitle: String(localized: "Rich catalog of terminal themes (Tokyo Night, Catppuccin, Nord, Dracula, and more) with real-time live reloading across all sessions.")
+                    title: String(localized: "Persistent Terminal Daemon (macsshd)"),
+                    subtitle: String(localized: "Local terminal sessions run detached in the background. Quitting the app or updating via Sparkle never kills your dev servers, builds, or scripts.")
                 )
 
                 featureRow(
-                    icon: "bell.badge.fill",
-                    iconColor: .orange,
-                    title: String(localized: "Native Shell Integration & HUD"),
-                    subtitle: String(localized: "OSC 7 remote directory auto-sync with SFTP, dynamic window titles, and floating toasts for long-running commands.")
-                )
-
-                featureRow(
-                    icon: "shield.lefthalf.filled",
+                    icon: "terminal.fill",
                     iconColor: .green,
-                    title: String(localized: "Dual-Channel SSH Architecture"),
-                    subtitle: String(localized: "Zero-conflict dual-channel architecture isolating terminal interactive PTY from SFTP and host monitoring background telemetry.")
+                    title: String(localized: "Native CLI & Automation (macssh)"),
+                    subtitle: String(localized: "Control MacSSH from scripts, Raycast, and terminal via macssh list, capture, send, new, and kill with tmux-compatible key vocabulary.")
+                )
+
+                featureRow(
+                    icon: "square.stack.3d.up.fill",
+                    iconColor: .orange,
+                    title: String(localized: "Background Sessions & Instant Replay"),
+                    subtitle: String(localized: "Detach active local tabs into the background (Cmd+Shift+D) and reattach anytime with full 256 KiB VT screen state restoration.")
                 )
             }
             .padding(.horizontal, 16)

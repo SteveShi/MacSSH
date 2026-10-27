@@ -81,6 +81,14 @@ struct MacSSHApp: App {
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(model.selectedTab == nil)
 
+                Button(String(localized: "Detach Tab to Background")) {
+                    if let id = model.selectedLocalTabID {
+                        model.detachLocalTab(id)
+                    }
+                }
+                .keyboardShortcut("d", modifiers: [.command, .shift])
+                .disabled(model.sidebarSelection?.isLocalTerminal != true || model.selectedLocalTabID == nil)
+
                 Button(String(localized: "Clear Terminal")) {
                     model.clearCurrentTerminal()
                 }
