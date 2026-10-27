@@ -8,7 +8,7 @@
   - Native Toast alerts triggered when long-running background tasks or AI coding agents require human input (`needs input`) or encounter errors.
   - Interactive status bar item with OSC 8 hover link previews and program state summaries.
 - **Ghostty 1.4.0 Terminal Engine Upgrade**:
-  - Upgraded core terminal emulation to Ghostty v1.4.0 (via MactermKit v1.0.31) with Zig 0.17 build pipeline.
+  - Upgraded core terminal emulation to Ghostty v1.4.0 (via MactermKit v1.0.32) with Zig 0.17 build pipeline.
   - Enabled lossless `scrollback-compression` for minimal memory footprint during heavy terminal throughput.
   - Mode 2031 color scheme synchronization ensuring instant runtime terminal palette parity with macOS appearance.
   - Kitty Clipboard Protocol (OSC 5522) rich paste listing, MIME content reading (`text/plain`, `text/html`, `image/png`), and multi-format clipboard writes.
@@ -39,7 +39,7 @@
   - 原生 Toast 提醒：当 CLI 工具或 AI 编码代理阻断需要输入或报错时，自动弹出轻量 HUD 提示。
   - 底部状态栏集成 OSC 8 悬浮超链接实时预览与程序状态摘要。
 - **Ghostty 1.4.0 终端引擎全面升级**：
-  - 升级至 Ghostty v1.4.0 渲染核心（MactermKit v1.0.31，基于 Zig 0.17 构建管线）。
+  - 升级至 Ghostty v1.4.0 渲染核心（MactermKit v1.0.32，基于 Zig 0.17 构建管线）。
   - 开启无损滚动缓冲压缩（`scrollback-compression`），高频日志输出下显存占用显著下降。
   - Mode 2031 外观配色同步机制，深浅色外观热切换瞬间生效。
   - 完整支持 Kitty 剪贴板协议（OSC 5522），支持富文本列表查询、多 MIME 内容读取（`text/plain`、`text/html`、`image/png`）与写入。
