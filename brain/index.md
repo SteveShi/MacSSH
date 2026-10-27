@@ -1,6 +1,6 @@
 # Brain Index
 
-_Auto-generated. Last updated 2026-10-27T19:15:14.166Z._
+_Auto-generated. Last updated 2026-10-27T19:43:31.331Z._
 
 - [ghostty-rendering-engine](pages/ghostty-rendering-engine.md) — category: decision | Adopted MactermKit wrapping MactermKitCore.xcframework for 120fps Metal-accelerated terminal rendering and ANSI parsing with clean Swift 6 C
 - [local-terminal-daemon-helper](pages/local-terminal-daemon-helper.md) — category: decision | tags: [terminal, daemon, cli, architecture] | # Adopt Client-Daemon Terminal Helper (macsshd) and CLI (macssh-cli)
