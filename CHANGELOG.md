@@ -1,3 +1,15 @@
+## [2.4.2] - 2026-11-07
+
+### Changed
+- Automatically bumped dependencies to SSH2Kit version 1.3.30 and MactermKit version 1.0.34.
+
+---
+
+### Chinese
+### 变更
+- 自动更新依赖项 SSH2Kit 至版本 1.3.30，MactermKit 至版本 1.0.34。
+
+---
 ## [2.4.1] - 2026-10-29
 
 ### Changed
