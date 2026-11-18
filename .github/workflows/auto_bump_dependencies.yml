@@ -9,16 +9,17 @@ permissions:
   contents: write
 
 jobs:
-  check-and-release:
-    runs-on: macos-latest
+  check-deps:
+    runs-on: ubuntu-latest
+    outputs:
+      updates_available: ${{ steps.check-deps.outputs.updates_available }}
+      latest_libssh2: ${{ steps.check-deps.outputs.latest_libssh2 }}
+      latest_ghostty: ${{ steps.check-deps.outputs.latest_ghostty }}
+      ssh2_updated: ${{ steps.check-deps.outputs.ssh2_updated }}
+      macterm_updated: ${{ steps.check-deps.outputs.macterm_updated }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Setup Tuist
-        uses: jdx/mise-action@v4
 
       - name: Check Dependencies Versions
         id: check-deps
@@ -77,30 +78,7 @@ jobs:
           ssh2_needs_update = remote_ssh2_tuple > local_ssh2_tuple if (remote_ssh2_tuple and local_ssh2_tuple) else False
           macterm_needs_update = remote_macterm_tuple > local_macterm_tuple if (remote_macterm_tuple and local_macterm_tuple) else False
 
-          updated = False
-          new_content = project_content
-
-          if ssh2_needs_update:
-              print(f"Upgrading SSH2Kit: {local_ssh2} -> {remote_ssh2}")
-              new_content = re.sub(
-                  rf'(SSH2Kit\.git\",\s*from:\s*\")[^\"]+(\")',
-                  rf'\g<1>{remote_ssh2}\2',
-                  new_content
-              )
-              updated = True
-
-          if macterm_needs_update:
-              print(f"Upgrading MactermKit: {local_macterm} -> {remote_macterm}")
-              new_content = re.sub(
-                  rf'(MactermKit\.git\",\s*from:\s*\")[^\"]+(\")',
-                  rf'\g<1>{remote_macterm}\2',
-                  new_content
-              )
-              updated = True
-
-          if updated:
-              with open("Project.swift", "w", encoding="utf-8") as f:
-                  f.write(new_content)
+          updated = ssh2_needs_update or macterm_needs_update
 
           gh_output = os.environ.get("GITHUB_OUTPUT")
           if gh_output:
@@ -108,24 +86,47 @@ jobs:
                   f.write(f"updates_available={'true' if updated else 'false'}\n")
                   f.write(f"latest_libssh2={remote_ssh2 or local_ssh2}\n")
                   f.write(f"latest_ghostty={remote_macterm or local_macterm}\n")
+                  f.write(f"ssh2_updated={'true' if ssh2_needs_update else 'false'}\n")
+                  f.write(f"macterm_updated={'true' if macterm_needs_update else 'false'}\n")
           EOF
 
+  build-and-release:
+    needs: check-deps
+    if: needs.check-deps.outputs.updates_available == 'true'
+    runs-on: macos-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Setup Tuist
+        uses: jdx/mise-action@v4
+
       - name: Set up Xcode
-        if: steps.check-deps.outputs.updates_available == 'true'
         uses: SteveShi/setup-xcode@v2
         with:
           xcode-version: 'latest-stable'
 
       - name: Build and Release App
-        if: steps.check-deps.outputs.updates_available == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LATEST_LIBSSH2_VER: ${{ steps.check-deps.outputs.latest_libssh2 }}
-          LATEST_GHOSTTY_VER: ${{ steps.check-deps.outputs.latest_ghostty }}
+          LATEST_LIBSSH2_VER: ${{ needs.check-deps.outputs.latest_libssh2 }}
+          LATEST_GHOSTTY_VER: ${{ needs.check-deps.outputs.latest_ghostty }}
+          SSH2_UPDATED: ${{ needs.check-deps.outputs.ssh2_updated }}
+          MACTERM_UPDATED: ${{ needs.check-deps.outputs.macterm_updated }}
           SPARKLE_SECRET: ${{ secrets.SPARKLE_PRIVATE_KEY }}
           HOMEBREW_TAP_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
         run: |
           set -euo pipefail
+
+          # Update dependency versions in Project.swift
+          if [ "$SSH2_UPDATED" = "true" ]; then
+            python3 -c "import re, os; ver=os.environ['LATEST_LIBSSH2_VER']; f=open('Project.swift','r'); c=f.read(); f.close(); c=re.sub(r'(SSH2Kit\.git\",\s*from:\s*\")[^\"]+(\")', r'\g<1>' + ver + r'\2', c); f=open('Project.swift','w'); f.write(c); f.close()"
+          fi
+          if [ "$MACTERM_UPDATED" = "true" ]; then
+            python3 -c "import re, os; ver=os.environ['LATEST_GHOSTTY_VER']; f=open('Project.swift','r'); c=f.read(); f.close(); c=re.sub(r'(MactermKit\.git\",\s*from:\s*\")[^\"]+(\")', r'\g<1>' + ver + r'\2', c); f=open('Project.swift','w'); f.write(c); f.close()"
+          fi
 
           # Get current versions
           CURRENT_APP_VER=$(grep '"MARKETING_VERSION"' Project.swift | head -n 1 | sed -E 's/.*"MARKETING_VERSION": "([^"]+)".*/\1/')
